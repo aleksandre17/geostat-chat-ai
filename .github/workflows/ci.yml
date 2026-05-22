@@ -77,6 +77,9 @@ jobs:
       - name: Seed CI env for manifest tests
         run: bash kits/geostat-kit/ci/prepare-integration-env.sh
 
+      - name: Generate compose stack for layout tests
+        run: python3 kits/geostat-kit/compose/build.py
+
       - name: geostat-kit package tests (paths, registry, contracts)
         env:
           PYTHONPATH: kits/geostat-kit
