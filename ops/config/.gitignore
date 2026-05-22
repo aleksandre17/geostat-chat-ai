@@ -3,7 +3,13 @@
 !.gitignore
 !README.md
 !**/.gitignore
+!backend/
+!frontend/
+!retrieval/
+!ingestion/
+!infra/
 !**/.env.example
+!**/.env.deploy.example
 !deploy.env.example
 !profiles/
 !profiles/**

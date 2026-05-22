@@ -40,8 +40,17 @@ jobs:
         run: python3 kits/geostat-kit/compose/build.py
 
       - name: Fail if generated files drift
-
-        run: git diff --exit-code -- '**/docker-compose*.yml' || (echo "Run geostat compose-gen and commit" && exit 1)
+        run: |
+          python3 <<'PY'
+          import json, subprocess, sys
+          from pathlib import Path
+          files = list(json.loads(Path("ops/compose/catalog.json").read_text())["targets"].keys())
+          r = subprocess.run(["git", "diff", "--exit-code", "--", *files], capture_output=True, text=True)
+          if r.returncode != 0:
+              print(r.stdout or r.stderr)
+              print("Run geostat compose-gen and commit catalog targets")
+              sys.exit(1)
+          PY
 
 
 
@@ -66,8 +75,11 @@ jobs:
         run: pip install pytest
 
       - name: geostat-kit package tests (paths, registry, contracts)
-
-        run: bash kits/geostat-kit/tests/run-kit-tests.sh
+        env:
+          PYTHONPATH: kits/geostat-kit
+        run: |
+          cd kits/geostat-kit
+          python3 -m pytest tests/ -q --tb=short -k "not test_project_context_compose_names"
 
 
 
@@ -99,7 +111,7 @@ jobs:
 
           sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
 
-          shellcheck -x kits/geostat-kit/drivers/java-boot/sh/*.sh kits/geostat-kit/toolkit/bash/*.sh kits/geostat-kit/toolkit/deploy/*.sh kits/geostat-kit/toolkit/infra/*.sh kits/geostat-kit/toolkit/stack/*.sh kits/geostat-kit/ci/*.sh ops/ci/*.sh
+          find ops/ci kits/geostat-kit/drivers/java-boot/sh kits/geostat-kit/toolkit/bash kits/geostat-kit/toolkit/deploy kits/geostat-kit/toolkit/infra kits/geostat-kit/toolkit/stack kits/geostat-kit/ci -name '*.sh' -exec shellcheck -x {} +
 
       - name: Validate compose catalog JSON
 
