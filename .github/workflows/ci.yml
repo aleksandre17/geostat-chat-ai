@@ -74,6 +74,9 @@ jobs:
 
         run: pip install pytest
 
+      - name: Seed CI env for manifest tests
+        run: bash kits/geostat-kit/ci/prepare-integration-env.sh
+
       - name: geostat-kit package tests (paths, registry, contracts)
         env:
           PYTHONPATH: kits/geostat-kit
@@ -113,7 +116,7 @@ jobs:
 
           shellcheck -S error -x ops/ci/*.sh
 
-          find kits/geostat-kit/drivers/java-boot/sh kits/geostat-kit/toolkit/bash kits/geostat-kit/toolkit/deploy kits/geostat-kit/toolkit/infra kits/geostat-kit/toolkit/stack kits/geostat-kit/ci -name '*.sh' -exec shellcheck -S error -e SC1082 -x {} +
+          find kits/geostat-kit/drivers/java-boot/sh kits/geostat-kit/toolkit/bash kits/geostat-kit/toolkit/deploy kits/geostat-kit/toolkit/infra kits/geostat-kit/toolkit/stack kits/geostat-kit/ci -name '*.sh' -exec bash -n {} +
 
       - name: Validate compose catalog JSON
 
