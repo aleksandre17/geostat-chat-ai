@@ -1,3 +1,6 @@
 *
 !.gitignore
 !.env.example
+!.env.deploy.example
+!nginx.env.example
+!embed.env.example
