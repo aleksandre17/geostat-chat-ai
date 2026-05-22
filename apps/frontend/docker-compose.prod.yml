@@ -1,0 +1,19 @@
+# GENERATED — do not edit. Run: geostat compose-gen
+
+# Prod overlay — geostat fe compose -Prod
+services:
+  geostat-chat-ai-app:
+    build:
+      target: production
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:${API_PORT:-8090}}
+    ports:
+      - "${DEPLOY_HOST_PORT:-5177}:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+

@@ -1,0 +1,65 @@
+# ============================================================
+#  GeoStat Chatbot — Base Configuration (all profiles)
+# ============================================================
+
+server:
+  port: ${API_PORT:8090}
+  max-http-request-header-size: 64KB
+  tomcat:
+    max-http-form-post-size: 10MB
+    max-swallow-size: 10MB
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+spring:
+  profiles:
+    active: local   # default; overridden by SPRING_PROFILES_ACTIVE env var in Docker
+  # Env files: profile-specific imports in application-{local,dev,prod}.yml → ops/config/backend/
+
+  web:
+    resources:
+      static-locations: classpath:/static/
+  mvc:
+    static-path-pattern: /**
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  ai:
+    google:
+      genai:
+        # api-key is set per-profile
+        chat:
+          options:
+            # gemini-2.0-flash — fast, good quality (recommended)
+            # gemini-2.0-flash-lite — fastest, lower quality
+            # gemini-1.5-flash / gemini-1.5-flash-8b — alternatives
+            model: gemini-2.5-flash
+            temperature: 0.3
+            function-calling-mode: AUTO
+
+management:
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+logging:
+  level:
+    root: INFO
+    Chatbot: INFO
+
+geostat:
+  retrieval:
+    enabled: ${RETRIEVAL_ENABLED:false}
+    base-url: ${RETRIEVAL_BASE_URL:http://localhost:8092}
+    default-corpus: ${RETRIEVAL_DEFAULT_CORPUS:geostat-portal}
+    max-chunks: ${RETRIEVAL_MAX_CHUNKS:8}

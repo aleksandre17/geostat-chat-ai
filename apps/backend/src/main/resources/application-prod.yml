@@ -1,0 +1,32 @@
+# ============================================================
+#  Profile: prod — production server.
+#  Activated by docker-compose.prod.yml via SPRING_PROFILES_ACTIVE=prod.
+#  Docker: env_file ../../ops/config/backend/.env.prod
+#  All keys are required (no empty defaults).
+# ============================================================
+
+spring:
+  config:
+    import: "optional:file:../../ops/config/backend/.env.prod[.properties]"
+  ai:
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY}
+    elevenlabs:
+      api-key: ${ELEVENLABS_API_KEY:}
+  cloud:
+    gcp:
+      project-id: ${GCP_PROJECT_ID:}
+      credentials:
+        location: ${GCP_CREDENTIALS:classpath:service-account-key.json}
+
+logging:
+  file:
+    path: /app/logs
+  level:
+    org.springframework.ai: WARN
+    org.springframework.ai.chat.client: WARN
+    root: WARN
+    Chatbot: INFO
+    org.springframework: WARN
+    org.hibernate: WARN

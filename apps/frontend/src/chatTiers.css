@@ -1,0 +1,157 @@
+/* =====================================================
+   TIER-BASED RESPONSIVE STYLES
+   კასკადის ლოგიკა: xl = base, xs = ყველაზე მეტი override
+
+   ერთეულების ლოგიკა:
+     font-size        → rem  (root-ზე, კონსისტენტური)
+     padding / gap    → em   (საკუთარ font-size-ზე — ტექსტთან ერთად მცირდება)
+     width / height   → rem  (ფიქსირებული სკალა, root-ზე)
+     min-height       → em   (input font-size-თან ერთად)
+
+   Scaling factors (xl = 1.0):
+     lg  ≈ 0.90   laptop 1280–1366px
+     md  ≈ 0.80   laptop 1024px
+     sm  ≈ 0.70   tablet / small laptop ~800px
+     xs  ≈ 0.60   mobile <640px
+
+   Viewport → Tier:
+     xl   ≥ 1390px
+     lg   < 1390px
+     md   < 1050px
+     sm   <  800px
+     xs   <  640px
+   ===================================================== */
+
+/* ══════════════════════════════════════════════════════
+   XL — Base
+   ══════════════════════════════════════════════════════ */
+.chat-header           { padding: 1em 1.25em; gap: 0.875em; }
+.logo-container        { width: 4.275rem; height: 4.275rem; }
+.header-text h1        { font-size: 1.1rem; }
+.header-text p         { font-size: 0.75rem; }
+.status-label          { display: inline; }
+.chat-messages         { padding: 1.25em; gap: 0.875em; }
+.message               { max-width: 85%; }
+.message-content       { font-size: 0.77rem; padding: 0.75em 1em; }
+.welcome-message       { padding: 1.875em 1.25em; }
+.welcome-icon          { width: 4.375rem; height: 4.375rem; }
+.welcome-message h2    { font-size: 1.15rem; }
+.welcome-message p     { font-size: 0.85rem; }
+.quick-action          { font-size: 0.8rem; padding: 0.5em 0.875em; }
+.chat-input-container  { padding: 1em 1.25em; }
+.chat-input            { font-size: 0.9rem; padding: 0.75em 1em; min-height: 2.875em; }
+.send-button,
+.voice-btn             { width: 2.875rem; height: 2.875rem; }
+.link-card             { padding: 0.75em; gap: 0.75em; }
+.link-card-icon        { width: 2.875rem; height: 2.875rem; }
+.link-card-title       { font-size: 0.70rem; }
+.link-card-domain      { font-size: 0.75rem; }
+.chat-footer           { padding: 0.625em 1.25em; font-size: 0.7rem; }
+
+/* ══════════════════════════════════════════════════════
+   LG — ×0.90  (laptop 1280–1366px)
+   ══════════════════════════════════════════════════════ */
+.tier-lg .logo-container     { width: 3.85rem; height: 3.85rem; }     /* 4.275 × 0.90 */
+.tier-lg .header-text h1     { font-size: 0.99rem; }                  /* 1.1   × 0.90 */
+.tier-lg .header-text p      { font-size: 0.68rem; }                  /* 0.75  × 0.90 */
+.tier-lg .status-label       { display: inline; }
+.tier-lg .message-content    { font-size: 0.69rem; }                  /* 0.77  × 0.90 */
+.tier-lg .welcome-icon       { width: 3.94rem; height: 3.94rem; }     /* 4.375 × 0.90 */
+.tier-lg .welcome-message h2 { font-size: 1.04rem; }                  /* 1.15  × 0.90 */
+.tier-lg .welcome-message p  { font-size: 0.77rem; }                  /* 0.85  × 0.90 */
+.tier-lg .quick-action       { font-size: 0.72rem; }                  /* 0.8   × 0.90 */
+.tier-lg .chat-input         { font-size: 0.81rem; }                  /* 0.9   × 0.90 */
+.tier-lg .send-button,
+.tier-lg .voice-btn          { width: 2.59rem; height: 2.59rem; }     /* 2.875 × 0.90 */
+.tier-lg .link-card-icon     { width: 2.59rem; height: 2.59rem; }
+.tier-lg .link-card-title    { font-size: 0.63rem; }                  /* 0.70  × 0.90 */
+.tier-lg .link-card-domain   { font-size: 0.68rem; }                  /* 0.75  × 0.90 */
+.tier-lg .chat-footer        { font-size: 0.63rem; }                  /* 0.7   × 0.90 */
+
+/* ══════════════════════════════════════════════════════
+   MD — ×0.80  (laptop 1024px)
+   ══════════════════════════════════════════════════════ */
+.tier-md .chat-header        { padding: 0.8em 1em; gap: 0.7em; }
+.tier-md .logo-container     { width: 3.42rem; height: 3.42rem; }     /* 4.275 × 0.80 */
+.tier-md .header-text h1     { font-size: 0.88rem; }                  /* 1.1   × 0.80 */
+.tier-md .header-text p      { font-size: 0.60rem; }                  /* 0.75  × 0.80 */
+.tier-md .status-label       { display: none; }
+.tier-md .chat-messages      { padding: 1em; gap: 0.7em; }
+.tier-md .message-content    { font-size: 0.62rem; }                  /* 0.77  × 0.80 */
+.tier-md .welcome-message    { padding: 1.5em 1em; }
+.tier-md .welcome-icon       { width: 3.5rem; height: 3.5rem; }       /* 4.375 × 0.80 */
+.tier-md .welcome-message h2 { font-size: 0.92rem; }                  /* 1.15  × 0.80 */
+.tier-md .welcome-message p  { font-size: 0.68rem; }                  /* 0.85  × 0.80 */
+.tier-md .quick-action       { font-size: 0.64rem; }                  /* 0.8   × 0.80 */
+.tier-md .chat-input-container { padding: 0.8em 1em; }
+.tier-md .chat-input         { font-size: 0.72rem; }                  /* 0.9   × 0.80 */
+.tier-md .send-button,
+.tier-md .voice-btn          { width: 2.3rem; height: 2.3rem; }       /* 2.875 × 0.80 */
+.tier-md .link-card          { padding: 0.6em; gap: 0.6em; }
+.tier-md .link-card-icon     { width: 2.3rem; height: 2.3rem; }
+.tier-md .link-card-title    { font-size: 0.56rem; }                  /* 0.70  × 0.80 */
+.tier-md .link-card-domain   { font-size: 0.60rem; }                  /* 0.75  × 0.80 */
+.tier-md .chat-footer        { padding: 0.5em 1em; font-size: 0.56rem; }
+
+/* ══════════════════════════════════════════════════════
+   SM — ×0.70  (tablet / small laptop ~800px)
+   ══════════════════════════════════════════════════════ */
+.tier-sm .chat-header        { padding: 0.7em 0.875em; gap: 0.6em; }
+.tier-sm .logo-container     { width: 2.99rem; height: 2.99rem; }     /* 4.275 × 0.70 */
+.tier-sm .header-text h1     { font-size: 0.77rem; }                  /* 1.1   × 0.70 */
+.tier-sm .header-text p      { font-size: 0.53rem; }                  /* 0.75  × 0.70 */
+.tier-sm .status-label       { display: none; }
+.tier-sm .chat-messages      { padding: 0.875em 0.7em; gap: 0.6em; }
+.tier-sm .message-content    { font-size: 0.54rem; }                  /* 0.77  × 0.70 */
+.tier-sm .welcome-message    { padding: 1.3em 0.875em; }
+.tier-sm .welcome-icon       { width: 3.06rem; height: 3.06rem; }     /* 4.375 × 0.70 */
+.tier-sm .welcome-message h2 { font-size: 0.81rem; }                  /* 1.15  × 0.70 */
+.tier-sm .welcome-message p  { font-size: 0.60rem; }                  /* 0.85  × 0.70 */
+.tier-sm .quick-action       { font-size: 0.56rem; }                  /* 0.8   × 0.70 */
+.tier-sm .chat-input-container { padding: 0.7em 0.875em; }
+.tier-sm .chat-input         { font-size: 0.63rem; }                  /* 0.9   × 0.70 */
+.tier-sm .send-button,
+.tier-sm .voice-btn          { width: 2.01rem; height: 2.01rem; }     /* 2.875 × 0.70 */
+.tier-sm .link-card          { padding: 0.53em; gap: 0.53em; }
+.tier-sm .link-card-icon     { width: 2.01rem; height: 2.01rem; }
+.tier-sm .link-card-title    { font-size: 0.49rem; }                  /* 0.70  × 0.70 */
+.tier-sm .link-card-domain   { font-size: 0.53rem; }                  /* 0.75  × 0.70 */
+.tier-sm .chat-footer        { padding: 0.44em 0.875em; font-size: 0.49rem; }
+
+/* ══════════════════════════════════════════════════════
+   XS — ×0.60  (mobile <640px) ← ყველაზე მაღალი პრიორიტეტი
+   ══════════════════════════════════════════════════════ */
+.tier-xs .chat-header          { padding: 0.6em 0.75em; gap: 0.5em; }
+.tier-xs .logo-container       { width: 2.57rem; height: 2.57rem; }   /* 4.275 × 0.60 */
+.tier-xs .header-text h1       { font-size: 0.66rem; }                /* 1.1   × 0.60 */
+.tier-xs .header-text p,
+.tier-xs .status-label         { display: none; }
+.tier-xs .status-indicator     { padding: 0.2em 0.4em; font-size: 0; }
+.tier-xs .chat-messages        { padding: 0.75em 0.5em; gap: 0.5em; }
+.tier-xs .message              { max-width: 97%; }
+.tier-xs .message-content      { font-size: 0.46rem; padding: 0.6em 0.8em; } /* 0.77 × 0.60 */
+.tier-xs .welcome-message      { padding: 1.125em 0.75em; }
+.tier-xs .welcome-icon         { width: 2.625rem; height: 2.625rem; } /* 4.375 × 0.60 */
+.tier-xs .welcome-message h2   { font-size: 0.69rem; }                /* 1.15  × 0.60 */
+.tier-xs .welcome-message p    { font-size: 0.51rem; }                /* 0.85  × 0.60 */
+.tier-xs .quick-action         { font-size: 0.48rem; }                /* 0.8   × 0.60 */
+.tier-xs .chat-input-container { padding: 0.6em 0.75em; }
+.tier-xs .chat-input           { font-size: 0.54rem; }                /* 0.9   × 0.60 */
+.tier-xs .send-button,
+.tier-xs .voice-btn            { width: 1.725rem; height: 1.725rem; } /* 2.875 × 0.60 */
+.tier-xs .link-card            { padding: 0.45em; gap: 0.45em; }
+.tier-xs .link-card-icon       { width: 1.725rem; height: 1.725rem; }
+.tier-xs .link-card-title      { font-size: 0.42rem; }                /* 0.70  × 0.60 */
+.tier-xs .link-card-domain     { font-size: 0.45rem; }                /* 0.75  × 0.60 */
+.tier-xs .chat-footer          { padding: 0.375em 0.75em; font-size: 0.42rem; }
+
+/* ══════════════════════════════════════════════════════
+   LINK CARD COMPACT (xs / sm tier-ებზე JS ამატებს)
+   ══════════════════════════════════════════════════════ */
+.link-card--compact                   { padding: 0.4em 0.5em; gap: 0.4em; }
+.link-card--compact .link-card-icon   { width: 1.625rem; height: 1.625rem; border-radius: 0.3rem; }
+.link-card--compact .link-card-svg    { width: 0.9375rem; height: 0.9375rem; }
+.link-card--compact .link-card-emoji  { font-size: 0.8125rem; }
+.link-card--compact .link-card-title  { font-size: 0.5rem; line-height: 1.3; }
+.link-card--compact .link-card-domain { font-size: 0.4375rem; }
+.link-card--compact .link-card-arrow  { font-size: 0.5rem; }

@@ -1,0 +1,3 @@
+[submodule "kits/geostat-kit"]
+	path = kits/geostat-kit
+	url = https://github.com/aleksandre17/geostat-kit.git

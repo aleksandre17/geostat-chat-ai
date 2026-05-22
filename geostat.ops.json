@@ -1,0 +1,230 @@
+{
+
+  "$schema": "./kits/geostat-kit/manifest.schema.json",
+
+  "version": 2,
+
+  "package": "kits/geostat-kit",
+
+  "secrets": "ops/config",
+
+  "features": {
+
+    "gcpCredentials": true
+
+  },
+
+  "compose": {
+
+    "catalog": "ops/compose/catalog.json",
+
+    "syncModules": "apps/backend/ops.modules"
+
+  },
+
+  "stack": {
+
+    "composeDir": "ops/compose/stack",
+
+    "composeModules": ["backend", "retrieval", "ingestion", "frontend"],
+
+    "networkName": "geostat-chat-ai-net",
+
+    "infraComposeDir": "ops/compose/infra",
+
+    "infra": {
+
+      "services": ["postgres", "redis", "qdrant", "rabbitmq"]
+
+    }
+
+  },
+
+  "cli": {
+
+    "aliases": {
+
+      "fe": "frontend",
+
+      "be": "backend",
+
+      "chat": "backend",
+
+      "ret": "retrieval",
+
+      "ing": "ingestion"
+
+    }
+
+  },
+
+  "modules": {
+
+    "backend": {
+
+      "role": "api",
+
+      "type": "java-boot",
+
+      "path": "apps/backend",
+
+      "secretsModule": "backend",
+
+      "target": "backend",
+
+      "debug": {
+
+        "java": {
+
+          "mainClass": "Chatbot.ChatbotApplication",
+
+          "projectName": "geostat-chat-ai"
+
+        }
+
+      },
+
+      "credentials": [
+
+        {
+
+          "file": "google-credentials.json",
+
+          "mount": "/app/google-credentials.json",
+
+          "envVar": "GOOGLE_APPLICATION_CREDENTIALS"
+
+        }
+
+      ]
+
+    },
+
+    "frontend": {
+
+      "role": "ui",
+
+      "type": "node-vite",
+
+      "path": "apps/frontend",
+
+      "secretsModule": "frontend",
+
+      "target": "frontend",
+
+      "debug": {
+
+        "npmScript": "dev"
+
+      }
+
+    },
+
+    "retrieval": {
+
+      "role": "api",
+
+      "type": "java-boot",
+
+      "path": "apps/retrieval-service",
+
+      "secretsModule": "retrieval",
+
+      "target": "retrieval",
+
+      "debug": {
+
+        "java": {
+
+          "mainClass": "com.geostat.retrieval.RetrievalApplication",
+
+          "projectName": "retrieval-service"
+
+        }
+
+      }
+
+    },
+
+    "ingestion": {
+
+      "role": "worker",
+
+      "type": "java-boot",
+
+      "path": "apps/ingestion-service",
+
+      "secretsModule": "ingestion",
+
+      "target": "ingestion",
+
+      "debug": {
+
+        "java": {
+
+          "mainClass": "com.geostat.ingestion.IngestionApplication",
+
+          "projectName": "ingestion-service"
+
+        }
+
+      }
+
+    }
+
+  },
+
+  "adapters": {
+
+    "gcp": {
+
+      "credentialsFile": "google-credentials.json",
+
+      "containerMount": "/app/google-credentials.json"
+
+    },
+
+    "nginx": {
+
+      "template": "apps/frontend/nginx.conf.template",
+
+      "output": "apps/frontend/nginx.conf",
+
+      "envExample": "ops/config/frontend/nginx.env.example",
+
+      "env": "ops/config/frontend/nginx.env"
+
+    },
+
+    "embed": {
+
+      "envExample": "ops/config/frontend/embed.env.example"
+
+    }
+
+  },
+
+  "ci": {
+
+    "integration": "ops/ci/integration-stack.sh",
+
+    "prepareEnv": "kits/geostat-kit/ci/prepare-integration-env.sh",
+
+    "waitHealth": "kits/geostat-kit/ci/wait-health.sh",
+
+    "waitStackHealth": "kits/geostat-kit/ci/wait-stack-health.sh",
+
+    "healthModules": ["backend", "retrieval", "ingestion"]
+
+  },
+
+  "vscode": {
+
+    "folder": ".vscode",
+
+    "geostatScript": "tools/geostat.ps1"
+
+  }
+
+}
+

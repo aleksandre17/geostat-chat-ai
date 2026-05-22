@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"name": "geostat-chat-ai",
+			"path": "."
+		},
+		{
+			"path": "../../Desktop/projects-files"
+		}
+	],
+	"settings": {
+		"window.commandCenter": true,
+		"java.import.gradle.enabled": true,
+		"java.configuration.updateBuildConfiguration": "automatic",
+		"files.exclude": {
+			"**/node_modules": true,
+			"apps/backend/.gradle": true,
+			"apps/backend/build": true,
+			"apps/frontend/dist": true
+		}
+	}
+}

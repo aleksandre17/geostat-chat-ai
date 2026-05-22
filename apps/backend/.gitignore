@@ -1,0 +1,60 @@
+.gradle
+build/
+app.jar
+**/app.jar
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+.kotlin
+
+### IntelliJ IDEA ###
+.idea/modules.xml
+.idea/jarRepositories.xml
+.idea/compiler.xml
+.idea/libraries/
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Mac OS ###
+.DS_Store
+
+### Security ###
+# Real values: ../../ops/config/backend/ only (see docs/CONFIG.md)
+.env
+.env.*
+!.env.example
+google-credentials.json
+*.pem
+*.p12
+*.jks
+*service-account*.json
+*credentials*.json
+
+### IntelliJ workspace (machine-specific, not shared) ###
+.idea/

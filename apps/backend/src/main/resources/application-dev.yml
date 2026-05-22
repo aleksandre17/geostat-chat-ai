@@ -1,0 +1,32 @@
+# ============================================================
+#  Profile: dev — Docker-based development environment.
+#  Activated by docker-compose.dev.yml via SPRING_PROFILES_ACTIVE=dev.
+#  Docker: env_file ../../ops/config/backend/.env.dev
+#  Local: optional file import below (cwd = backend/)
+# ============================================================
+
+spring:
+  config:
+    import: "optional:file:../../ops/config/backend/.env.dev[.properties]"
+  devtools:
+    restart:
+      enabled: true
+      additional-paths: /app/src/main/resources,/app/shared/src/main/resources
+    livereload:
+      enabled: false
+  ai:
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY}
+    elevenlabs:
+      api-key: ${ELEVENLABS_API_KEY:}
+  cloud:
+    gcp:
+      project-id: ${GCP_PROJECT_ID:}
+      credentials:
+        location: ${GCP_CREDENTIALS:classpath:service-account-key.json}
+
+logging:
+  level:
+    org.springframework.ai: DEBUG
+    org.springframework.ai.chat.client: DEBUG

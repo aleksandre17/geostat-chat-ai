@@ -1,0 +1,19 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-alpine
+    container_name: ${INFRA_PREFIX:-geostat}-rabbitmq
+    ports:
+      - "127.0.0.1:${RABBITMQ_PORT:-5672}:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-geostat}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-change-me}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - infra-net
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped

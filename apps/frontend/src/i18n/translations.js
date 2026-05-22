@@ -1,0 +1,68 @@
+export const translations = {
+    ka: {
+        page: {
+            header: 'საქართველოს სტატისტიკის ეროვნული სამსახური',
+            title: 'ჩატბოტის სატესტო გვერდი',
+            description: 'ეს არის სატესტო გვერდი, სადაც შეგიძლიათ გამოსცადოთ საქსტატის ჩატბოტი. დააჭირეთ ქვედა მარჯვენა კუთხეში მდებარე ლურჯ ღილაკს ჩატის გასახსნელად.',
+        },
+        chat: {
+            title: 'საქსტატის ასისტენტი',
+            subtitle: 'სტატისტიკის ეროვნული სამსახური',
+            online: 'ონლაინ',
+            welcomeHeading: 'გამარჯობა! 👋',
+            welcomeBody: 'მე ვარ საქსტატის ციფრული ასისტენტი. დაგეხმარებით საქსტატის ვებ-გვერდზე ინფორმაციის მოძიებაში. გთხოვთ გაითვალისწინოთ, უსაფრთხოებიდან გამომდინარე კონკრეტულ რიცხვებს ვერ ვპასუხობ.',
+            placeholder: 'დაწერეთ შეკითხვა...',
+            error: 'შეფერხებაა. სცადეთ მოგვიანებით.',
+            fallback: 'ინფორმაცია მოიძებნა',
+            footer: 'საქართველოს სტატისტიკის ეროვნული სამსახური',
+            resources: 'რესურსები:',
+            newConversation: 'ახალი საუბარი',
+        },
+        voice: {
+            micError: 'მიკროფონზე წვდომა ვერ მოხერხდა',
+            noSpeech: 'ხმა ვერ აღიქვა. სცადეთ ხელახლა.',
+            transcribeError: 'ტრანსკრიფცია ვერ მოხერხდა',
+            start: 'ჩაწერის დაწყება',
+            stop: 'ჩაწერის შეჩერება',
+        },
+        quickActions: [
+            { id: 1, text: '📊 უმუშევრობა', query: 'სად ვიპოვო უმუშევრობის სტატისტიკა?' },
+            { id: 2, text: '📈 მშპ', query: 'რა არის მშპ და სად ვნახო?' },
+            { id: 3, text: '💾 PX-Web', query: 'როგორ გამოვიყენო PX-Web?' },
+            { id: 4, text: '💹 ინფლაცია', query: 'რა არის ინფლაცია?' },
+        ],
+    },
+    en: {
+        page: {
+            header: 'National Statistics Office of Georgia',
+            title: 'Chatbot Test Page',
+            description: 'This is a test page where you can try the GeoStat chatbot. Click the blue button in the bottom right corner to open the chat.',
+        },
+        chat: {
+            title: 'GeoStat Assistant',
+            subtitle: 'National Statistics Office',
+            online: 'Online',
+            welcomeHeading: 'Hello! 👋',
+            welcomeBody: "I am GeoStat's digital assistant. I will help you find information on the GeoStat website. Please note that for security reasons, I cannot provide specific statistical figures.",
+            placeholder: 'Type your question...',
+            error: 'Something went wrong. Please try again later.',
+            fallback: 'Information found',
+            footer: 'National Statistics Office of Georgia',
+            resources: 'Resources:',
+            newConversation: 'New conversation',
+        },
+        voice: {
+            micError: 'Microphone access denied',
+            noSpeech: 'No speech detected. Please try again.',
+            transcribeError: 'Transcription failed',
+            start: 'Start recording',
+            stop: 'Stop recording',
+        },
+        quickActions: [
+            { id: 1, text: '📊 Unemployment', query: 'Where can I find unemployment statistics?' },
+            { id: 2, text: '📈 GDP', query: 'What is GDP and where can I view it?' },
+            { id: 3, text: '💾 PX-Web', query: 'How do I use PX-Web?' },
+            { id: 4, text: '💹 Inflation', query: 'What is inflation?' },
+        ],
+    },
+};

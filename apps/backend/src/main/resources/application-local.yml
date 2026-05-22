@@ -1,0 +1,29 @@
+# ============================================================
+#  Profile: local — run directly on the developer's machine
+#  (no Docker). Activate with: SPRING_PROFILES_ACTIVE=local
+#  or add to IDE run configuration.
+#
+#  Keys can be blank — the app will start but some features
+#  (voice, search) simply won't work without real values.
+# ============================================================
+
+spring:
+  config:
+    import: "optional:file:../../ops/config/backend/.env.dev[.properties]"
+
+  ai:
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY}
+    elevenlabs:
+      api-key: ${ELEVENLABS_API_KEY:}
+  cloud:
+    gcp:
+      project-id: ${GCP_PROJECT_ID:}
+      credentials:
+        location: ${GCP_CREDENTIALS:classpath:service-account-key.json}
+
+logging:
+  level:
+    org.springframework.ai: DEBUG
+    org.springframework.ai.chat.client: DEBUG

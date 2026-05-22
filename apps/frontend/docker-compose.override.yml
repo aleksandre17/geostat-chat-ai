@@ -1,0 +1,22 @@
+# GENERATED — do not edit. Run: geostat compose-gen
+
+# Dev — auto-merged on compose up
+services:
+  geostat-chat-ai-app:
+    build:
+      target: development
+    ports:
+      - "${DEPLOY_HOST_PORT:-5177}:${APP_DEV_CONTAINER_PORT:-5177}"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:${API_PORT:-8090}}
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /app/src
+        - action: rebuild
+          path: package.json
+

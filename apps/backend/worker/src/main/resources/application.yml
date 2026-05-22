@@ -1,0 +1,12 @@
+server:
+  port: ${WORKER_PORT:8091}
+
+spring:
+  application:
+    name: geostat-worker
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

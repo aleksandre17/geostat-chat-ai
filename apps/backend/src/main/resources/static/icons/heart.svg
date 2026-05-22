@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="8in" height="7in"
+     viewBox="0 0 8000 7000"
+     style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd">
+
+    <defs>
+        <style type="text/css">
+            <![CDATA[
+    .str0 {stroke:#E53935;stroke-width:120; stroke-linejoin:round}
+    .fil0 {fill:#E53935}
+   ]]>
+        </style>
+    </defs>
+
+    <g>
+        <path class="fil0 str0" d="
+    M4000 6200
+    C3800 6000, 1500 4200, 1200 3000
+    C900 2000, 1600 1200, 2500 1200
+    C3100 1200, 3600 1500, 4000 2000
+    C4400 1500, 4900 1200, 5500 1200
+    C6400 1200, 7100 2000, 6800 3000
+    C6500 4200, 4200 6000, 4000 6200
+    Z"/>
+    </g>
+
+</svg>

@@ -1,0 +1,30 @@
+# GENERATED — do not edit. Run: geostat compose-gen
+
+# Dev — geostat ing compose up --build
+services:
+  geostat-chat-ai-ingestion:
+    image: geostat-chat-ai-ingestion
+    container_name: geostat-chat-ai-ingestion
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "${INGESTION_PORT:-8093}:${INGESTION_PORT:-8093}"
+    env_file:
+      - ../../ops/config/ingestion/.env.dev
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    networks:
+      - geostat-chat-ai-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:${INGESTION_PORT:-8093}/actuator/health | grep -q UP || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+networks:
+  geostat-chat-ai-net:
+    driver: bridge
+

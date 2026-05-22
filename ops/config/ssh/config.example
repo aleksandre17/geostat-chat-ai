@@ -1,0 +1,14 @@
+# Copy to secrets/ssh/config (gitignored) and set in secrets/deploy.env:
+#   DEPLOY_SERVER=geostat-deploy
+#   DEPLOY_SSH_CONFIG_FILE=secrets/ssh/config
+#
+# Or merge this block into ~/.ssh/config (then DEPLOY_SERVER=user@host is enough).
+
+Host geostat-deploy
+    HostName YOUR_SERVER_IP_OR_DNS
+    User administrator
+    Port 22
+    IdentityFile ~/.ssh/id_ed25519
+    IdentitiesOnly yes
+    # Project-local key (use absolute path on Windows):
+    # IdentityFile C:/Users/you/geostat-chat-ai/secrets/ssh/id_ed25519

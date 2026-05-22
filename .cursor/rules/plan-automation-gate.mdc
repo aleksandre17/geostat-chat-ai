@@ -1,0 +1,73 @@
+---
+description: Proactively flag automatable work and reusable kit/package ideas; plan baseline before continuing
+alwaysApply: true
+---
+
+# Plan-first automation & package gate
+
+As we follow `docs/plan/PROJECT-PLAN.md`, **must** surface (1) automation / manifest-driven opportunities and (2) **reusable package** opportunities **before** creating more manual or consumer-only debt.
+
+## When to speak up (mandatory)
+
+During any task, if you notice work that **should** or **could** be automated / manifest-driven / kit-generated, **stop and propose** — do not silently hand-write more copies.
+
+Typical signals — **automation**:
+
+- Repeated boilerplate across modules (YAML, compose, env, scripts)
+- Manual steps documented as “copy and edit”
+- `geostat.ops.json` could declare what is hardcoded in apps
+- Same pattern already solved elsewhere (`compose-gen`, `vscode-gen`, `nginx-gen`)
+- New service needs N profile files / env files by hand
+
+Typical signals — **reusable package** (like `kits/geostat-kit`):
+
+- Logic useful in **other projects** (owner’s or public download), not only this repo
+- Consumer-agnostic ops, codegen, drivers, or CLI that does not belong in `apps/*`
+- Third copy of the same script/tool across modules — candidate for `kits/<name>/`
+- Feature would force others to copy-paste our standards instead of importing a package
+
+Typical signals — **approved library not used** (see `owner-approved-stack` skill):
+
+- Plan / Q-* names a Maven lib (e.g. **crawler4j**, Q-06) but code reimplements the same concern **past the logical milestone** (e.g. robots.txt required but still hand-rolled)
+- Hand-rolled stopgap presented as final without adapter path to approved lib
+- New `build.gradle.kts` dependency needed but not reflected in plan
+
+## What to propose (required format)
+
+1. **Problem** — what is manual, duplicated, or trapped in consumer code now
+2. **Baseline variant** — minimal manifest-driven / command-driven approach **or** minimal package boundary (not full optimization)
+3. **Plan entry** — ID + where to record (`PROJECT-PLAN` phase/task or `BACKLOG.md`)
+4. **Scope now** — hand-written or app-local stopgap OK only if plan item exists; otherwise add plan first
+
+For **package** proposals, also include:
+
+5. **Package bar** — agnostic, manifest-driven, extensible (see `kits/geostat-kit/docs/PACKAGE-PRINCIPLES.md`, `.cursor/rules/kit-package-architecture.mdc`)
+6. **Placement** — `kits/<name>/` (reusable) vs `apps/*` (product) vs `libs/*` (shared contracts only)
+7. **Publish path** — kit repo / version note if others should `git clone` or install later (no implementation until approved)
+
+Example baselines already in plan: **P0-kit-09…11** — `geostat config-gen`; **geostat-kit** itself — [ADR-006](../docs/adr/006-geostat-kit-package.md).
+
+## Gate before “driving to the end”
+
+- **Do not** rush feature completion while ignoring automatable structure or extractable packages.
+- **Do not** start a broad optimization pass until open automation/package items are **listed in the plan** with a baseline variant.
+- **Do** add plan rows + `CHANGELOG-PLAN.md` when owner approves direction; **do not** implement generator/kit/package extraction unless asked — planning first.
+- Reusable tooling → **`kits/` first** (see `.cursor/rules/kit-upstream.mdc`); never bury publishable ops inside one app.
+
+## Where to record
+
+| Action | File |
+|--------|------|
+| Approved future work | `docs/plan/PROJECT-PLAN.md` (phase + P0-kit-* / P*-*) |
+| Ideas not yet approved | `docs/plan/BACKLOG.md` |
+| Decision log | `docs/plan/CHANGELOG-PLAN.md` |
+| Package principles | `kits/geostat-kit/docs/PACKAGE-PRINCIPLES.md` (reference bar) |
+
+Prefer **manifest + kit command** over one-off scripts in `apps/*`.
+
+## Owner interaction
+
+- Proposals in **Georgian** when the owner writes in Georgian.
+- Ask explicitly before continuing past the gate:
+  - “ჩავინიშნოთ გეგმაში საბაზისო ვარიანტით?”
+  - “გავიტანოთ `kits/`-ში reusable package-ად (geostat-kit სტანდარტით)?”

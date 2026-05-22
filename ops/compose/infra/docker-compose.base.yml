@@ -1,0 +1,13 @@
+# Infra base — network + volumes. Modules: services/*.yml (manifest stack.infra.services)
+
+name: ${INFRA_COMPOSE_PROJECT:-geostat-infra}
+
+networks:
+  infra-net:
+    name: ${DOCKER_NETWORK:-geostat-chat-ai-net}
+
+volumes:
+  postgres_data:
+  redis_data:
+  qdrant_data:
+  rabbitmq_data:

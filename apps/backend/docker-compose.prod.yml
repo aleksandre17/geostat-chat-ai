@@ -1,0 +1,50 @@
+# GENERATED — do not edit. Run: geostat compose-gen
+
+# Prod API — geostat be compose -Prod | be deploy
+services:
+  geostat-chat-ai-api:
+    image: geostat-chat-ai-api
+    container_name: geostat-chat-ai-api
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    ports:
+      - "${API_PORT:-8090}:${API_PORT:-8090}"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      GOOGLE_APPLICATION_CREDENTIALS: /app/google-credentials.json
+      JAVA_TOOL_OPTIONS: >-
+        -XX:+UseContainerSupport
+        -XX:MaxRAMPercentage=75.0
+        -XX:+UseG1GC
+        -Xms256m -Xmx1g
+    volumes:
+      - ../../ops/config/backend/google-credentials.json:/app/google-credentials.json:ro
+      - geostat-chat-ai-api-storage:/app/storage
+      - geostat-chat-ai-api-uploads:/tmp/uploads
+      - ./logs:/app/logs
+    env_file:
+      - ../../ops/config/backend/.env.prod
+    networks:
+      - geostat-chat-ai-net
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:${API_PORT:-8090}/health | grep -q UP || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 90s
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+networks:
+  geostat-chat-ai-net:
+    driver: bridge
+
+volumes:
+  geostat-chat-ai-api-storage:
+  geostat-chat-ai-api-uploads:
+

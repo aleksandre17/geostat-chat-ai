@@ -1,0 +1,21 @@
+server:
+  port: ${INGESTION_PORT:8093}
+
+spring:
+  application:
+    name: ingestion-service
+  profiles:
+    default: nodb
+    group:
+      hybrid:
+        - db
+        - hybrid-env
+      docker:
+        - db
+        - docker-env
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

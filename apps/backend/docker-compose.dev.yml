@@ -1,0 +1,33 @@
+# GENERATED — do not edit. Run: geostat compose-gen
+
+# Dev API — geostat be compose up --build (ingestion: geostat ing compose)
+services:
+  geostat-chat-ai-api:
+    image: geostat-chat-ai-api
+    container_name: geostat-chat-ai-api
+    build:
+      context: .
+      dockerfile: src/Dockerfile.dev
+    ports:
+      - "${API_PORT:-8090}:${API_PORT:-8090}"
+    volumes:
+      - ../../ops/config/backend/google-credentials.json:/app/google-credentials.json:ro
+    env_file:
+      - ../../ops/config/backend/.env.dev
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      GOOGLE_APPLICATION_CREDENTIALS: /app/google-credentials.json
+    networks:
+      - geostat-chat-ai-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:${API_PORT:-8090}/health | grep -q UP || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+networks:
+  geostat-chat-ai-net:
+    driver: bridge
+

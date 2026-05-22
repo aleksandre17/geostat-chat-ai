@@ -1,0 +1,46 @@
+---
+description: Reusable ops/tooling goes upstream into kits/geostat-kit, not only in the consumer repo
+alwaysApply: true
+---
+
+# geostat-kit upstream (package-first)
+
+When working on **any** project that uses `kits/geostat-kit` (including this repo), follow this split.
+
+## Put in the package (`kits/geostat-kit/`)
+
+Anything that **adds or improves shared capability** for deploy, dev modes, compose, SSH, paths, drivers, CLI, validation, or cross-project conventions:
+
+- New or generalized `geostat` subcommands and toolkit scripts
+- Reusable PowerShell/bash/Python under `lib/`, `toolkit/`, `drivers/`
+- Schema/contracts, compose-gen, deploy-path resolution, infra/manage patterns
+- Fixes that would help **other** consumer repos the same way
+
+**Default:** if you would copy-paste it into a second monorepo → it belongs in the kit.
+
+## Keep in the consumer repo
+
+- Application code (`apps/`), domain logic, product-specific APIs
+- `geostat.ops.json`, `ops/config/*` values, `ops/compose/catalog.json` / stack overlays
+- Project-only compose templates, docs/plan for this product
+- Thin wrappers: `tools/geostat.ps1` delegates to kit CLI; consumer `ops/compose/infra/ps1/infra.ps1` only until logic is promoted
+
+## Workflow
+
+1. Need a feature → check kit first (`cli/`, `toolkit/`, `drivers/`, `docs/ADOPTION-LINE.md` §0).
+2. If missing: implement **in the kit** (or kit + minimal hook in consumer), not a large one-off only under `ops/` or `tools/`.
+3. Consumer keeps config and wiring; behavior lives in the package.
+4. After promoting: shrink consumer to delegate/call kit; update kit docs/tests if the package API changed.
+
+## Do not
+
+- Grow permanent ops logic only in `ops/compose/*/ps1/` or `tools/` when it is generic kit material.
+- Duplicate kit helpers in the consumer “for speed” without a follow-up upstream PR/commit in `kits/geostat-kit`.
+
+Reference: `kits/geostat-kit/docs/ADOPTION-LINE.md`, `kits/geostat-kit/docs/PACKAGE-PRINCIPLES.md`.
+
+## Package quality bar
+
+- **Agnostic, extensible** — no narrowed stacks; manifest + compose fragments, not env toggles duplicating manifest
+- **SOLID / clean boundaries** — see `.cursor/rules/kit-package-architecture.mdc`
+- Reject changes that hardcode one consumer layout or three fixed databases in kit runtime

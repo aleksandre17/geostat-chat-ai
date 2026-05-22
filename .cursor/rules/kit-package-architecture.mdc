@@ -1,0 +1,40 @@
+---
+description: geostat-kit must stay agnostic, extensible, SOLID — never a narrowed fixed stack
+alwaysApply: true
+---
+
+# Kit package architecture (geostat-kit)
+
+When changing `kits/geostat-kit/` or consumer wiring, enforce these package laws.
+
+## Package is
+
+- **Growth-oriented** — new stores, drivers, modules without kit releases when possible
+- **Agnostic** — no required postgres/redis/qdrant; no consumer brand in runtime
+- **Manifest-driven** — `geostat.ops.json` declares modules, paths, infra services
+- **Structurally organized** — `lib/`, `toolkit/`, `drivers/`, `compose/`, `scaffold/`
+
+## Package is not
+
+- A fixed three-database product
+- A place for `INFRA_PROFILES`-style env duplicates of manifest
+- A monolith compose every project must copy unchanged
+
+## SOLID mapping
+
+| Principle | Kit practice |
+|-----------|----------------|
+| **S** | Driver runs compose; consumer yaml defines stores |
+| **O** | Extend via `services/<id>.yml` + `stack.infra.services` or `stack.infra.composeFiles` |
+| **L** | Drivers interchangeable per `modules.*.type` |
+| **I** | Small CLI surfaces (`geostat infra`, `be deploy`, …) |
+| **D** | Apps depend on manifest/env, not kit internals |
+
+## Infra pattern
+
+- **Kit:** `toolkit/infra/Invoke-Infra.ps1`, path helpers, `compose/infra-catalog.json` (reference)
+- **Consumer:** `docker-compose.base.yml` + `services/*.yml`
+- **Contract:** `stack.infra.services` in manifest — not env profile strings
+- **Tunnel:** ports from `infra-catalog.json` `tunnel[]` per enabled service — not hardcoded PG/Redis/Qdrant
+
+See `kits/geostat-kit/docs/PACKAGE-PRINCIPLES.md`.

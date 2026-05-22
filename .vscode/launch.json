@@ -1,0 +1,65 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "backend: Spring Boot",
+      "type": "java",
+      "request": "launch",
+      "mainClass": "Chatbot.ChatbotApplication",
+      "cwd": "${workspaceFolder}/apps/backend",
+      "projectName": "geostat-chat-ai"
+    },
+    {
+      "name": "frontend: npm run dev",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev",
+      "cwd": "${workspaceFolder}/apps/frontend"
+    },
+    {
+      "name": "geostat: stack (compose dev)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}/tools/geostat.ps1\" stack up -d --build",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "geostat: api check",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}/tools/geostat.ps1\" api check",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "geostat: be check",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}/tools/geostat.ps1\" be check",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "geostat: fe check",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}/tools/geostat.ps1\" fe check",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "geostat: ui check",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}/tools/geostat.ps1\" ui check",
+      "cwd": "${workspaceFolder}"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full stack (local)",
+      "configurations": [
+        "backend: Spring Boot",
+        "frontend: npm run dev"
+      ],
+      "stopAll": true
+    }
+  ]
+}

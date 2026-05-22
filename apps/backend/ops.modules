@@ -1,0 +1,6 @@
+# GENERATED — do not edit. Run: geostat compose-gen
+# Format: compose_service|gradle_module|type|dockerfile|enabled
+geostat-chat-ai-api||boot|src/Dockerfile|yes
+geostat-chat-ai-retrieval||boot|Dockerfile|yes
+geostat-chat-ai-ingestion|worker|boot|Dockerfile|yes
+|shared|library||yes

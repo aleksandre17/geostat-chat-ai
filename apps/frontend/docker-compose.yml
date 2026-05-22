@@ -1,0 +1,11 @@
+# GENERATED — do not edit. Run: geostat compose-gen
+
+# Base — dev (override) + prod (overlay). Env: ops/config/frontend
+services:
+  geostat-chat-ai-app:
+    image: geostat-chat-ai-app
+    container_name: geostat-chat-ai-app
+    build:
+      context: .
+      dockerfile: src/Dockerfile
+

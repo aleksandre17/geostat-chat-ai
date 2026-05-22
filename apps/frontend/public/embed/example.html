@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GeoStat Chat — მაგალითი</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; background: #f5f5f5; }
+        .hero { padding: 60px 40px; max-width: 800px; }
+        h1 { color: #0080be; }
+        p { color: #555; line-height: 1.7; }
+
+        .lang-bar {
+            display: flex;
+            gap: 8px;
+            margin-top: 24px;
+        }
+        .lang-btn {
+            padding: 8px 20px;
+            border: 2px solid #0080be;
+            border-radius: 6px;
+            background: white;
+            color: #0080be;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .lang-btn.active {
+            background: #0080be;
+            color: white;
+        }
+        .lang-btn:hover:not(.active) {
+            background: #e8f4fb;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>საქართველოს სტატისტიკის ეროვნული სამსახური</h1>
+        <p>ეს გვერდი სიმულაციაა — ნახეთ ქვედა მარჯვენა კუთხეში ჩატბოტის ღილაკი.</p>
+
+        <div class="lang-bar">
+            <button class="lang-btn" id="btn-ka" onclick="setLang('ka')">🇬🇪 ქართული</button>
+            <button class="lang-btn" id="btn-en" onclick="setLang('en')">🇬🇧 English</button>
+        </div>
+    </div>
+
+    <script src="/embed/widget.js" defer></script>
+
+    <!-- chat-src: set via ?chat_src= or meta (see secrets/frontend/embed.env.example) -->
+    <geostat-chat-widget
+        id="chat-widget"
+        chat-src=""
+        position="bottom-right"
+        width="450px"
+        height="650px"
+        lang="ka"
+    ></geostat-chat-widget>
+
+    <script>
+        const params = new URLSearchParams(location.search);
+        const lang = params.get('lang') || 'ka';
+        const defaultChatSrc = params.get('chat_src')
+            || document.querySelector('meta[name="geostat-chat-src"]')?.content
+            || 'http://localhost:5177';
+
+        const widget = document.getElementById('chat-widget');
+        if (widget && !widget.getAttribute('chat-src')) {
+            widget.setAttribute('chat-src', defaultChatSrc.replace(/\/$/, ''));
+        }
+
+        document.getElementById('btn-' + lang)?.classList.add('active');
+        widget?.setAttribute('lang', lang);
+
+        function setLang(l) {
+            location.href = location.pathname + '?lang=' + l;
+        }
+    </script>
+</body>
+</html>

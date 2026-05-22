@@ -1,0 +1,8 @@
+# Remote workspace dev — source synced from Windows; bootRun via compose command
+FROM gradle:8.5-jdk21
+WORKDIR /app
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends wget \
+    && rm -rf /var/lib/apt/lists/* \
+    && sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh 2>/dev/null || true
+EXPOSE 8090

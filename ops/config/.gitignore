@@ -1,0 +1,16 @@
+# Ignore all real secrets; keep README and *.example
+*
+!.gitignore
+!README.md
+!**/.gitignore
+!**/.env.example
+!deploy.env.example
+!profiles/
+!profiles/**
+!frontend/nginx.env.example
+!frontend/embed.env.example
+!ssh/
+!ssh/README.md
+!ssh/.gitignore
+!ssh/*.example
+

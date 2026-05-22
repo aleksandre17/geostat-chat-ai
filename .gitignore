@@ -1,0 +1,55 @@
+# Monorepo root — modules may keep their own .git (see docs/MONOREPO.md)
+
+# Ops config (real secrets; examples tracked)
+ops/config/*
+!ops/config/.gitignore
+!ops/config/README.md
+!ops/config/*.example
+!ops/config/*/.gitignore
+!ops/config/*/*.example
+
+# Legacy root stubs (remove when unlocked: node/IDE may hold frontend/node_modules)
+/frontend/
+/backend/
+
+# IDE / OS
+.vscode/*.log
+.idea/
+*.swp
+Thumbs.db
+.DS_Store
+*.stackdump
+
+# App artifacts
+apps/frontend/node_modules/
+apps/frontend/dist/
+apps/frontend/.env
+apps/frontend/.env.local
+apps/backend/build/
+apps/backend/.gradle/
+apps/backend/bin/
+apps/backend/out/
+apps/ingestion-service/build/
+apps/ingestion-service/.gradle/
+apps/retrieval-service/build/
+apps/retrieval-service/.gradle/
+apps/backend/*.log
+libs/**/build/
+libs/**/.gradle/
+libs/**/bin/
+
+# Accidental CLI output (use: geostat layout -OutFile docs/SOME.md)
+/-OutFile
+
+# Ops logs (geostat drivers)
+apps/frontend/logs/*
+!apps/frontend/logs/.gitignore
+apps/backend/logs/*
+!apps/backend/logs/.gitignore
+
+# Generated stack compose (regenerate via compose-gen)
+ops/compose/stack/*.yml
+!ops/compose/stack/README.md
+
+# Pytest
+.pytest_cache/

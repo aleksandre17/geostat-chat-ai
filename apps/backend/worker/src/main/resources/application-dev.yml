@@ -1,0 +1,7 @@
+spring:
+  devtools:
+    restart:
+      enabled: true
+      additional-paths: /app/worker/src/main/resources,/app/shared/src/main/resources
+    livereload:
+      enabled: false
