@@ -28,6 +28,13 @@ repositories {
     maven { url = uri("https://repo.spring.io/milestone") }
 }
 
+subprojects {
+    repositories {
+        mavenCentral()
+        maven { url = uri("https://repo.spring.io/milestone") }
+    }
+}
+
 extra["spring-ai.version"] = springAiVersion
 
 val activeModules: List<String>? = (findProperty("activeModules") as String?)
