@@ -11,4 +11,4 @@ cd "$ROOT"
 bash "$PKG/ci/prepare-integration-env.sh"
 python3 "$PKG/compose/build.py"
 python3 "$PKG/lib/validate_manifest.py"
-python3 -m pytest kits/geostat-kit/tests --tb=short -q --deselect=kits/geostat-kit/tests/test_compose_identity.py::test_project_context_compose_names
+python3 -m pytest kits/geostat-kit/tests --tb=short -q

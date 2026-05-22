@@ -89,7 +89,7 @@ jobs:
         run: python3 kits/geostat-kit/lib/validate_manifest.py
 
       - name: geostat-kit package tests (paths, registry, contracts)
-        run: python3 -m pytest kits/geostat-kit/tests --tb=short -q --deselect=kits/geostat-kit/tests/test_compose_identity.py::test_project_context_compose_names
+        run: python3 -m pytest kits/geostat-kit/tests --tb=short -q
 
 
 
