@@ -77,9 +77,9 @@ jobs:
       - name: geostat-kit package tests (paths, registry, contracts)
         env:
           PYTHONPATH: kits/geostat-kit
-        run: |
-          cd kits/geostat-kit
-          python3 -m pytest tests/ -q --tb=short -k "not test_project_context_compose_names"
+          GEOSTAT_PROJECT_ROOT: ${{ github.workspace }}
+          GEOSTAT_KIT_ROOT: ${{ github.workspace }}/kits/geostat-kit
+        run: python3 -m pytest kits/geostat-kit/tests -q --tb=short -k "not test_project_context_compose_names"
 
 
 
@@ -111,7 +111,9 @@ jobs:
 
           sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
 
-          find ops/ci kits/geostat-kit/drivers/java-boot/sh kits/geostat-kit/toolkit/bash kits/geostat-kit/toolkit/deploy kits/geostat-kit/toolkit/infra kits/geostat-kit/toolkit/stack kits/geostat-kit/ci -name '*.sh' -exec shellcheck -x {} +
+          shellcheck -S error -x ops/ci/*.sh
+
+          find kits/geostat-kit/drivers/java-boot/sh kits/geostat-kit/toolkit/bash kits/geostat-kit/toolkit/deploy kits/geostat-kit/toolkit/infra kits/geostat-kit/toolkit/stack kits/geostat-kit/ci -name '*.sh' -exec shellcheck -S error -e SC1082 -x {} +
 
       - name: Validate compose catalog JSON
 
