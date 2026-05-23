@@ -199,12 +199,11 @@ jobs:
 
   integration-compose:
 
-    # Stack health needs postgres/qdrant; CI profile not wired yet (hybrid tunnel locally).
-    if: false
-
     runs-on: ubuntu-latest
 
     needs: [compose-catalog]
+
+    timeout-minutes: 45
 
     steps:
 
@@ -218,11 +217,7 @@ jobs:
 
           python-version: "3.12"
 
-      - name: Prepare CI secrets
-
-        run: bash kits/geostat-kit/ci/prepare-integration-env.sh
-
-      - name: Integration stack (manifest health matrix)
+      - name: Integration stack (infra + manifest health matrix)
 
         run: bash ops/ci/integration-stack.sh
 

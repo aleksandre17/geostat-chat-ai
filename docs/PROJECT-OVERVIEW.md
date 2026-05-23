@@ -1,7 +1,7 @@
 # geostat-chat-ai — პროექტის მიმოხილვა
 
 > სრული სურათი: რას ვაკეთებთ, სად, რა გვინდა, რა დარჩა, pipeline და ops.  
-> GitHub: [aleksandre17/geostat-chat-ai](https://github.com/aleksandre17/geostat-chat-ai) · **ვერსია:** [VERSION](../VERSION) · Ops პაკეტი: [aleksandre17/geostat-kit](https://github.com/aleksandre17/geostat-kit) (submodule @ v1.1.0)
+> GitHub: [aleksandre17/geostat-chat-ai](https://github.com/aleksandre17/geostat-chat-ai) · **ვერსია:** [VERSION](../VERSION) · Ops პაკეტი: [aleksandre17/geostat-kit](https://github.com/aleksandre17/geostat-kit) (submodule @ `bdbd183`)
 
 ---
 
@@ -175,7 +175,7 @@ geostat-chat-ai/
 
 | ID | ამოცანა | სად |
 |----|---------|-----|
-| **P5-01** | RabbitMQ async ingestion → index events | `ingestion-service`, infra rabbitmq |
+| **P5-01** | RabbitMQ async ingestion → index events | **done** — `RabbitDocumentIndexPublisher`, listener, infra rabbitmq, CI stack smoke |
 | **P6-migrate** | Server prod: flat → structured deploy (`runtime/`, `static/`) | სერვერი |
 | **P0-kit-09…11** | `geostat config-gen` — Spring YAML manifest-იდან | kit + apps |
 | **P0-infra-07** | VS Code compound: tunnel preLaunch + hybrid F5 | `.vscode` |
@@ -228,13 +228,13 @@ copy ops\config\deploy.env.example ops\config\deploy.env
 ```text
 geostat-kit (GitHub)              geostat-chat-ai (GitHub)
      │                                    │
-     │  git submodule @ v1.1.0            │
+     │  git submodule @ bdbd183            │
      └──────────► kits/geostat-kit ◄──────┘
                          │
                    geostat.ops.json
                    apps/  ops/  docs/
 ```
 
-Kit განახლება consumer-ში: `cd kits/geostat-kit && git fetch && git checkout v1.1.0`
+Kit განახლება consumer-ში: `cd kits/geostat-kit && git fetch && git checkout main`
 
 **ამ repo ვერსია:** root [VERSION](../VERSION) (semver; git tag `v1.0.0` push-ის შემდეგ).

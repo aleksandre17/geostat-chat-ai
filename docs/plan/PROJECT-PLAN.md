@@ -140,7 +140,7 @@ Geostat ჩატბოტი + **RAG pipeline** (საიტის კონ�
 
 | P4-02 | `RetrievalPort` იმპლემენტაცია | **done** | `search/QdrantRetrievalService`, Qdrant search |
 
-| P5-01 | RabbitMQ ingestion → index events | **approved** | B-01; OSS self-host, not paid SaaS |
+| P5-01 | RabbitMQ ingestion → index events | **done** | B-01; async publisher + listener; CI infra+stack smoke |
 
 | P6-01 | Stack + infra — `geostat-chat-ai-net` | **done** | `ops/compose/stack/docker-compose.yml` (manifestStack) |
 | P6-02 | catalog templates: retrieval, ingestion, stack N-module | **done** | `manifestModule` + `manifestStack` targets |
