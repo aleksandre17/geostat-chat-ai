@@ -41,7 +41,7 @@ Typical signals — **approved library not used** (see `owner-approved-stack` sk
 
 For **package** proposals, also include:
 
-5. **Package bar** — agnostic, manifest-driven, extensible (see `kits/geostat-kit/docs/PACKAGE-PRINCIPLES.md`, `.cursor/rules/kit-package-architecture.mdc`)
+5. **Package bar** — agnostic, manifest-driven, extensible; **no consumer brand/alias/artifact in kit runtime** (see `PACKAGE-PRINCIPLES.md`, `kit-package-architecture.mdc`, `test_toolkit_hardcodes.py`)
 6. **Placement** — `kits/<name>/` (reusable) vs `apps/*` (product) vs `libs/*` (shared contracts only)
 7. **Publish path** — kit repo / version note if others should `git clone` or install later (no implementation until approved)
 

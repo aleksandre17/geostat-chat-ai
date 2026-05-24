@@ -267,17 +267,17 @@ LLM-ს **არ** გაუგზავნო მთელი საიტი �
 | LangChain4j vs Spring AI | image4/7 LangChain4j; ჩვენ repo Spring AI |
 | Speech (STT/TTS) | სკრინშოტებში არა; ჩვენს backend-ში უკვე არის |
 
-### 8.3 უკვე არსებული repo — განსხვავება
+### 8.3 repo სტatus (2026-05-22 — B-25 zero-gap)
 
 | სკრინშოტის გეგმა | `geostat-chat-ai` ახლა |
 |------------------|-------------------------|
-| სრული RAG + Qdrant | **არა** — მხოლოდ topics/catalog + **Gemini** |
-| crawler4j + Jsoup pipeline | **არა** — მსუბუქი `StructureLookup` (BFS) |
-| LangChain4j + Ollama + Llama 3 | **არა** — `spring-ai-starter-model-google-genai` |
-| LangChain4j | **არა** |
-| Qdrant | **არა** |
-| React + Spring Boot | **კი** |
-| სერვისები (Architecture B) | **სკელეტონი** დამატებული (ფაზა 1 done) |
+| სრული RAG + Qdrant | **კი** — ingestion → Qdrant → retrieval → chat-api |
+| crawler4j + Jsoup pipeline | **კი** — `apps/ingestion-service`; chat-api-ში live BFS **არა** (StructureLookup წაშლილი) |
+| LangChain4j + Ollama + Llama 3 | **არა** — Spring AI + Gemini prod; Ollama optional (P7-01) |
+| Qdrant | **კი** — `libs/qdrant-client`, retrieval-service |
+| React + Spring Boot | **კი** — `apps/frontend`, `apps/backend` (`com.geostat.chat`) |
+| სერვისები (Architecture B) | **კი** — chat-api, retrieval, ingestion, platform-contracts |
+| Org/structure queries | **კი** — corpus seeds (`/ka/structure`, `/en/structure`) + RAG; `CorpusContextFormatter` |
 
 ---
 
@@ -287,33 +287,32 @@ LLM-ს **არ** გაუგზავნო მთელი საიტი �
 
 | ID | კითხვა | ვარიანტები | სკრინის მიხედვით |
 |----|--------|------------|------------------|
-| Q-01 | **Primary LLM** | A) Gemini (ახლა repo) B) Ollama+Llama C) ჰიბრიდი | image4 vs image8 |
-| Q-02 | **AI integration** | A) Spring AI B) LangChain4j C) ორივე | image4/7 vs ახლა |
-| Q-03 | **Embeddings** | A) nomic via Ollama B) Google embeddings C) სხვა | image4 |
-| Q-04 | **Vector DB** | A) Qdrant B) Weaviate | image5 vs დანარჩენი |
-| Q-05 | **Dynamic HTML** | A) მხოლოდ Jsoup B) +Playwright | image7 |
+| Q-01 | **Primary LLM** | A) Gemini (ახლა repo) B) Ollama+Llama C) ჰიბრიდი | **closed** — Gemini prod; Ollama local optional (P7-01) |
+| Q-02 | **AI integration** | A) Spring AI B) LangChain4j C) ორივე | **closed** — Spring AI primary |
+| Q-03 | **Embeddings** | A) nomic via Ollama B) Google embeddings C) სხვა | **closed** — `embedding-adapters` |
+| Q-04 | **Vector DB** | A) Qdrant B) Weaviate | **closed** — Qdrant |
+| Q-05 | **Dynamic HTML** | A) მხოლოდ Jsoup B) +Playwright | **closed** — Jsoup default; Playwright P3-03b trigger |
 | Q-06 | **Crawler** | A) crawler4j B) crawler4j+Jsoup (ორივე სკრინში) | image3,6 |
 | Q-07 | **OSS „inactive project“** | რომელი dependency? გავაკეთოთ fork/pin? | image7 ქართული ხაზი |
 | Q-08 | **Chunking strategy** | ზომა, overlap, metadata (URL, title) | image8 „დავაპატარავოთ“ |
-| Q-09 | **Ingestion trigger** | manual CLI / cron / webhook | არ ჩანს |
+| Q-09 | Ingestion trigger | **closed** — B-26 scheduler + API jobs + auto-continue |
 | Q-10 | **Event bus** | **RabbitMQ** (P5, self-host) | approved 2026-05-22 |
 | Q-11 | **საწყისი crawl scope** | მთელი geostat.ge / სექციები / sitemap | არ ჩანს |
 | Q-12 | **ქართული კონტენტი** | embedding/LLM locale strategy | ჩვენი chat უკვე bilingual |
-| Q-13 | **StructureLookup** | შევინარჩუნოთ + RAG ან შევცვალოთ | repo vs სკრინი |
+| Q-13 | **Structure / clarification** | corpus-only (B-25) | **superseded** — StructureLookup removed; ingestion seeds + RAG |
 
-### 9.1 რეკომენდებული პოზიცია (skill: minimal change, senior)
+### 9.1 დამტკიცებული პოზიცია (2026-05-23 — [ADR-010](../adr/010-product-stack-benefit-gate.md))
 
-| კითხვა | წინასწარებული პოზიცია | მიზეზი |
-|--------|----------------------|--------|
-| Q-01 | **Gemini generation** რჩება | უკვე prod; image8 ემთხვება |
-| Q-02 | **Spring AI** ingestion/retrieval-ში; LangChain4j მხოლოდ თუ აუცილებელი | ერთი stack |
-| Q-03 | Embeddings: **ცალკე გადაწყვეტა** (Google ან local) | სკრინში ორი გზა |
-| Q-04 | **Qdrant** | ყველა სკრინში dominant |
-| Q-05 | **Jsoup ჯერ**, Playwright ფაზა 3b | იტერაცია |
+| კითხვა | გადაწყვეტილება | მიზეზი |
+|--------|----------------|--------|
+| Q-01 | **Gemini prod gen**; Ollama local optional (P7-01) | ერთი paid SaaS (D-16); free local dev |
+| Q-02 | **Spring AI** primary; LangChain4j rejected | ერთი stack, უკვე prod |
+| Q-03 | Embeddings via **embedding-adapters** | done |
+| Q-04 | **Qdrant** | operational + shared lib |
+| Q-05 | **Jsoup + crawler4j**; Playwright trigger (P3-03b) | benefit gate |
 | Q-06 | **crawler4j + Jsoup** | image6 ჯაჭვი |
-| Q-10 | **Redis Streams** (შემოთავაზებული PLAN-ში) | მარტივი async |
-
-ეს **არა** დამტკიცებული — owner-მა უნდა დააფიქსიროს `approved`-ში.
+| Q-13 | **Single pipeline — corpus + RAG (B-25)** | zero-gap; no live BFS in chat-api |
+| Q-10 | **RabbitMQ** (PLAN P5) | done async path |
 
 ---
 
@@ -322,13 +321,13 @@ LLM-ს **არ** გაუგზავნო მთელი საიტი �
 | სკრინშოტის ლოგიკა | ჩვენი ფაზა | სტატუსი |
 |------------------|-----------|---------|
 | 4 კომპონენტი + Java | ხედვა + ADR-009 | done / accepted |
-| crawler4j→Qdrant ჯაჭვი | ფაზა 3 (ingestion) | approved |
-| RAG search | ფაზა 4 (retrieval) | approved |
-| Gemini + chunks | ფაზა 2 (chat→retrieval) + არსებული Gemini | approved |
-| React UI | frontend | done |
-| Spring Boot | chat-api | done |
-| Full stack compose + Qdrant | ფაზა 6 | proposed |
-| Async ingestion | ფაზა 5 | proposed |
+| crawler4j→Qdrant ჯაჭვი | ფაზა 3 (ingestion) | **done** |
+| RAG search | ფაზა 4 (retrieval) | **done** |
+| Gemini + chunks | ფაზა 2 + 5 (chat→retrieval, B-15/B-25) | **done** |
+| React UI | frontend | **done** |
+| Spring Boot | chat-api (`com.geostat.chat`) | **done** |
+| Full stack compose + Qdrant | ფაზა 6 | **done** |
+| Async ingestion | ფაზა 5 (RabbitMQ) | **done** |
 
 ---
 
@@ -338,16 +337,18 @@ LLM-ს **არ** გაუგზავნო მთელი საიტი �
 |----------------|---------|---------|
 | URL queue, crawl, parse, clean, chunk, embed write | ingestion | chat-api |
 | Vector store, similarity search | retrieval | chat-api |
-| Prompt, session, topics (შემდეგ RAG orchestration), Gemini call | chat-api | ingestion |
+| Prompt, session, topics, RAG orchestration, Gemini call | chat-api | ingestion |
+| Org/structure clarification | chat-api via **retrieval** (indexed corpus) | live BFS / StructureLookup (**removed B-25**) |
+| Full-site background crawl | ingestion `@Async` + frontier until done | **done (B-26)** — `crawlMode: full-site`, scheduler |
 | UI | frontend | backend |
 
 ---
 
 ## 12. შემდეგი ნაბიჯები გეგმაში
 
-1. Owner დაუმტკიცებს **Q-01 … Q-13** (ან არჩევს ნაწილს) → გადავიტანოთ [PROJECT-PLAN.md](PROJECT-PLAN.md) + [CHANGELOG-PLAN.md](CHANGELOG-PLAN.md).
-2. **Q-01/Q-02/Q-03** დაფიქსირების შემდეგ — იმპლემენტაცია P2→P3→P4.
-3. image8-ის „დავაპატარავოთ“ → ცალკე ამოცანა **P3-03a** chunk strategy ADR.
+1. ~~Owner დაუმტკიცებს Q-01 … Q-13~~ — **done** (2026-05-23, ADR-010); Q-13 superseded B-25 (single pipeline).
+2. **Implementation queue:** P3-03b (Playwright trigger), P7-01 (Ollama local gen), Q-06…Q-12 (non-blocking).
+3. **Ops:** GEMINI_API_KEY rotation (OPS-01); full corpus crawl/reindex when policy requires (OPS-02, B-26).
 
 ---
 

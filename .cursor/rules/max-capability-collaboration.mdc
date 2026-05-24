@@ -1,0 +1,64 @@
+---
+description: Max capability of every stack component; async event collaboration; optimized performance
+alwaysApply: true
+---
+
+# Max capability & service collaboration (strict)
+
+## Core law
+
+Every **service, library, and kit** we adopt must be used at **maximum justified capability** so our product quality and features are **maximized** — while staying **performance-optimized** (async where it helps, bounded resources, no busy-wait).
+
+**Ideal collaboration:** services hand off work via **contracts + events**, each doing 100% of its role — not half-wired adapters or silent defaults that leave capability on the table.
+
+```text
+ingestion (background crawl) ──event──► index (embed → Qdrant)
+retrieval ◄── Qdrant                    chat-api ◄── HTTP retrieval
+         Postgres frontier/state              YAML catalog + Gemini
+```
+
+## Per-component bar
+
+| Component | Must use (when approved/planned) | Must not |
+|-----------|----------------------------------|----------|
+| **crawler4j** | robots.txt, politeness, fetch adapter | Hand-rolled HTTP crawl in chat-api |
+| **Jsoup** | parse, clean, link discovery | Regex HTML hacks |
+| **Postgres `ingestion.*`** | frontier queue, run state, documents | Ephemeral-only crawl with no resume |
+| **RabbitMQ (P5)** | async document-index events in prod/stack | Sync index on hot path when events infra exists |
+| **Qdrant + retrieval** | semantic search over full indexed corpus | Second knowledge cache in chat-api |
+| **Spring `@Async` / AMQP** | non-blocking crawl jobs, index workers | Block HTTP job API until full site parsed |
+| **geostat-kit / manifest** | infra services, compose, env generation | Duplicate env toggles for what manifest declares |
+
+## Ingestion product model (target)
+
+1. **Single seed** (e.g. `/ka`) → **link discovery** expands the frontier — no duplicate seed URLs for discoverable pages.
+2. **Background crawl** runs until corpus policy says done (frontier empty or full-site policy) — not arbitrary 50-page smoke limits in **prod**.
+3. **Each parsed document** → **async index event** → Qdrant (when `INGESTION_EVENTS_ENABLED=true`).
+4. **Resume / continuation** — if a run hits a page budget, next run continues frontier (**B-26 done**).
+5. **chat-api** consumes **retrieval only** — never re-crawl.
+
+Smoke/CI may use **temporary** low `maxPagesPerRun` / `maxDepth` — never treat that as prod architecture.
+
+## Performance vs quality
+
+- **Async + events** for crawl completion, indexing, and cross-service work — keep request paths fast.
+- **Rate limits** (`rateLimitMs`, robots) — politeness is not optional; optimize throughput within policy.
+- **Do not** disable events or shrink crawl scope in prod to “make it work once” — fix infra wiring instead.
+
+## Gap detection
+
+Flag and fix or plan:
+
+- Library feature approved in plan but unused (e.g. RabbitMQ off in prod stack)
+- Crawl stops with **queued frontier remaining** and no follow-up job
+- `fullRecrawl` / scheduler flags stored but not implemented
+- Sync index on every page when event bus is available
+- Duplicate seeds for URLs reachable by link discovery
+
+## Verification
+
+- Prod/stack: `INGESTION_EVENTS_ENABLED=true`, RabbitMQ in infra compose.
+- Corpus prod policy: explicit full-site or continuation strategy documented — not default 50-page cap.
+- Rules cross-ref: `zero-gap-architecture.mdc`, `owner-approved-stack` skill.
+
+Owner writes in Georgian → proposals in Georgian.

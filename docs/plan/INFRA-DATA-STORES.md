@@ -149,7 +149,7 @@ QDRANT_URL=http://${INFRA_HOST}:6333
 | ID | კითხვა | რეკომენდაცია (წინასწარი) | სტატუსი |
 |----|--------|---------------------------|---------|
 | Q-14 | ერთი Postgres cluster vs DB per service | **closed** — ერთი cluster, schema `ingestion` (ingestion-service owner) | closed |
-| Q-15 | Redis persistence dev/prod | dev: without OK; prod: AOF | open |
+| Q-15 | Redis persistence dev/prod | dev: without OK; prod: AOF | **closed** — `redis.yml` `REDIS_AOF:-yes` |
 | Q-16 | Infra compose ცალკე vs მხოლოდ full stack | **ორივე** (D-08): infra + apps `external` network | **closed** — [DOCKER-ECOSYSTEM.md](DOCKER-ECOSYSTEM.md) §3.2 |
 | Q-17 | `apps/backend/worker` | **არა** Postgres consumer — ingestion-service = worker (B-05) | **closed** |
 

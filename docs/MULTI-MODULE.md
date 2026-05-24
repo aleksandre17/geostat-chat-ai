@@ -80,7 +80,7 @@ To enable the legacy **embedded** sidecar in `apps/backend/worker` instead, set 
 
 ## Server layout (structured — Phase 1)
 
-Configure `ops/config/backend/.env.deploy` (`DEPLOY_LAYOUT=structured`). Each boot service:
+Configure `ops/config/backend/.env.deploy` (`DEPLOY_LAYOUT=structured`). **Every** java-boot boot module (api, retrieval, ingestion) uses the same base:
 
 ```text
 {DEPLOY_PATH}/runtime/<container_name>/
@@ -91,6 +91,9 @@ Configure `ops/config/backend/.env.deploy` (`DEPLOY_LAYOUT=structured`). Each bo
   logs/
   versions/          # prod only
 ```
+
+Manifest: `stack.deployBaseSecretsModule` (default `backend`) — worker modules inherit `DEPLOY_PATH` when omitted in their own `.env.deploy`.  
+`modules.*.target` is the **compose service slug only**, not a path under `geostat/<target>/`.
 
 See [BACKEND-DEPLOY-LAYOUTS.md](./BACKEND-DEPLOY-LAYOUTS.md) — `structured` (`runtime/` + `workspace/`) vs legacy `flat` (`{DEPLOY_PATH}/<container>/`). Migration: `kits/geostat-kit/toolkit/deploy/migrate-backend-layout.sh`.
 

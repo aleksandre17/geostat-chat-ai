@@ -17,7 +17,7 @@ Owner service: **`apps/ingestion-service`** · Q-14: shared cluster, schema per 
 | `corpus` | Crawl target registry (seed URLs, policy JSON — site-agnostic) |
 | `crawl_run` | One pipeline execution |
 | `url_frontier` | Per-run URL queue |
-| `document` | Canonical page + cleaned text (source of truth) |
+| `document` | Canonical page + cleaned text + display metadata (source of truth) |
 | `chunk` | Text segments for embedding |
 | `vector_index` | Pointer chunk → Qdrant point |
 

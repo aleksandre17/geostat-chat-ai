@@ -19,6 +19,23 @@ When changing `kits/geostat-kit/` or consumer wiring, enforce these package laws
 - A fixed three-database product
 - A place for `INFRA_PROFILES`-style env duplicates of manifest
 - A monolith compose every project must copy unchanged
+- Consumer **brand**, **product CLI aliases** (`fe`, `be`, …), or **repo layout paths** in kit runtime (CLI help, drivers, `toolkit/`)
+- **Artifacts**, secrets, `.env` values, or app/domain logic
+
+Kit runtime is for **other developer bases and applications** — behavior from manifest (`geostat.ops.json`, `cli.aliases`, `modules.*.hybrid` in the **consumer** only).
+
+## Owner gate (new or improved package)
+
+During work, if **senior architect view** surfaces:
+
+- a **new reusable package** / kit (`kits/<name>/`, driver, manifest capability), or
+- **improving** existing kit (extract upstream, generalize CLI/drivers)
+
+→ **Discuss with owner first** — plan baseline (`plan-automation-gate.mdc`); **do not** implement kit extraction or embed consumer specifics in kit runtime without approval.
+
+Georgian (when owner writes in Georgian): „ჩავინიშნოთ გეგმაში საბაზისო ვარიანტით?“ / „გავიტანოთ `kits/`-ში reusable package-ად?“
+
+Guard: `kits/geostat-kit/tests/test_toolkit_hardcodes.py`.
 
 ## SOLID mapping
 

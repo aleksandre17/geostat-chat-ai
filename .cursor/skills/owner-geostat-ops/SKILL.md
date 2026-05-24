@@ -32,7 +32,7 @@ Apply **senior engineer/architect** bar: Clean Architecture boundaries (kit vs a
 |------|--------|-----------|
 | Local host | No | VS Code launch / npm + Gradle |
 | Local Docker | Yes | `geostat stack` / compose |
-| Remote SSH | On server | `fe/be dev watch` — no local F5 |
+| Remote SSH | On server | `<alias> dev watch` — no local F5 |
 
 See kit `docs/DEV-MODES.md` when details needed.
 
@@ -51,6 +51,37 @@ python -m pytest tests -q
 - App code stays in `apps/`; secrets in `ops/config/`.
 - No internal GitHub upload docs in the public package repo.
 - Kit stays **agnostic & extensible** — `docs/PACKAGE-PRINCIPLES.md`; infra via `stack.infra.services` + `services/*.yml`, not `INFRA_PROFILES` env toggles.
+
+## Package idea & upstream (owner gate)
+
+მუშაობისას, **სენიორ არქიტექტორის ხედვით**, თუ გამოჩნდება:
+
+- ახალი reusable **პაკეტის** / kit-ის იდეა (`kits/<name>/`, ახალი driver, manifest capability)
+- არსებული **geostat-kit** (ან სხვა kit) **გაუმჯობესება** ან consumer ლოგიკის extract upstream
+
+→ **ჯერ owner-თან ვისაუბრებთ** — არ ვაგრძელებთ ჩუმად, არ ვწერთ kit runtime-ში consumer brand/artifact/alias-ებს.
+
+**ფორმატი:** `.cursor/rules/plan-automation-gate.mdc` — problem, baseline variant, plan ID (`P0-kit-*`, `BACKLOG`).
+
+**Owner-ს ვკითხოთ (Georgian):**
+
+- „ჩავინიშნოთ გეგმაში საბაზისო ვარიანტით?“
+- „გავიტანოთ `kits/`-ში reusable package-ად (geostat-kit სტანდარტით)?“
+
+Implement kit/package extraction **მხოლოდ** owner-ის approval-ის შემდეგ.
+
+## Package principles (უცვლელი bar)
+
+ვიცავთ იმ პრინციპებს, რომ kit **სხვა developer base-ებისა და აპლიკაციებისთვის** გამოყენებადი ops framework იყოს — არა ეს პროდუქტი.
+
+| Kit runtime **არ არის** | Kit runtime **არის** |
+|-------------------------|----------------------|
+| consumer brand, product alias (`fe`, `be`, …) help/კოდში | manifest-driven CLI (`cli.aliases` consumer manifest-ში) |
+| consumer repo path (`kits/geostat-kit`) runtime string-ებში | generic ops (`hybrid boot <alias\|moduleId>`) |
+| artifacts, secrets, `.env` values, app/domain logic | drivers, compose-gen, tunnel, deploy paths |
+| ფიქსირებული postgres/redis/qdrant სამეული | `stack.infra.services` + consumer `services/*.yml` |
+
+**Reference:** `kits/geostat-kit/docs/PACKAGE-PRINCIPLES.md`, `tests/test_toolkit_hardcodes.py`, `.cursor/rules/kit-package-architecture.mdc`.
 
 ## Submodule install (share with others)
 

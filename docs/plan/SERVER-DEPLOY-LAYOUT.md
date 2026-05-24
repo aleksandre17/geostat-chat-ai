@@ -38,7 +38,8 @@
 | მოდული | ფაილი | მაგალითი (ეს repo) |
 |--------|-------|---------------------|
 | Frontend | `ops/config/frontend/.env.deploy` | `DEPLOY_PATH=/home/administrator/geostat/frontend` |
-| Backend | `ops/config/backend/.env.deploy` | `DEPLOY_PATH=/home/administrator/geostat/backend` |
+| Backend (all java-boot) | `ops/config/backend/.env.deploy` | `DEPLOY_PATH=/home/administrator/geostat/backend` |
+| Retrieval / Ingestion | `ops/config/retrieval/.env.deploy` (optional) | **იგივე** `.../backend` + `DEPLOY_LAYOUT=structured` — ან მხოლოდ backend `.env.deploy` + manifest `stack.deployBaseSecretsModule` |
 | Infra | `ops/config/infra/.env.deploy` | `DEPLOY_PATH=/home/administrator/geostat/infra/geostat-chat-ai` |
 
 საერთო SSH: `ops/config/deploy.env` — `DEPLOY_SERVER`, `DEPLOY_PROJECT=geostat`.
@@ -59,7 +60,7 @@
 
 | ფენა | სერვერზე რა მიდის | არტიფაქტი (JAR / dist) |
 |------|-------------------|------------------------|
-| **backend** | `runtime/<container>/app.jar` + compose | **კი** |
+| **backend** (api + retrieval + ingestion) | `runtime/<container>/app.jar` + compose | **კი** |
 | **frontend** | `static/<container>/dist/` ან compose | **კი** |
 | **infra** | `infra/<slug>/compose/` + `.env.runtime` | **არა** — Docker Hub images |
 
@@ -158,17 +159,20 @@ Backend/frontend იგივე `geostat/backend` + `geostat/frontend`; გა�
 |----------|--------|
 | ერთი `geostat/infra/compose/` ყველა პროექტზე | DB/redis/qdrant კონფლიქტი და გაზიარებული მონაცემები |
 | იგივე `INFRA_PREFIX` / `POSTGRES_PORT` ორ repo-ზე | Docker container/port კონფლიქტი |
-| `infra/runtime/app.jar` | ინფრას build artifact არ აქვს |
+| `geostat/retrieval/` ან `geostat/ingestion/` root-ზე | Legacy mkdir artifact; D-10 = `backend/runtime/<container>/` only |
 
 ---
 
-## 10. მიმდინარე სერვერი vs target (2026-05-22)
+## 10. მიმდინარე სერვერი vs target (2026-05-23)
 
-| ფენა | Target (D-10) | Live ახლა (`192.168.1.199`) |
-|------|---------------|------------------------------|
-| **infra** | `infra/geostat-chat-ai/compose/` | ✅ მიგრირებული; containers: `geostat-chat-ai-postgres`, `-redis`, `-qdrant` |
-| **backend chat-api** | `backend/runtime/geostat-chat-ai-api/` | ⚠️ flat: `backend/geostat-chat-api/` — container `geostat-chat-api` |
-| **frontend app** | `frontend/static/geostat-chat-ai-app/` | ⚠️ flat: `frontend/geostat-chat-app/dist/` — container `geostat-chat-app` |
-| **retrieval / ingestion** | stack deploy (P6-migrate) | ❌ ჯერ არა deploy-ებული |
+| ფენა | Target (D-10) | Live (`192.168.1.199`) |
+|------|---------------|------------------------|
+| **infra** | `infra/geostat-chat-ai/compose/` | ✅ `geostat-chat-ai-postgres`, `-redis`, `-qdrant`, `-rabbitmq` |
+| **backend api (structured)** | `backend/runtime/geostat-chat-ai-api/` | ✅ container `geostat-chat-ai-api` |
+| **backend api (legacy name)** | — | ⚠️ container `geostat-chat-api` — **იგივე runtime path**; **არ ვაჩერებთ** |
+| **frontend app (structured)** | `frontend/static/geostat-chat-ai-app/` | ✅ container `geostat-chat-ai-app` |
+| **retrieval / ingestion** | `backend/runtime/geostat-chat-ai-{retrieval,ingestion}/` | ✅ structured deploy |
 
-**შემდეგი ops:** P6-migrate — `stack-deploy --prod` structured paths-ზე; ძველი flat containers შეცვლა/ჩანაცვლება.
+**P6-migrate:** ✅ applied — flat `geostat-chat-api`/`geostat-chat-app` dirs აღარ არის shared base-ზე; structured paths primary. `geostat layout migrate --prod` + `stack-deploy --prod` (2026-05-23).
+
+**Legacy artifact cleanup:** ცარიელი `geostat/retrieval/` და `geostat/ingestion/` — `geostat layout cleanup --legacy-segments` (მხოლოდ ცარიელი dir-ები).

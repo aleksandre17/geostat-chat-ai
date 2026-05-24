@@ -73,7 +73,12 @@ POST /jobs → crawl_run + seed url_frontier (PG)
      → crawler4j PageFetcher + robots (infra adapter)
      → Jsoup clean (domain)
      → document / chunk (PG) → embed → Qdrant
+     → retrieval-service → chat-api (CorpusContextFormatter, CatalogRagLinkMerger)
 ```
+
+**Zero-gap (B-25):** chat-api **must not** live-crawl or BFS URLs that ingestion indexes (e.g. `/structure`). Clarification and RAG use **retrieval only**. Single seed + link discovery — no duplicate structure seeds. See `.cursor/rules/zero-gap-architecture.mdc`.
+
+**Max capability:** ingestion runs **background** crawl; each document → **async index event** (RabbitMQ when enabled); prod uses full corpus policy, not smoke page limits. See `.cursor/rules/max-capability-collaboration.mdc`.
 
 ## Clean Architecture mapping (ingestion example)
 

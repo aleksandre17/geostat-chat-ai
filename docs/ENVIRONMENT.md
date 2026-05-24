@@ -83,6 +83,6 @@ Host sites should set:
 
 ---
 
-## Java package `Chatbot`
+## Java package `com.geostat.chat`
 
-Application code under `backend/src/main/java/Chatbot/`. **Ops scripts do not depend on package names** — only compose service names, Gradle modules, and `ops.modules`. Renaming the package is a separate refactor (see [ADR 005](adr/005-java-package-naming.md)); no deploy changes required.
+Application code under `apps/backend/src/main/java/com/geostat/chat/`. **Ops scripts do not depend on package names** — only compose service names, Gradle modules, and `ops.modules`. Legacy `Chatbot` package was migrated in B-23 (see [ADR 005](adr/005-java-package-naming.md)).

@@ -52,12 +52,31 @@
 
 | **D-06** | P3 Postgres + P4 Qdrant + P5 RabbitMQ (+ Redis cache) — remote infra compose | **approved** |
 
-## ბიუჯეტი / stack (2026-05-22)
+## ბიუჯეტი / stack (2026-05-22, განახლ. 2026-05-23)
 
 | ID | გადაწყვეტილება |
 |----|----------------|
 | **D-16** | **Paid SaaS = Gemini API only** (generation + prod embeddings default) |
 | **D-17** | **Free-first elsewhere** — OSS/self-host/local (Ollama embed, Qdrant, RabbitMQ, Postgres); adapter pattern |
+| **D-18** | **Benefit gate** — ახალი lib/service მხოლოდ თუ არქიტექტურა/პროდუქტი/perf/ops-ს აუმჯობესებს ([ADR-010](../../adr/010-product-stack-benefit-gate.md)) |
+| **D-19** | **Q-01 closed:** Gemini generation prod; Ollama generation optional local profile (P7-01) |
+| **D-20** | **Q-02 closed:** Spring AI primary; LangChain4j rejected |
+| **D-21** | **Q-04 closed:** Qdrant; `libs/qdrant-client` shared adapter |
+| **D-22** | **Q-05 closed:** crawler4j + Jsoup default; Playwright trigger-only (P3-03b) |
+| **D-23** | **Q-13 superseded (B-25):** single pipeline — StructureLookup removed; structure via corpus + RAG |
+| **D-24** | **Q-15 closed:** prod Redis AOF (`redis.yml` `REDIS_AOF:-yes`); dev persistence optional |
+
+## RAG derivation architecture (2026-05-24)
+
+სრული spec: [RAG-DERIVATION-ARCHITECTURE.md](../RAG-DERIVATION-ARCHITECTURE.md) · ADR: [011](../../adr/011-rag-derivation-architecture.md)
+
+| ID | გადაწყვეტილება |
+|----|----------------|
+| **D-25** | **Derivation architecture adopted.** Corpus (`ingestion.document` + Qdrant) = single source of truth. Topics, portals, specific links, keywords — **derived** by per-document enrichment + nightly aggregation, not authored in YAML. Hand-edited `topics.yaml` (2364 lines) deprecated and will be deleted after eval gate passes. Stays: `topic-style.yaml` (~80 lines, presentation only) + `terminology-overlay.yaml` (≤40 entries, synonym graph). |
+| **D-26** | **Curation overlay scope.** `ingestion.curation_override` is the only human authoring surface. Budget ≤50 rows. TTL default 90 days. `reason` mandatory. Actions: `boost / demote / exclude / pin_as_portal / rename_topic`. Overlay fixes derivation edge cases — does **not** create content. If overlay row count exceeds 50, signals upstream deriver problem to fix. |
+| **RAG-U03** | ~~SourceComposer~~ **superseded** — merged into RAG-U10 unified hybrid retriever |
+| **RAG-U04** | ~~Hybrid keyword topic classifier~~ **superseded** — replaced by RAG-U07c IntentClassifier |
+| **RAG-U06** | ~~Public catalog API~~ **dropped** — derived materialized views suffice |
 
 ## Docker ეკოსისტემა (2026-05-21)
 
@@ -82,16 +101,14 @@
 | ID | გადაწყვეტილება |
 |----|----------------|
 | **D-12** | Manifest = single source: compose service names, stack deploy steps, CI health URLs — არა hardcoded fe/be/worker |
-| **D-13** | `stack.composeModules`: backend + retrieval + ingestion + frontend; `features.worker: false` |
+| **D-13** | `stack.composeModules`: chat-api + retrieval + ingestion + frontend; `features.worker: false` |
 | **D-14** | Infra consumer path: `infra/<INFRA_SLUG>/` (არა shared `infra/compose/`) |
 | **D-15** | CI `healthModules`: Java services only; UI skip in Docker integration |
 
-## შემდეგი დამტკიცებული ფაზები (იმპლემენტაცია pending)
+## შემდეგი დამტკიცებული ფაზები
 
-- **0b + 0c:** done — infra slug + kit audit
-- P2: chat-api → retrieval HTTP
-
-- P3: ingestion pipeline + Postgres (hybrid)  
-
-- P4: Qdrant + retrieval search  
+- **Stack decisions:** done — [ADR-010](../../adr/010-product-stack-benefit-gate.md) (Q-01…Q-05, Q-13, Q-15)
+- **Kit:** ~~P0-kit-13~~ **done** — `compose.embeddedWorker`
+- **Product optional:** P3-03b Playwright (trigger), P7-01 Ollama local gen
+- **Ops owner:** GEMINI_API_KEY rotation; data-driven corpus reindex
 

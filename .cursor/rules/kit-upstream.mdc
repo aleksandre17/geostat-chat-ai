@@ -36,6 +36,11 @@ Anything that **adds or improves shared capability** for deploy, dev modes, comp
 
 - Grow permanent ops logic only in `ops/compose/*/ps1/` or `tools/` when it is generic kit material.
 - Duplicate kit helpers in the consumer “for speed” without a follow-up upstream PR/commit in `kits/geostat-kit`.
+- Put consumer brand, aliases, secrets, or artifacts into **kit runtime** — see `.cursor/rules/kit-package-architecture.mdc` § Owner gate.
+
+## Senior view → discuss first
+
+If the task reveals a **new package** or **kit improvement** worth reusing elsewhere, **stop and propose** (plan + owner) before hand-writing more consumer-only ops. Skills: `.cursor/skills/owner-geostat-ops` § Package idea & Package principles.
 
 Reference: `kits/geostat-kit/docs/ADOPTION-LINE.md`, `kits/geostat-kit/docs/PACKAGE-PRINCIPLES.md`.
 

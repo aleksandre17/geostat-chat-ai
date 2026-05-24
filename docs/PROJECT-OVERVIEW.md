@@ -72,7 +72,7 @@ geostat-chat-ai/
 | სერვისი | Path | Manifest id | Port | როლი |
 |---------|------|-------------|------|------|
 | **UI** | `apps/frontend` | `frontend` | 5177 | React chat widget |
-| **chat-api** | `apps/backend` | `backend` | 8090 | Chat, Gemini, TTS/STT, retrieval client |
+| **chat-api** | `apps/backend` | `chat-api` | 8090 | Chat, Gemini, TTS/STT, retrieval client |
 | **retrieval** | `apps/retrieval-service` | `retrieval` | 8092 | Qdrant vector search |
 | **ingestion** | `apps/ingestion-service` | `ingestion` | 8093 | Crawl, chunk, embed, index |
 
@@ -182,9 +182,9 @@ geostat-chat-ai/
 | **B-07** | CI: full RAG question → answer integration test | `ops/ci/` |
 | **B-09** | DEV-MODES §④ Hybrid kit docs-ში | kit docs |
 
-### 📋 Backlog (ჯერ არა approved)
+### 📋 Backlog / stack
 
-LangChain4j vs Spring AI, Playwright SPA, Ollama primary LLM — [plan/BACKLOG.md](plan/BACKLOG.md)
+გადაწყვეტილებები დახურულია — [ADR-010](adr/010-product-stack-benefit-gate.md), [plan/approved](plan/approved/README.md) D-18…D-24. Open implementation: P0-kit-13, P3-03b, P7-01.
 
 ---
 

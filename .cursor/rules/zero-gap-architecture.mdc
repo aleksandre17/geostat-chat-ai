@@ -1,0 +1,67 @@
+---
+description: Zero architectural gap — 100% own resources; exceed known architecture bar
+alwaysApply: true
+---
+
+# Zero-gap architecture (strict)
+
+## Core law
+
+Our architecture must **100% use its own resources** — the approved pipeline and layers we built. **No parallel knowledge paths**, no legacy shortcuts, no “coexist” stopgaps when the system already owns the capability.
+
+```text
+ingestion (crawler4j + Jsoup) → Postgres ingestion.* → Qdrant → retrieval → chat-api
+         ↑ YAML catalog (topics, links) — curated routing, not a second crawl
+```
+
+If a feature needs data, behavior, or ops capability:
+
+- **Add** it (local package, kit upstream, service, migration, adapter) — placement does not matter; **gap does**.
+- **Refactor** when structure blocks reuse or clarity.
+- **Remove** junk folders, blueprint leftovers, hardcoded duplicates, anti-patterns.
+
+Do **not** ship or keep a second implementation “for now” when the approved stack already covers the concern.
+
+## Senior bar (non-negotiable)
+
+Act as **Senior Application, Architecture & Design Engineer** and **Senior Software Developer**:
+
+| Dimension | Requirement |
+|-----------|-------------|
+| **Structure** | Logic-based folders; clear, readable trees; no junk drawers |
+| **Design** | Clean Architecture; SOLID; design + architecture patterns (ports/adapters, strategy, factory, …) |
+| **Quality** | Clean code; minimal surprise; no decorative or dead code |
+| **Agnostic** | Maximize — manifest-driven, extensible, growth-oriented |
+| **Anti-patterns** | Reject and remove — boundary leaks, god classes, duplicate truth, env mirrors of manifest |
+| **Blueprint** | No placeholder/scaffold code left as production path |
+| **Hardcode** | Manifest, config, or corpus — not scattered literals |
+| **Benchmark** | Match or **exceed** well-known mature architectures (layering, explicit boundaries, single pipeline) |
+
+## Gap detection (mandatory during every task)
+
+When you see any of these, **fix in scope** or **plan + owner** before “done”:
+
+- Live fetch / cache in chat-api while ingestion indexes the same URLs
+- Hand-rolled crawl/parse where plan approves crawler4j/Jsoup
+- Application layer importing API DTOs or infrastructure leaking outward
+- Consumer-specific logic in `kits/` runtime
+- Two sources of truth (env profile strings vs `geostat.ops.json`, YAML + giant Java maps, …)
+- “Coexist” of legacy and new path without documented exit — **default: migrate and delete legacy**
+
+## Exceed, don’t match
+
+If our system falls short of industry capability for the same concern, **close the gap** — add ability, refactor, or extend kit/libs. Prefer **better** structure than the reference, not a weaker copy.
+
+## Verification
+
+Before claiming complete:
+
+1. Grep for deleted/legacy paths (no orphan ports/controllers).
+2. `geostat validate` / module tests pass.
+3. Docs/plan reflect **single pipeline** — no stale “coexist” rows.
+
+## Skills & rules
+
+Read when relevant: `owner-architecture`, `owner-agent-conduct`, `owner-approved-stack`, `owner-geostat-ops`, `plan-automation-gate`, `kit-upstream`, `kit-package-architecture`, `max-capability-collaboration`.
+
+Owner writes in Georgian → proposals and summaries in Georgian unless they switch language.

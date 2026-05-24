@@ -153,10 +153,12 @@ RETRIEVAL_BASE_URL=http://localhost:8092
   → tunnel + health (psql / redis-cli / curl qdrant /health)
 
 ნაბიჯი 2 — ერთი აპი
-  chat-api:      cd apps/backend && gradlew bootRun          (:8090)
-  retrieval:     cd apps/retrieval-service && bootRun      (:8092)
-  ingestion:     cd apps/ingestion-service && bootRun      (:8093)
-  frontend:      cd apps/frontend && npm run dev            (~5173)
+  chat-api:      geostat hybrid boot be       (:8090)
+  retrieval:     geostat hybrid boot ret      (:8092)
+  ingestion:     geostat hybrid boot ing      (:8093)
+  frontend:      geostat hybrid boot fe       (:5173)
+                 # alias: geostat fe run | be run | ret run | ing run
+                 # legacy wrapper: ops/ci/hybrid-boot-app.ps1 -Service fe
 
 ნაბიჯი 3 — ნაწილობრივი stack
   infra + chat + fe                 # UI, retrieval stub
@@ -170,15 +172,15 @@ RETRIEVAL_BASE_URL=http://localhost:8092
 
 **geostat CLI (არსებული + სამიზნე):**
 
-| მიზანი | ბრძანება |
-|--------|----------|
-| მხოლოდ chat | `geostat be` / launch backend |
-| მხოლოდ retrieval | `geostat ret` + local bootRun |
-| მხოლოდ ingestion | `geostat ing` + local bootRun |
-| UI | `geostat fe` / `npm run dev` |
-| ინფრა remote | `geostat infra remote up` |
-| tunnel | `geostat infra tunnel` |
-| apps სერვერზე (არა hybrid) | `geostat be dev watch` |
+| მიზანი | ბრძანება | სტატუსი |
+|--------|----------|---------|
+| მხოლოდ chat | `geostat hybrid boot be` ან `geostat be run` | ✅ |
+| მხოლოდ retrieval | `geostat hybrid boot ret` ან `geostat ret run` | ✅ |
+| მხოლოდ ingestion | `geostat hybrid boot ing` ან `geostat ing run` | ✅ |
+| UI (hybrid ④) | `geostat hybrid boot fe` ან `geostat fe run` | ✅ |
+| ინფრა remote | `geostat infra remote up` | ✅ |
+| tunnel | `geostat infra tunnel` | ✅ |
+| apps სერვერზე (არა hybrid) | `geostat be dev watch` / `geostat fe dev watch` | ✅ |
 
 ---
 
@@ -311,7 +313,9 @@ Kit დოკის განახლება pending: `DEV-MODES.md` §④, `
 | P0-infra-04 | `geostat infra tunnel` script | **approved** |
 | P0-infra-05 | `geostat.ops.json` module `infra` | **approved** |
 | P0-infra-06 | Spring `hybrid` profile + env docs per module | **approved** |
-| P0-infra-07 | VS Code compound / preLaunch tunnel task | **proposed** |
+| P0-infra-07 | VS Code compound / preLaunch tunnel task | **done** | `vscode_gen` — `Hybrid: infra tunnel + API + UI` |
+| P0-infra-08 | Consumer delegate `ops/ci/hybrid-boot-app.ps1` → `geostat hybrid boot` | **done** |
+| P0-kit-12 | Kit: `geostat hybrid boot` + `fe run` / java-boot `run` for hybrid ④ | **done** — `toolkit/hybrid/Invoke-HybridRun.ps1` |
 | P2-02+ | `RETRIEVAL_BASE_URL`, `INFRA_HOST` in ops/config | **approved** (გაფართოება hybrid-ით) |
 
 **ფაზა 0b (ახალი):** Hybrid infra + tunnel — იმპლემენტაცია P2-მდე ან პარალელურად.
@@ -324,8 +328,8 @@ Kit დოკის განახლება pending: `DEV-MODES.md` §④, `
 
 1. **დილით:** `geostat infra remote up` (სერვერზე PG/Redis/Qdrant).
 2. **`geostat infra tunnel`** — ცალკე ტერმინალი, ღია დატოვე.
-3. **Cursor:** launch `backend: Spring Boot` (+ სურვილისამებრ retrieval, ingestion).
-4. **`npm run dev`** frontend.
+3. **Cursor / CLI:** `geostat hybrid boot be` (+ ret, ing, fe) — ან `geostat be run`; wrapper `hybrid-boot-app.ps1` delegate.
+4. ~~**`npm run dev`** frontend~~ → **`hybrid-boot-app.ps1 -Service fe`** (ან მომავალში `geostat hybrid boot fe`).
 5. **საღამოს:** `infra remote down` ან დატოვე running dev server-ზე.
 
 **როცა მხოლოდ Java Linux-ზე გინდა:** `be dev watch` + infra იგივე host-ზე → `postgres` DNS, tunnel არა საჭირო სერვერზე.

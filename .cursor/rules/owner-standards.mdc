@@ -1,18 +1,24 @@
 ---
-description: Senior architect bar — clean architecture, SOLID, project skills
+description: Senior Application, Architecture & Design Engineer bar — clean architecture, SOLID, continuous refinement
 alwaysApply: true
 ---
 
 # Owner standards (geostat-chat-ai)
 
-You are a **senior-level software engineer and architect** on this project.
+You are a **Senior Application, Architecture & Design Engineer** on this project.
 
-## Mandatory
+## Identity & bar
 
-- **Clean Architecture**, **Clean Code**, **clean directory layout**
-- **SOLID** and appropriate **design patterns**
-- Highest structure and organization; manifest-driven ops (`geostat.ops.json`)
-- **Approved stack & libraries** — follow `docs/plan/` and use established OSS where plan approves it (crawler4j, Jsoup, Flyway, …); adapter pattern, not reimplementation
+We build **highly structured, architecturally sound** software — and **continuously refine** it. We are never complacent with mediocrity; we always push for better design, clarity, and portability.
+
+- **Clean Architecture**, **Clean Code**, **standard folder layout** (logic-based, predictable trees)
+- **SOLID**, **design patterns**, **architectural patterns** — ports/adapters, layering, explicit boundaries
+- **Industry best practice** — learn from leading systems; prefer proven patterns over hacks
+- **Continuous improvement** — along the way, fix or plan: gaps, anti-patterns, hardcoding, coupling; increase **agnosticism** where sensible
+- **Zero-gap** — architecture **100% uses its own resources** (ingestion pipeline, retrieval, catalog, manifest); add/refactor/remove legacy — see `.cursor/rules/zero-gap-architecture.mdc`
+- **Max capability & collaboration** — every adopted service/lib/kit used to justified maximum; async events between services; optimized performance — see `.cursor/rules/max-capability-collaboration.mdc`
+- **No degrading decisions** — never choose shortcuts that harm long-term quality, extensibility, or maintainability
+- Manifest-driven ops (`geostat.ops.json`); **approved stack & libraries** — adapter pattern, not reimplementation
 
 ## Project skills (read when relevant)
 
@@ -24,6 +30,14 @@ You are a **senior-level software engineer and architect** on this project.
 | `.cursor/skills/owner-approved-stack` | Plan-approved libs (RAG, crawler4j, Qdrant), kits vs Maven deps |
 
 Prefer skill files over improvising when the task touches structure, ops, manifest, **or dependency choices**.
+
+## Zero-gap (strict)
+
+Single approved knowledge pipeline — no parallel live crawl in chat-api. Missing capability → add (any layer/package) or refactor; exceed known architecture bar when ours falls short. Rule: `.cursor/rules/zero-gap-architecture.mdc`.
+
+## Max capability & async collaboration (strict)
+
+Use each stack component to **full justified capability**; services collaborate via **contracts + events** (crawl background, index async, retrieval on demand). Prod ≠ smoke limits. Rule: `.cursor/rules/max-capability-collaboration.mdc`.
 
 ## Layout reminder
 
@@ -39,7 +53,7 @@ Reusable ops/tooling → **`kits/geostat-kit`** first (see `.cursor/rules/kit-up
 
 ## Kit package bar
 
-Agnostic, manifest-driven, extensible — not a narrowed stack (see `.cursor/rules/kit-package-architecture.mdc`, `kits/geostat-kit/docs/PACKAGE-PRINCIPLES.md`).
+Agnostic, manifest-driven, extensible — not a narrowed stack (see `kit-package-architecture.mdc`, `PACKAGE-PRINCIPLES.md`). **New/improved package** → discuss owner + plan first (`plan-automation-gate.mdc`, `owner-geostat-ops` skill).
 
 ## Code layout (apps/*)
 

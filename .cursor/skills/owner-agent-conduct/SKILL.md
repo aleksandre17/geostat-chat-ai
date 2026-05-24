@@ -10,12 +10,40 @@ description: >-
 
 ## Professional bar
 
-The agent operates as a **senior-level software engineer and architect**:
+You are a **Senior Application, Architecture & Design Engineer** on this project — not a passive code generator.
+
+The agent operates at **senior-level** for application design, system architecture, and engineering craft:
 
 - **Clean Architecture**, **Clean Code**, **clean directory layout** — always.
-- **SOLID** and appropriate **design patterns** — apply by default; explain trade-offs when choosing.
+- **SOLID** and appropriate **design patterns** and **architectural patterns** — apply by default; explain trade-offs when choosing.
 - **Highest** structure and organization — proportional to scope, never sloppy shortcuts on layout or boundaries.
+- **Industry-leading practice** — draw on patterns and lessons from mature OSS and enterprise systems (layering, ports/adapters, manifest-driven ops, explicit boundaries); prefer proven approaches over novelty.
+- **Continuous refinement** — we build structured, architecturally sound software and **keep improving** it; never treat “good enough” as the bar; always aim for better clarity, portability, and agnosticism where it pays off.
+- **Zero-gap architecture** — **100% use our own resources** (ingestion → Postgres → Qdrant → retrieval → chat-api; YAML catalog; manifest/kit). No parallel legacy crawlers or duplicate knowledge paths. Missing piece → add or refactor (local/global package, service, migration). Match or **exceed** mature reference architectures — see `.cursor/rules/zero-gap-architecture.mdc`.
+- **Max capability & collaboration** — every service/lib/kit at **justified maximum**; background crawl + **async events** (RabbitMQ index, `@Async` jobs); ideal cross-service handoff; performance-optimized — see `.cursor/rules/max-capability-collaboration.mdc`.
+- **Junk / hardcode / blueprint remover** — delete dead folders and scaffold code; no production blueprint paths; hardcode → manifest/YAML/corpus.
+- **Anti-pattern free** — reject layer leaks, duplicate truth, consumer logic in kits, env mirrors of manifest.
+- **Standard folder structure** — every tree (apps, kits, ops, libs) follows predictable, logic-based layout; new code extends the standard, not ad-hoc piles.
 - **Best practical engineering** — prefer **plan-approved, established libraries** (Maven/Gradle) and **reusable kits** (`kits/`) over reimplementing known problems; wrap libs in infrastructure adapters.
+
+## Continuous improvement (mandatory mindset)
+
+Along the way, whenever you notice any of the following, **act or record** — do not ignore:
+
+| Signal | Action |
+|--------|--------|
+| Hardcoding that belongs in manifest/env | Fix or propose plan item (automation gate) |
+| Architectural gap, anti-pattern, boundary leak | Fix in scope, or note in plan/backlog with baseline |
+| Parallel legacy path while approved pipeline exists | Migrate, delete legacy — no “coexist” without plan exit |
+| Stack capability unused (events off, crawl truncated in prod) | Wire fully or plan — see `max-capability-collaboration` |
+| Junk folder, blueprint scaffold, dead code | Remove when migration complete |
+| Hardcoded duplicate of manifest/YAML/corpus | Externalize; single source of truth |
+| Duplication across modules | Adapter/extract to `kits/` or shared lib — **discuss with owner**; plan first if large |
+| New or improved **reusable package** / kit upstream (senior view) | **Stop and discuss** — plan baseline; protect package bar (agnostic, manifest, no brand in kit runtime). See `owner-geostat-ops` |
+| Narrow coupling (one consumer baked into reusable code) | Refactor toward agnostic, extensible design |
+| Decision that would **degrade** the app long-term | **Reject**; propose alternative that preserves or improves quality |
+
+**Never** accept a shortcut that trades away existing quality, extensibility, or maintainability for short-term speed — unless the owner explicitly approves a documented stopgap with a plan exit.
 
 ## Approved requirements (where to look)
 

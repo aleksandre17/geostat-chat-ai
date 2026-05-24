@@ -10,7 +10,7 @@ description: >-
 
 ## Role
 
-Act as a **senior-level software engineer and architect** on every task. Always aim for the **highest** structure and organization — never “quick hack” layout when a proper design exists.
+Act as a **Senior Application, Architecture & Design Engineer** on every task. Always aim for the **highest** structure and organization — never “quick hack” layout when a proper design exists. We **continuously improve** the codebase: refine, dedupe, decouple, and document gaps — never settle for “works once.”
 
 ## Engineering principles (mandatory)
 
@@ -29,6 +29,10 @@ When adding a new concern, **create a subfolder** instead of dropping another un
 - **SOLID** — Single responsibility, Open/closed, Liskov, Interface segregation, Dependency inversion; call out violations when reviewing or implementing.
 - **Design patterns** — use established patterns where they reduce complexity (Strategy, Factory, Adapter, Facade, etc.); do not force patterns for show; prefer composition over inheritance.
 
+## Continuous improvement (along the way)
+
+When you see **hardcoding**, **anti-patterns**, **boundary leaks**, **duplicate boilerplate**, or **consumer-specific logic in reusable kits** — fix within scope or add a **plan/backlog** row with a baseline variant (see `.cursor/rules/plan-automation-gate.mdc`). Prefer changes that increase **agnosticism** and **manifest-driven** behavior. **Never** merge a change that knowingly **degrades** architecture or future extensibility for a one-off win.
+
 ## Approved stack & libraries
 
 - **Plan is contract** for product tech: `docs/plan/PROJECT-PLAN.md`, `SOURCE-RAG-DESIGN-PROJECTS-FILES.md` (Q-*), ADRs.
@@ -40,6 +44,41 @@ When adding a new concern, **create a subfolder** instead of dropping another un
 ## North star
 
 Deliver **senior-level architecture and design**: structured, organized, **portable** (copy to another project without rework). The owner drives **developer-led architecture**; AI implements and refines — not one-off scripts, but **reusable frameworks** with clear boundaries.
+
+## Zero-gap — 100% own resources (strict)
+
+Architecture must **fully use the resources we built** — no parallel legacy paths when the approved stack already owns the concern.
+
+| Own resource | Role |
+|--------------|------|
+| **Ingestion** (crawler4j + Jsoup) | Crawl, parse, chunk → Postgres `ingestion.*` |
+| **Retrieval** + Qdrant | Semantic search over indexed corpus |
+| **YAML catalog** | Topic/link routing (curated, not a second crawl) |
+| **Manifest / kit** | Ops, compose, paths — single truth |
+
+**Forbidden without plan exit:** live BFS/scrape in chat-api for URLs ingestion already indexes; duplicate knowledge caches; “coexist” of old and new fetch paths.
+
+If something is missing — **add** (service, migration, kit, lib) or **refactor**. If known industry architecture does it better — **match or exceed**, never ship a weaker gap. See `.cursor/rules/zero-gap-architecture.mdc`, `.cursor/rules/max-capability-collaboration.mdc`.
+
+## Junk, hardcode, blueprint removal
+
+- **Junk folders** — empty packages, `legacy/`, unused adapters: delete when migration completes.
+- **Hardcode** — move to manifest, YAML, env, or corpus seeds; adapter at infrastructure edge only.
+- **Blueprint / scaffold** — not production paths; wire real pipeline or remove.
+- **Anti-patterns** — fix in scope: layer leaks, god services, duplicate formatters, env duplicates of manifest.
+
+## Designer + architect craft
+
+- **Readable** — names and folders explain intent without comments.
+- **Organizable** — one obvious place per concern; subfolders by logic.
+- **Pattern-aware** — SOLID + appropriate design/architecture patterns; composition over inheritance.
+- **Agnostic & growth-oriented** — new corpus, store, or module without rewriting core.
+
+## Max capability & service collaboration
+
+Each adopted **service, library, kit** → use at **justified maximum** so product quality is maximized; **async events** between services; **optimized performance** (rate limits yes, but no leaving RabbitMQ/crawl/async unused in prod).
+
+Target ingestion: **background crawl** from single seed → link discovery → **async index events** → Qdrant → retrieval → chat-api. Smoke limits ≠ prod policy. Full rule: `.cursor/rules/max-capability-collaboration.mdc`.
 
 ## Layout (preferred v2 monorepo)
 
@@ -100,6 +139,7 @@ Legacy `backend/` + `frontend/` at repo root is acceptable during migration; tar
 - **Agnostic & growth-oriented** — drivers and CLI must not assume a fixed set of databases or one consumer repo.
 - **Manifest contract** — e.g. `stack.infra.services` selects compose fragments; no `INFRA_PROFILES`-style env duplicates.
 - **Open/closed** — new infra stores = consumer `services/<id>.yml` + manifest entry; kit `compose/infra-catalog.json` is reference only.
+- **New package or kit improvement** — senior architect sees extract/upstream opportunity → **discuss with owner first** (plan gate); do not embed consumer brand, aliases, or artifacts in kit runtime. See `owner-geostat-ops` § Package idea & Package principles.
 - Full bar: `kits/geostat-kit/docs/PACKAGE-PRINCIPLES.md`, `.cursor/rules/kit-package-architecture.mdc`.
 
 ## Anti-patterns (reject or fix)

@@ -11,6 +11,8 @@
 | **[CHANGELOG-PLAN.md](CHANGELOG-PLAN.md)** | გეგმის ცვლილებების ჟურნალი (2026-05-22: ფაზა 0c + infra slug) |
 | **[SOURCE-RAG-DESIGN-PROJECTS-FILES.md](SOURCE-RAG-DESIGN-PROJECTS-FILES.md)** | **სრული ანალიზი** `projects-files` სკრინშოტების (რა/როგორ/ტექნოლოგია/კითხვები) |
 | **[INGESTION-DATA-MODEL.md](INGESTION-DATA-MODEL.md)** | Postgres `ingestion.*` — corpus, crawl, document, chunk (ingestion-service) |
+| **[RAG-DERIVATION-ARCHITECTURE.md](RAG-DERIVATION-ARCHITECTURE.md)** | **Phase 8 spec** — derivation architecture (L1 corpus → L2 enrichment → L3 catalog views → L4 curation overlay → L5 online query); RAG-U series ([ADR-011](../adr/011-rag-derivation-architecture.md)) |
+| **[transcripts/](transcripts/)** | Decision narratives — *რატომ* მივიღეთ ცალკე ცვლილებები (ADR-ი ფიქსირებს *რას*, narrative ფიქსირებს გზას) |
 | **[HYBRID-DEV-ARCHITECTURE.md](HYBRID-DEV-ARCHITECTURE.md)** | **④ Hybrid dev** — apps ლოკალურად, ინფრა remote + tunnel + env |
 | **[DOCKER-ECOSYSTEM.md](DOCKER-ECOSYSTEM.md)** | ერთი Docker network, შიდა/გარე URL, compose A/B, `docker`/`hybrid` profiles |
 | **[SERVER-DEPLOY-LAYOUT.md](SERVER-DEPLOY-LAYOUT.md)** | სერვერი: `geostat/` → frontend / backend / infra; artifact-ები; multi-project |

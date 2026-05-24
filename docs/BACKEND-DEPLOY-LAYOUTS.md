@@ -36,11 +36,10 @@ Related: [BACKEND-DEV-REMOTE.md](./BACKEND-DEV-REMOTE.md), [BE-DEPLOY-WATCH.md](
 
 ```text
 /home/administrator/geostat/backend/
-  runtime/                       ← be deploy, be deploy watch
+  runtime/                       ← be deploy, be deploy watch (api, retrieval, ingestion)
     geostat-chat-ai-api/
-      app.jar, Dockerfile, .env.*, docker-compose.*.yml, logs/, versions/
-    geostat-chat-ai-worker/
-      ...
+    geostat-chat-ai-retrieval/
+    geostat-chat-ai-ingestion/
   workspace/                     ← be dev bootstrap / sync / watch
     geostat-chat-ai-api/
       gradlew, src/, shared/, worker/, .env.dev, docker-compose.workspace.yml
@@ -102,7 +101,9 @@ DEPLOY_PATH_MODE=base
 
 საერთო SSH: `ops/config/deploy.env` — `DEPLOY_SERVER`, `DEPLOY_PROJECT`.
 
-**`.env.deploy` გარეშე:** deploy იყენებს flat fallback-ს: `{SERVER_BASE}/{project}/backend/{container}/`.
+**`.env.deploy` გარეშე:** deploy იყენებს flat fallback-ს: `{SERVER_BASE}/{project}/backend/{container}/` (არა `geostat/<moduleId>/`).
+
+**არა:** ცარიელი `geostat/retrieval/` ან `geostat/ingestion/` root-ზე — legacy `REMOTE=$PROJECT/$target` artifact; structured deploy მხოლოდ `backend/runtime/<container>/`.
 
 ---
 
