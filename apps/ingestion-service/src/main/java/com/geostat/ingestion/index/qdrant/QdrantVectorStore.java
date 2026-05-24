@@ -5,13 +5,16 @@ import static io.qdrant.client.PointIdFactory.id;
 import static io.qdrant.client.ValueFactory.value;
 import static io.qdrant.client.VectorsFactory.vectors;
 
+import com.geostat.qdrant.QdrantOperationException;
 import com.geostat.ingestion.persistence.entity.ChunkEntity;
 import com.geostat.ingestion.persistence.entity.CorpusEntity;
 import com.geostat.ingestion.persistence.entity.DocumentEntity;
+import com.geostat.ingestion.parse.SectionPathExtractor;
 import io.qdrant.client.QdrantClient;
 import io.qdrant.client.grpc.Points.Filter;
 import io.qdrant.client.grpc.Points.PointStruct;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -48,14 +51,15 @@ public class QdrantVectorStore {
             List<ChunkEntity> chunks,
             DocumentEntity document,
             CorpusEntity corpus,
-            float[][] vectors) {
+            float[][] vectors,
+            String indexVersion) {
         if (chunks.isEmpty()) {
             return;
         }
         List<PointStruct> points = new ArrayList<>(chunks.size());
         for (int i = 0; i < chunks.size(); i++) {
             ChunkEntity chunk = chunks.get(i);
-            points.add(buildPoint(chunk, document, corpus, vectors[i]));
+            points.add(buildPoint(chunk, document, corpus, vectors[i], indexVersion));
         }
         try {
             client.upsertAsync(collectionName, points).get();
@@ -68,23 +72,43 @@ public class QdrantVectorStore {
     }
 
     private static PointStruct buildPoint(
-            ChunkEntity chunk, DocumentEntity document, CorpusEntity corpus, float[] vector) {
+            ChunkEntity chunk, DocumentEntity document, CorpusEntity corpus, float[] vector, String indexVersion) {
         List<Float> values = new ArrayList<>(vector.length);
-        for (float value : vector) {
-            values.add(value);
+        for (float v : vector) {
+            values.add(v);
+        }
+        Map<String, io.qdrant.client.grpc.JsonWithInt.Value> payload = new HashMap<>();
+        payload.put("documentId", value(document.getId().toString()));
+        payload.put("corpusId", value(corpus.getId().toString()));
+        payload.put("corpusName", value(corpus.getName()));
+        payload.put("chunkId", value(chunk.getId().toString()));
+        payload.put("sequenceNo", value(chunk.getSequenceNo()));
+        payload.put("url", value(document.getCanonicalUrl()));
+        payload.put("text", value(chunk.getText()));
+        payload.put("chunkStrategy", value(chunk.getChunkStrategy() == null ? "" : chunk.getChunkStrategy()));
+        if (document.getLanguage() != null) {
+            payload.put("language", value(document.getLanguage()));
+        }
+        if (document.getTitle() != null) {
+            payload.put("pageTitle", value(document.getTitle()));
+        }
+        if (document.getDisplayDescription() != null && !document.getDisplayDescription().isBlank()) {
+            payload.put("pageDescription", value(document.getDisplayDescription()));
+        }
+        String sectionPath = SectionPathExtractor.joinPath(document.getSectionPath());
+        if (!sectionPath.isBlank()) {
+            payload.put("sectionPath", value(sectionPath));
+        }
+        if (document.getFetchedAt() != null) {
+            payload.put("fetchedAt", value(document.getFetchedAt().toString()));
+        }
+        if (indexVersion != null && !indexVersion.isBlank()) {
+            payload.put("indexVersion", value(indexVersion));
         }
         return PointStruct.newBuilder()
                 .setId(id(chunk.getId()))
                 .setVectors(vectors(values))
-                .putAllPayload(Map.of(
-                        "documentId", value(document.getId().toString()),
-                        "corpusId", value(corpus.getId().toString()),
-                        "corpusName", value(corpus.getName()),
-                        "chunkId", value(chunk.getId().toString()),
-                        "sequenceNo", value(chunk.getSequenceNo()),
-                        "url", value(document.getCanonicalUrl()),
-                        "text", value(chunk.getText()),
-                        "chunkStrategy", value(chunk.getChunkStrategy() == null ? "" : chunk.getChunkStrategy())))
+                .putAllPayload(payload)
                 .build();
     }
 }

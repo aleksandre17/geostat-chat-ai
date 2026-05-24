@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- ============================================================
-     GeoStat Chatbot — Logback Configuration
+     GeoStat Chat API — Logback Configuration
      Logs: /app/logs/
        app.log    — INFO+ (all)
        error.log  — WARN+
@@ -51,16 +51,16 @@
          Logger Routing
          ═══════════════════════════════════════════════ -->
 
-    <!-- Chatbot → app.log directly (bypasses root level) -->
+    <!-- Application package → app.log directly (bypasses root level) -->
     <springProfile name="prod">
-        <logger name="Chatbot" level="INFO" additivity="false">
+        <logger name="com.geostat.chat" level="INFO" additivity="false">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="APP_FILE"/>
             <appender-ref ref="ERROR_FILE"/>
         </logger>
     </springProfile>
     <springProfile name="!prod">
-        <logger name="Chatbot" level="INFO"/>
+        <logger name="com.geostat.chat" level="INFO"/>
     </springProfile>
 
     <logger name="org.springframework.ai" level="WARN"/>

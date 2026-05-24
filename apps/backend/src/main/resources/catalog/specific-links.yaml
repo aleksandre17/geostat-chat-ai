@@ -1,0 +1,651 @@
+links:
+- url: https://www.geostat.ge/ka/modules/categories/61/umaghlesi-ganatleba
+  titleKa: სახლემწიფო ბიუჯეტი
+  titleEn: Government Budge
+  keywords:
+  - სახლემწიფო ბიუჯეტი
+  - ბიუჯეტ
+  - Government Budge
+  - Budge
+  - სახელმწიფო ხარჯები
+  - სახელმწიფო შემოსავლები
+  - სახელმწიფო ფინანსები
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/61/umaghlesi-ganatleba
+- url: https://www.geostat.ge/ka/modules/categories/27/mtsarmoebelta-da-importis-fasebis-indeksi
+  titleKa: მწარმოებელთა და იმპორტის ფასების ინდექსები
+  titleEn: Producer and Import Price Indices
+  keywords:
+  - მწარმოებელთა ფასები
+  - ექსპორტის ფასები
+  - იმპორტის ფასები
+  - მშენებლობისთვის შეძენილი მასალები
+  - მშენებლობის ღირებულების ინდექსი
+  - მწარმოებელთა ფასების ინდექსი
+  - ექსპორტის ფასების ინდექსი
+  - იმპორტის ფასების ინდექსი
+  - producer price index
+  - export price index
+  - import price index
+  - construction materials
+  - construction cost index
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/27/mtsarmoebelta-da-importis-fasebis-indeksi
+- url: https://www.geostat.ge/ka/modules/categories/297/sasursato-usafrtkhoeba
+  titleKa: სასურსათო უსაფრთხოება
+  titleEn: Food Security
+  keywords:
+  - სასურსათო ბალანსი
+  - სურსათი
+  - სასურსათო უსაფრთხოებ
+  - სასურსათო ხარჯები
+  - სასურსათო
+  - ხორბლ
+  - სიმინდ
+  - კარტოფი
+  - ბოსტნეული
+  - ყურძენ
+  - ხორც
+  - რძის
+  - კვერცხის
+  - Food balance
+  - nutritional status
+  - nutritional security
+  - food security
+  - food expenditure
+  - food
+  - wheat
+  - corn
+  - potato
+  - vegetable
+  - milk
+  - meat
+  - dairy products
+  - egg
+  - insecure indicators
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/297/sasursato-usafrtkhoeba
+- url: https://www.geostat.ge/ka/modules/categories/698/satskhovrebeli-udzravi-konebis-fasebis-indeksi
+  titleKa: საცხოვრებელი უძრავი ქონების ფასების ინდექსი
+  titleEn: Residential Real Estate Price Index
+  keywords:
+  - საცხოვრებელი უძრავი ქონების ფასები
+  - საცხოვრებელი უძრავი ქონების ფასების ინდექსი
+  - real estate price index
+  - residential real estate price index
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/698/satskhovrebeli-udzravi-konebis-fasebis-indeksi
+- url: https://www.geostat.ge/ka/modules/categories/55/sotsialuri-uzrunvelqofa
+  titleKa: სოციალური უზრუნველყოფა
+  titleEn: Social Security
+  keywords:
+  - პენსიონერ
+  - სოციალური პაკეტ
+  - საარსებო შემწეობ
+  - პენსია
+  - სოციალური უზრუნველყოფ
+  - სოციალური დახმარებ
+  - რამდენი იღებს
+  - ბენეფიციარ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/55/sotsialuri-uzrunvelqofa
+- url: https://www.geostat.ge/ka/modules/categories/58/adreuli-da-skolamdeli-aghzrda-da-ganatleba
+  titleKa: ადრეული და სკოლამდელი აღზრდა და განათლება
+  titleEn: Early and Preschool Education
+  keywords:
+  - სკოლამდელ
+  - ბაღ
+  - საბავშვო
+  - ადრეული განათლებ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/58/adreuli-da-skolamdeli-aghzrda-da-ganatleba
+- url: https://www.geostat.ge/ka/modules/categories/59/zogadi-ganatleba
+  titleKa: ზოგადი განათლება
+  titleEn: General Education
+  keywords:
+  - სკოლ
+  - ზოგადი განათლებ
+  - მოსწავლ
+  - საჯარო სკოლ
+  - კერძო სკოლ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/59/zogadi-ganatleba
+- url: https://www.geostat.ge/ka/modules/categories/60/profesiuli-ganatleba
+  titleKa: პროფესიული განათლება
+  titleEn: Professional Education
+  keywords:
+  - პროფესიული განათლებ
+  - პროფესიული სასწავლებ
+  - პტუ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/60/profesiuli-ganatleba
+- url: https://www.geostat.ge/ka/modules/categories/61/umaghlesi-ganatleba
+  titleKa: უმაღლესი განათლება
+  titleEn: Higher Education
+  keywords:
+  - უმაღლეს
+  - უნივერსიტეტ
+  - სტუდენტ
+  - ბაკალავრ
+  - მაგისტრ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/61/umaghlesi-ganatleba
+- url: https://www.geostat.ge/ka/modules/categories/194/metsniereba
+  titleKa: მეცნიერება
+  titleEn: Science
+  keywords:
+  - მკვლევარ
+  - მეცნიერ
+  - სამეცნიერო
+  - პატენტ
+  - კვლევ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/194/metsniereba
+- url: https://www.geostat.ge/ka/modules/categories/759/akvakultura
+  titleKa: აკვაკულტურა
+  titleEn: Aquaculture
+  keywords:
+  - თევზი
+  - წყალსატევები
+  - აკვაკულტურ
+  - სასუქ
+  - მოლუსკ
+  - მოლუსკების წარმოება
+  - მოლუსკების ექსპორტი
+  - მოლუსკების იმპორტი
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/759/akvakultura
+- url: https://www.geostat.ge/ka/modules/categories/615/kultura
+  titleKa: კულტურა
+  titleEn: Culture
+  keywords:
+  - თეატრ
+  - მუზეუმ
+  - კულტურ
+  - ღონისძიებ
+  - ბიბლიოთეკ
+  excludeKeywords:
+  - აკვაკულტ
+  - aquaculture
+  urlEn: https://www.geostat.ge/en/modules/categories/615/kultura
+- url: https://www.geostat.ge/ka/modules/categories/710/sporti
+  titleKa: სპორტი
+  titleEn: Sport
+  keywords:
+  - სპორტ
+  - სპორტსმენ
+  - სპორტული
+  - ოლიმპიურ
+  - მედალ
+  - პარაოლიმპ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/710/sporti
+- url: https://www.geostat.ge/ka/modules/categories/54/jandatsva
+  titleKa: ჯანდაცვა
+  titleEn: Healthcare
+  keywords:
+  - დაავადებ
+  - ავადობ
+  - ექიმ
+  - ექთან
+  - საავადმყოფო
+  - საწოლ
+  - სამედიცინო პერსონალ
+  - ჯანდაცვ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/54/jandatsva
+- url: https://www.geostat.ge/ka/modules/categories/132/siskhlis-samartlis-statistika
+  titleKa: სისხლის სამართლის სტატისტიკა
+  titleEn: Criminal Statistics
+  keywords:
+  - დანაშაულ
+  - პატიმარ
+  - მსჯავრდებულ
+  - სისხლის სამართ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/132/siskhlis-samartlis-statistika
+- url: https://www.geostat.ge/ka/page/aghmasrulebeli-direqtori
+  titleKa: აღმასრულებელი დირექტორი
+  titleEn: Executive Director
+  keywords:
+  - დირექტორ
+  - გოგიტა თოდრაძე
+  - თოდრაძე
+  - ხელმძღვანელ
+  - მმართველობ
+  - მართავს
+  - ხელმძღვანელობ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/page/aghmasrulebeli-direqtori
+- url: https://www.geostat.ge/ka/page/moadgile-paata-shavishvili
+  titleKa: აღმასრულებელი დირექტორის მოადგილე
+  titleEn: Deputy Executive Director
+  keywords:
+  - აღმასრულებელი დირექტორის მოადგილე
+  - დირექტორის მოადგილე
+  - მოადგილე
+  - პაატა შავიშვ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/page/moadgile-paata-shavishvili
+- url: https://www.geostat.ge/ka/page/moadgile-irakli-apkhaidze
+  titleKa: აღმასრულებელი დირექტორის მოადგილე
+  titleEn: Deputy Executive Director
+  keywords:
+  - ირაკლი აფხაიძ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/page/moadgile-irakli-apkhaidze
+- url: https://www.geostat.ge/ka/modules/categories/25/fasebis-statistika
+  titleKa: ფასების სტატისტიკა
+  titleEn: Price Statistics
+  keywords:
+  - ინფლაცი
+  - ფასებ
+  - გაძვირებ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/25/fasebis-statistika
+- url: https://www.geostat.ge/ka/modules/categories/589/statistikis-samsakhuris-yofili-khelmdzghvanelebi
+  titleKa: სტატისტიკის სამსახურის ყოფილი ხელმძღვანელები
+  titleEn: Former Heads of the Statistics Service
+  keywords:
+  - ვალერიან მელქაძე
+  - გრიგოლ ჟორჟიკაშვილი
+  - რევაზ ბასარია
+  - ანზორ ჯანჯღავა
+  - ლერი გიგინეიშვილი
+  - თეიმურაზ ბერიძე
+  - ზაზა ბროლაძე
+  - ირაკლი სირაძე
+  - გრიგოლ ფანცულაია
+  - ზაზა ჭელიძე
+  - მერი დაუშვილი
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/589/statistikis-samsakhuris-yofili-khelmdzghvanelebi
+- url: https://www.geostat.ge/ka/modules/categories/41/mosakhleoba
+  titleKa: მოსახლეობა
+  titleEn: Population
+  keywords:
+  - მოსახლეობ
+  - დემოგრაფი
+  - დაბადებ
+  - გარდაცვალებ
+  - მიგრაცი
+  - ქორწინებ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/41/mosakhleoba
+- url: https://census2024.geostat.ge/ka
+  titleKa: მოსახლეობის აღწერა 2024
+  titleEn: Census 2024
+  keywords:
+  - აღწერ
+  - ცენზუს
+  - census
+  excludeKeywords: []
+  urlEn: https://census2024.geostat.ge/en
+- url: https://www.geostat.ge/ka/modules/categories/637/eksporti
+  titleKa: ექსპორტი
+  titleEn: Export
+  keywords:
+  - ექსპორტ
+  - გატან
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/637/eksporti
+- url: https://www.geostat.ge/ka/modules/categories/638/importi
+  titleKa: იმპორტი
+  titleEn: Import
+  keywords:
+  - იმპორტ
+  - შემოტან
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/638/importi
+- url: https://www.geostat.ge/ka/modules/categories/37/dasakmeba-khelfasebi
+  titleKa: დასაქმება და ხელფასები
+  titleEn: Employment and Wages
+  keywords:
+  - დასაქმებ
+  - უმუშევრობ
+  - ხელფას
+  - სამუშაო ძალ
+  - შრომის ბაზარ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/37/dasakmeba-khelfasebi
+- url: https://www.geostat.ge/ka/modules/categories/23/mtliani-shida-produkti-mshp
+  titleKa: მთლიანი შიდა პროდუქტი (მშპ)
+  titleEn: Gross Domestic Product (GDP)
+  keywords:
+  - მშპ
+  - მთლიანი შიდა პროდუქტ
+  - ეკონომიკური ზრდ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/23/mtliani-shida-produkti-mshp
+- url: https://www.geostat.ge/ka/modules/categories/866/sektoruli-angarishebi
+  titleKa: სექტორული ანგარიშები
+  titleEn: Sectoral Accounts
+  keywords:
+  - სექტორულ ანგარიშ
+  - sectoral accounts
+  - sector accounts
+  - ინსტიტუციური სექტორ
+  - ფინანსური სექტორ
+  - არაფინანსურ კორპორაცი
+  - institutional sector
+  - financial sector
+  - non-financial corporations
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/866/sektoruli-angarishebi
+- url: https://www.geostat.ge/ka/modules/categories/892/sportis-satelituri-angarishi
+  titleKa: სპორტის სატელიტური ანგარიში
+  titleEn: Sports Satellite Account
+  keywords:
+  - სპორტის სატელიტურ
+  - სატელიტური ანგარიშ
+  - სატელიტური
+  - sports satellite
+  - satellite account
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/892/sportis-satelituri-angarishi
+- url: https://www.geostat.ge/ka/modules/categories/769/danakharjebi-gamoshvebis-tskhrilebi
+  titleKa: დანახარჯები-გამოშვების ცხრილები
+  titleEn: Supply and Use Tables
+  keywords:
+  - დანახარჯები-გამოშვებ
+  - გამოშვების ცხრილ
+  - supply and use
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/769/danakharjebi-gamoshvebis-tskhrilebi
+- url: https://www.geostat.ge/ka/modules/categories/632/resursebisa-da-gamoqenebis-tskhrilebi-new
+  titleKa: რესურსებისა და გამოყენების ცხრილები
+  titleEn: Resources and Use Tables
+  keywords:
+  - რესურსებისა და გამოყენებ
+  - გამოყენების ცხრილ
+  - resources and use
+  - resource table
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/632/resursebisa-da-gamoqenebis-tskhrilebi-new
+- url: https://www.geostat.ge/ka/modules/categories/24/mtliani-erovnuli-shemosavali-mesh
+  titleKa: მთლიანი ეროვნული შემოსავალი (მეშ)
+  titleEn: Gross National Income (GNI)
+  keywords:
+  - მეშ
+  - მთლიანი ეროვნული შემოსავ
+  - ეროვნული შემოსავ
+  - gni
+  - gross national income
+  - national income
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/24/mtliani-erovnuli-shemosavali-mesh
+- url: https://www.geostat.ge/ka/modules/categories/64/biznes-registri
+  titleKa: ბიზნეს რეგისტრის სტატისტიკა
+  titleEn: Business Register Statistics
+  keywords:
+  - ბიზნეს რეგისტრ
+  - ბიზნესრეგისტრ
+  - business register
+  - business registry
+  - რეგისტრირებული საწარმო
+  - registered enterprise
+  - რეგისტრაცია საწარმო
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/64/biznes-registri
+- url: https://www.geostat.ge/ka/modules/categories/100/turizmis-statistika
+  titleKa: ტურიზმის სტატისტიკა
+  titleEn: Tourism Statistics
+  keywords:
+  - ტურიზმ
+  - ვიზიტორ
+  - ტურისტ
+  - სასტუმრო
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/100/turizmis-statistika
+- url: https://www.geostat.ge/ka/modules/categories/196/soflis-meurneoba
+  titleKa: სოფლის მეურნეობა
+  titleEn: Agriculture
+  keywords:
+  - სოფლის მეურნეობ
+  - მემცენარეობ
+  - მეცხოველეობ
+  - მოსავ
+  - ფერმ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/196/soflis-meurneoba
+- url: https://www.geostat.ge/ka/modules/categories/73/garemos-statistika
+  titleKa: გარემოს სტატისტიკა
+  titleEn: Environment Statistics
+  keywords:
+  - გარემო
+  - ეკოლოგი
+  - დაბინძურებ
+  - ნარჩენ
+  - წყალ
+  - ჰაერ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/73/garemos-statistika
+- url: https://www.geostat.ge/ka/modules/categories/48/tskhovrebis-done
+  titleKa: ცხოვრების დონე
+  titleEn: Living Standards
+  keywords:
+  - სიღარიბ
+  - ცხოვრების დონ
+  - შინამეურნეობ
+  - ჯინის კოეფიციენტ
+  - საარსებო მინიმუმ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/48/tskhovrebis-done
+- url: https://regions.geostat.ge/regions/
+  titleKa: რეგიონული სტატისტიკის პორტალი
+  titleEn: Regional Statistics Portal
+  keywords:
+  - რეგიონ
+  - მუნიციპალიტეტ
+  - ადგილობრივ
+  excludeKeywords: []
+- url: https://www.geostat.ge/ka/calendar
+  titleKa: სტატისტიკური კალენდარი
+  titleEn: Statistical Calendar
+  keywords:
+  - კალენდარ
+  - გამოქვეყნების გრაფიკ
+  - გამოქვეყნების განრიგ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/calendar
+- url: https://www.geostat.ge/ka/news
+  titleKa: სიახლეები
+  titleEn: News
+  keywords:
+  - სიახლ
+  - ახალი ამბ
+  - news
+  - უახლეს
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/news
+- url: https://www.geostat.ge/ka/archive
+  titleKa: პუბლიკაციები / არქივი
+  titleEn: Publications / Archive
+  keywords:
+  - პუბლიკაცი
+  - არქივ
+  - publication
+  - archive
+  - გამოცემ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/archive
+- url: https://www.geostat.ge/ka/modules/categories/35/sagareo-vachroba
+  titleKa: საგარეო ვაჭრობა
+  titleEn: External Trade
+  keywords:
+  - საგარეო ვაჭრობ
+  - საგარეო ეკონომიკ
+  - external trade
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/35/sagareo-vachroba
+- url: https://i-rating.geostat.ge/
+  titleKa: i-რეიტინგი
+  titleEn: i-Rating
+  keywords:
+  - რეიტინგ
+  - rating
+  - i-rating
+  - i-რეიტინგ
+  - რანკინგ
+  - ranking
+  excludeKeywords: []
+- url: https://www.geostat.ge/ka/modules/categories/306/kanonmdebloba
+  titleKa: კანონმდებლობა
+  titleEn: Legislation
+  keywords:
+  - კანონმდებლობ
+  - კანონ
+  - შინაგანაწეს
+  - რეგულაცი
+  - წესდება
+  - დებულება
+  - legislation
+  - regulation
+  - სამართლებრივ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/306/kanonmdebloba
+- url: https://www.geostat.ge/ka/modules/categories/707/mravalindikatoruli-klasteruli-gamokvleva
+  titleKa: მრავალინდიკატორული კლასტერული გამოკვლევა (MICS)
+  titleEn: Multiple Indicator Cluster Survey (MICS)
+  keywords:
+  - mics
+  - კლასტერულ
+  - მრავალინდიკატორულ
+  - cluster survey
+  - multiple indicator
+  - ბავშვთა კეთილდღეობ
+  - child wellbeing
+  - unicef
+  - უნისეფ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/707/mravalindikatoruli-klasteruli-gamokvleva
+- url: https://automobile.geostat.ge/
+  titleKa: ავტომობილების სტატისტიკის პორტალი
+  titleEn: Automobile Statistics Portal
+  keywords:
+  - ავტომობილ
+  - მანქან
+  - automobile
+  - car
+  - vehicle
+  - ავტო
+  excludeKeywords: []
+- url: https://indexation.geostat.ge/indexation/?lang=ka
+  titleKa: ფასთა ინდექსაციის კალკულატორი
+  titleEn: Price Indexation Calculator
+  keywords:
+  - ინდექსაცი
+  - indexation
+  - ფასთა ინდექს
+  excludeKeywords: []
+  urlEn: https://indexation.geostat.ge/indexation/?lang=en
+- url: https://cpi.geostat.ge/
+  titleKa: სამომხმარებლო ფასების ინდექსის კალკულატორი
+  titleEn: CPI Calculator
+  keywords:
+  - cpi
+  - სამომხმარებლო ფასებ
+  - consumer price index
+  - სფი
+  excludeKeywords: []
+- url: https://mytaxes.geostat.ge/mytaxes/
+  titleKa: გადახდების კალკულატორი
+  titleEn: Payments Calculator
+  keywords:
+  - გადახდ
+  - გადასახად
+  - payment
+  - tax calculator
+  - mytaxes
+  excludeKeywords: []
+- url: https://personalinflation.geostat.ge/
+  titleKa: პერსონალური ინფლაციის კალკულატორი
+  titleEn: Personal Inflation Calculator
+  keywords:
+  - პერსონალურ ინფლაცი
+  - personal inflation
+  - ჩემი ინფლაცი
+  excludeKeywords: []
+- url: https://youth.geostat.ge/
+  titleKa: სტატისტიკა ბავშვებისა და მოზარდებისთვის
+  titleEn: Statistics for Children and Youth
+  keywords:
+  - ბავშვ
+  - მოზარდ
+  - ახალგაზრდ
+  - youth
+  - children
+  - child
+  - teenager
+  - ბავშვებისა
+  - მოზარდებისთვის
+  - ბავშვთა
+  - არასრულწლოვან
+  excludeKeywords: []
+- url: https://www.geostat.ge/ka/modules/categories/307/statistikur-samushaota-programa
+  titleKa: სტატისტიკური სამუშაოთა პროგრამა
+  titleEn: Statistical Work Programme
+  keywords:
+  - სამუშაოთა პროგრამ
+  - სტატისტიკური სამუშაო
+  - work programme
+  - work program
+  - სამუშაო გეგმ
+  - სამუშაოების პროგრამ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/307/statistikur-samushaota-programa
+- url: https://www.geostat.ge/ka/modules/categories/308/sakmianobis-angarishi
+  titleKa: საქსტატის საქმიანობის ანგარიში
+  titleEn: GeoStat Activity Report
+  keywords:
+  - საქმიანობის ანგარიშ
+  - activity report
+  - annual report
+  - ყოველწლიური ანგარიშ
+  - წლიური ანგარიშ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/308/sakmianobis-angarishi
+- url: https://www.geostat.ge/ka/modules/categories/766/momsakhurebit-saertashoriso-vachroba
+  titleKa: მომსახურებით საერთაშორისო ვაჭრობა
+  titleEn: International Trade in Services
+  keywords:
+  - მომსახურებით საერთ
+  - მომსახურებით ვაჭრობ
+  - services trade
+  - international trade in services
+  - მომსახურების ექსპორტ
+  - მომსახურების იმპორტ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/766/momsakhurebit-saertashoriso-vachroba
+- url: https://www.geostat.ge/ka/single-categories/121/kvartaluri
+  titleKa: კვარტალური პუბლიკაციები
+  titleEn: Quarterly Publications
+  keywords:
+  - კვარტალური პუბლიკ
+  - quarterly publication
+  - კვარტალური გამოცემ
+  - კვარტალური ბიულეტენ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/single-categories/121/kvartaluri
+- url: https://www.geostat.ge/ka/single-categories/122/tsliuri
+  titleKa: წლიური პუბლიკაციები
+  titleEn: Annual Publications
+  keywords:
+  - წლიური პუბლიკ
+  - annual publication
+  - წლიური გამოცემ
+  - წლიური ბიულეტენ
+  - სტატისტიკური წელიწდეული
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/single-categories/122/tsliuri
+- url: https://www.geostat.ge/ka/modules/categories/555/kitxvarebi
+  titleKa: გამოკვლევების კითხვარები
+  titleEn: Survey Questionnaires
+  keywords:
+  - გამოკვლევის კითხვარ
+  - survey questionnaire
+  - კითხვარის ფორმ
+  - questionnaire form
+  - კითხვარები გამოკვლევ
+  excludeKeywords: []
+  urlEn: https://www.geostat.ge/en/modules/categories/555/kitxvarebi

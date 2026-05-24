@@ -1,0 +1,237 @@
+agriProductKeywords:
+- ვაშლ
+- მსხალ
+- ქლიავ
+- ბალი
+- ატამ
+- გარგარ
+- ყურძენ
+- ციტრუს
+- ლიმონ
+- მანდარინ
+- მარწყვ
+- კივი
+- ბროწეულ
+- ლეღვ
+- თხილ
+- კაკალ
+- ნუშ
+- ფიჭვ
+- მარცვლეულ
+- ხორბალ
+- სიმინდ
+- ქერ
+- შვრი
+- სოიო
+- მზესუმზირ
+- შაქრის ჭარხალ
+- კარტოფილ
+- პომიდვრ
+- კიტრ
+- ბოლოკ
+- ხახვ
+- ნიორ
+- კომბოსტ
+- ბადრიჯან
+- ბოსტნეულ
+- მწვანილ
+- სალათ
+- ლობი
+- ბარდ
+- ოხრახუშ
+- ბალახ
+- სახამებელ
+- ბამბ
+- სელ
+- თამბაქო
+- ჩაი
+- ზეთისხილ
+- რძ
+- ყველ
+- კარაქ
+- კვერцх
+- კვერც
+- კვერძ
+- ხორც
+- ქათმ
+- ღორ
+- საქონელ
+- ცხვარ
+- თხ
+- ფრინველ
+- ნადირ
+- ფუტკარ
+- თაფლ
+- ბლომ
+- თევზ
+- ორაგულ
+- ლოქო
+- კალმახ
+- ზუთხ
+- ბოჭალ
+- კიბოხ
+- კიბო
+- სოკო
+- კენკრ
+- ხილ
+- ხილის
+- ღვინ
+- ლუდ
+- წვენ
+- კომპოტ
+- სოფლის
+- სასოფლო
+- ფერმ
+- აგრო
+- სათბურ
+- სარწყავ
+sectoralKeywords:
+- სექტორულ ანგარიშ
+- sectoral accounts
+- sector accounts
+- ინსტიტუციური სექტორ
+- institutional sector
+- ფინანსური სექტორ
+- financial sector
+- არაფინანსურ კორპორაცი
+- non-financial corporations
+- სახელმწიფო სექტორ
+- government sector
+- შინამეურნეობების სექტორ
+- household sector
+sectoralAccounts:
+  url: https://www.geostat.ge/ka/modules/categories/866/sektoruli-angarishebi
+  titleKa: სექტორული ანგარიშები
+  titleEn: Sectoral Accounts
+  urlEn: https://www.geostat.ge/en/modules/categories/866/sektoruli-angarishebi
+newsRelevantTopics:
+- AGRICULTURE
+- BUSINESS
+- CRIME
+- DISABILITY
+- EDUCATION
+- EMPLOYMENT
+- ENVIRONMENT
+- FDI
+- GENDER
+- GOVERNMENT_FINANCE
+- HEALTHCARE
+- ICT
+- INDUSTRY
+- I_RATING
+- LIVING_STANDARDS
+- MONETARY
+- NATIONAL_ACCOUNTS
+- POPULATION
+- PRICES
+- REGIONS
+- SERVICES
+- TOURISM
+- TRADE
+- YOUTH
+latestKeywords:
+- უახლეს
+- ბოლო
+- latest
+- recent
+- update
+- ზრდა
+- growth
+- კლება
+- decline
+- ცვლილება
+- change
+- დინამიკ
+- dynamic
+- trend
+- ტენდენცი
+allPortals:
+- titleEn: National Accounts Portal
+  titleKa: ეროვნული ანგარიშების პორტალი
+  url: https://sna.geostat.ge/ka/4/Mtavari
+  urlEn: https://sna.geostat.ge/en/4/Mtavari
+- titleEn: Economic Analysis Portal
+  titleKa: ეკონომიკური ანალიზის პორტალი
+  url: https://eap.geostat.ge/
+- titleEn: Business Register
+  titleKa: ბიზნეს რეგისტრი
+  url: https://br.geostat.ge/
+- titleEn: Price Kaleidoscope
+  titleKa: ფასების კალეიდოსკოპი
+  url: https://kaleidoscope.geostat.ge/
+- titleEn: Personal Inflation Calculator
+  titleKa: პერსონალური ინფლაციის კალკულატორი
+  url: https://personalinflation.geostat.ge/
+- titleEn: CPI Calculator
+  titleKa: სამომხმარებლო ფასების ინდექსის კალკულატორი
+  url: https://cpi.geostat.ge/
+- titleEn: Price Indexation Calculator
+  titleKa: ფასთა ინდექსაციის კალკულატორი
+  url: https://indexation.geostat.ge/indexation/?lang=ka
+  urlEn: https://indexation.geostat.ge/indexation/?lang=en
+- titleEn: External Trade Portal
+  titleKa: საგარეო ვაჭრობის პორტალი
+  url: https://ex-trade.geostat.ge/
+- titleEn: FDI Portal
+  titleKa: პირდაპირი უცხოური ინვესტიციების პორტალი
+  url: https://fdi.geostat.ge/
+- titleEn: Census Portal
+  titleKa: მოსახლეობის აღწერის პორტალი
+  url: https://census2024.geostat.ge/ka/
+  urlEn: https://census2024.geostat.ge/en/
+- titleEn: Demographic Portal
+  titleKa: დემოგრაფიული პორტალი
+  url: https://database.geostat.ge/pyramid/index.php?lang=ka
+  urlEn: https://database.geostat.ge/pyramid/index.php?lang=en
+- titleEn: Salary Calculator
+  titleKa: ხელფასების კალკულატორი
+  url: https://salarium.geostat.ge/
+- titleEn: Agriculture Portal
+  titleKa: სოფლის მეურნეობის პორტალი
+  url: https://agriculture.geostat.ge/
+- titleEn: Tourism Statistics Portal
+  titleKa: ტურიზმის სტატისტიკის პორტალი
+  url: https://tourism.geostat.ge/
+- titleEn: Environment Statistics Portal
+  titleKa: გარემოს სტატისტიკის პორტალი
+  url: https://environment.geostat.ge/
+- titleEn: Energy Statistics Portal
+  titleKa: ენერგეტიკის სტატისტიკის პორტალი
+  url: https://energy.geostat.ge/
+- titleEn: Automobile Statistics Portal
+  titleKa: ავტომობილების სტატისტიკის პორტალი
+  url: https://automobile.geostat.ge/
+- titleEn: Regional Statistics Portal
+  titleKa: რეგიონული სტატისტიკის პორტალი
+  url: https://regions.geostat.ge/regions/
+- titleEn: GIS Analysis
+  titleKa: GIS ანალიზი
+  url: https://gis.geostat.ge/geomap/index.html
+- titleEn: Gender Statistics Portal
+  titleKa: გენდერული სტატისტიკის პორტალი
+  url: https://gender.geostat.ge/gender/index.php
+- titleEn: Youth Statistics Portal
+  titleKa: სტატისტიკა ბავშვებისა და მოზარდებისთვის
+  url: https://youth.geostat.ge/
+- titleEn: Disability Statistics Portal
+  titleKa: შშმ პირთა სტატისტიკის პორტალი
+  url: https://disability.geostat.ge/shshm/index.php?lang=ka
+  urlEn: https://disability.geostat.ge/shshm/index.php?lang=en
+- titleEn: Payments Calculator
+  titleKa: გადახდების კალკულატორი
+  url: https://mytaxes.geostat.ge/mytaxes/
+- titleEn: PC-AXIS Database
+  titleKa: მონაცემთა ბაზები PC-AXIS
+  url: https://pc-axis.geostat.ge/PXWeb/
+- titleEn: Sustainable Development Goals
+  titleKa: მდგრადი განვითარების მიზნები (SDG)
+  url: https://sdg.gov.ge/intro
+- titleEn: Survey Calendar
+  titleKa: გამოკვლევების კალენდარი
+  url: https://surveycalendar.geostat.ge/
+- titleEn: Questionnaires Portal
+  titleKa: კითხვარების პორტალი
+  url: https://questionnaires.geostat.ge/login
+- titleEn: i-Rating
+  titleKa: i-რეიტინგი
+  url: https://i-rating.geostat.ge/

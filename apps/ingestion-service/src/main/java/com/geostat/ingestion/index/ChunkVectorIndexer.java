@@ -3,7 +3,8 @@ package com.geostat.ingestion.index;
 import com.geostat.ingestion.config.IngestionProperties;
 import com.geostat.embedding.EmbeddingPort;
 import com.geostat.ingestion.index.qdrant.QdrantCollectionManager;
-import com.geostat.ingestion.index.qdrant.QdrantOperationException;
+import com.geostat.qdrant.QdrantOperationException;
+import com.geostat.qdrant.VectorCollectionNaming;
 import com.geostat.ingestion.index.qdrant.QdrantVectorStore;
 import com.geostat.ingestion.persistence.entity.ChunkEntity;
 import com.geostat.ingestion.persistence.entity.CorpusEntity;
@@ -80,7 +81,7 @@ public class ChunkVectorIndexer {
             return 0;
         }
 
-        String collectionName = VectorCollectionNaming.collectionFor(corpus);
+        String collectionName = VectorCollectionNaming.collectionForName(corpus.getName());
         String indexVersion = properties.indexing().indexVersion();
         collectionManager.ensureCollection(collectionName, embedding.dimensions());
 
@@ -93,7 +94,7 @@ public class ChunkVectorIndexer {
             chunk.setEmbeddingModel(embedding.modelId());
         }
 
-        vectorStore.upsert(collectionName, chunks, document, corpus, vectors);
+        vectorStore.upsert(collectionName, chunks, document, corpus, vectors, indexVersion);
 
         for (ChunkEntity chunk : chunks) {
             chunkRepository.save(chunk);

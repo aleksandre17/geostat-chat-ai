@@ -1,0 +1,9 @@
+# Shared server — bot-* already binds 127.0.0.1:5432/6379/6333.
+# Internal DNS on geostat-chat-ai-net only (postgres, redis, qdrant, rabbitmq).
+services:
+  postgres:
+    ports: !reset []
+  redis:
+    ports: !reset []
+  qdrant:
+    ports: !reset []

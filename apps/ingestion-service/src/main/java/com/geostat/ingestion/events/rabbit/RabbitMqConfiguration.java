@@ -8,11 +8,12 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.amqp.autoconfigure.RabbitAutoConfiguration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,9 +22,27 @@ import org.springframework.context.annotation.Profile;
 @Configuration
 @EnableRabbit
 @Profile("db")
-@ImportAutoConfiguration(RabbitAutoConfiguration.class)
 @ConditionalOnProperty(prefix = "geostat.ingestion.events", name = "enabled", havingValue = "true")
 public class RabbitMqConfiguration {
+
+    @Bean
+    ConnectionFactory connectionFactory(
+            @Value("${spring.rabbitmq.host}") String host,
+            @Value("${spring.rabbitmq.port}") int port,
+            @Value("${spring.rabbitmq.username}") String username,
+            @Value("${spring.rabbitmq.password}") String password) {
+        CachingConnectionFactory factory = new CachingConnectionFactory(host, port);
+        factory.setUsername(username);
+        factory.setPassword(password);
+        return factory;
+    }
+
+    @Bean
+    RabbitAdmin rabbitAdmin(ConnectionFactory connectionFactory) {
+        RabbitAdmin admin = new RabbitAdmin(connectionFactory);
+        admin.setAutoStartup(true);
+        return admin;
+    }
 
     @Bean
     JacksonJsonMessageConverter jacksonJsonMessageConverter() {

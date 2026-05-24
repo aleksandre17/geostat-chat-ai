@@ -26,7 +26,9 @@
 
     "composeDir": "ops/compose/stack",
 
-    "composeModules": ["backend", "retrieval", "ingestion", "frontend"],
+    "composeModules": ["chat-api", "retrieval", "ingestion", "frontend"],
+
+    "deployBaseSecretsModule": "chat-api",
 
     "networkName": "geostat-chat-ai-net",
 
@@ -46,9 +48,9 @@
 
       "fe": "frontend",
 
-      "be": "backend",
+      "be": "chat-api",
 
-      "chat": "backend",
+      "chat": "chat-api",
 
       "ret": "retrieval",
 
@@ -60,7 +62,7 @@
 
   "modules": {
 
-    "backend": {
+    "chat-api": {
 
       "role": "api",
 
@@ -72,15 +74,43 @@
 
       "target": "backend",
 
+      "compose": {
+        "embeddedWorker": false
+      },
+
       "debug": {
 
         "java": {
 
-          "mainClass": "Chatbot.ChatbotApplication",
+          "mainClass": "com.geostat.chat.ChatApplication",
 
           "projectName": "geostat-chat-ai"
 
         }
+
+      },
+
+      "hybrid": {
+
+        "springProfiles": "local",
+        "preferJar": true,
+        "bootJar": "apps/backend/build/libs/geostat-chat-ai-2.0.0-SNAPSHOT.jar"
+
+      },
+
+      "configGen": {
+
+        "mode": "env-profiles"
+
+      },
+
+      "spring": {
+
+        "applicationName": "geostat-chat-ai",
+
+        "defaultProfile": "local",
+
+        "portEnv": "API_PORT"
 
       },
 
@@ -142,6 +172,24 @@
 
         }
 
+      },
+
+      "hybrid": {
+
+        "gradleWrapper": "apps/backend/gradlew.bat",
+        "preferJar": true,
+        "bootJar": "apps/retrieval-service/build/libs/retrieval-service-0.1.0-SNAPSHOT.jar"
+
+      },
+
+        "portEnv": "RETRIEVAL_PORT"
+
+      },
+
+      "configGen": {
+
+        "mode": "simple"
+
       }
 
     },
@@ -165,6 +213,44 @@
           "mainClass": "com.geostat.ingestion.IngestionApplication",
 
           "projectName": "ingestion-service"
+
+        }
+
+      },
+
+      "hybrid": {
+
+        "gradleWrapper": "apps/backend/gradlew.bat",
+        "preferJar": true,
+        "bootJar": "apps/ingestion-service/build/libs/ingestion-service-0.1.0-SNAPSHOT.jar"
+
+      },
+
+      "datastores": {
+
+        "postgres": { "schema": "ingestion", "database": "geostat", "flyway": true },
+
+        "rabbitmq": { "optional": true },
+
+        "qdrant": { "optional": true },
+
+        "events": { "enabledEnv": "INGESTION_EVENTS_ENABLED" }
+
+      },
+
+      "spring": {
+
+        "applicationName": "ingestion-service",
+
+        "defaultProfile": "nodb",
+
+        "portEnv": "INGESTION_PORT",
+
+        "profileGroups": {
+
+          "hybrid": ["db", "hybrid-env"],
+
+          "docker": ["db", "docker-env"]
 
         }
 
@@ -214,7 +300,21 @@
 
     "waitStackHealth": "kits/geostat-kit/ci/wait-stack-health.sh",
 
-    "healthModules": ["backend", "retrieval", "ingestion"]
+    "ragSmoke": "ops/ci/rag-pipeline-smoke.sh",
+
+    "chatCatalogRagSmoke": "ops/ci/chat-catalog-rag-smoke.ps1",
+
+    "chatRagE2eSmoke": "ops/ci/chat-rag-e2e-smoke.sh",
+
+    "verifyServicesProd": "ops/ci/verify-services-prod.sh",
+
+    "corpusQualityAudit": "ops/ci/corpus-quality-audit.sh",
+
+    "ragEvalSmoke": "ops/ci/rag-eval-smoke.ps1",
+
+    "ragLocalePipeline": "ops/ci/rag-locale-pipeline.ps1",
+
+    "healthModules": ["chat-api", "retrieval", "ingestion"]
 
   },
 

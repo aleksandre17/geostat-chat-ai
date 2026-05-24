@@ -1,0 +1,1 @@
+@"C:\Users\Test-User\CursorProjects\geostat-chat-ai\.ci-venv\Scripts\python.exe" %*

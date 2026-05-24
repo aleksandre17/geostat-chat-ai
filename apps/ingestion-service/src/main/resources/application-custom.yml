@@ -1,0 +1,49 @@
+# Hand-maintained domain config — not touched by geostat config-gen (P0-kit-10)
+geostat:
+  ingestion:
+    indexing:
+      enabled: ${INGESTION_INDEXING_ENABLED:true}
+      index-version: ${INGESTION_INDEX_VERSION:v1}
+    events:
+      enabled: ${INGESTION_EVENTS_ENABLED:false}
+      exchange: geostat.ingestion
+      index-queue: geostat.ingestion.document-index
+      routing-key: document.index
+    qdrant:
+      url: ${QDRANT_URL:http://127.0.0.1:6333}
+      grpc-port: ${QDRANT_GRPC_PORT:6334}
+      use-tls: false
+      api-key: ${QDRANT_API_KEY:}
+    embedding:
+      provider: ${EMBEDDING_PROVIDER:hash-v1}
+      model-id: ${EMBEDDING_MODEL_ID:hash-v1}
+      vector-size: ${EMBEDDING_VECTOR_SIZE:384}
+      gemini-api-key: ${GEMINI_API_KEY:}
+      gemini-model: ${GEMINI_EMBED_MODEL:gemini-embedding-001}
+      ollama-base-url: ${OLLAMA_BASE_URL:http://127.0.0.1:11434}
+      ollama-model: ${OLLAMA_EMBED_MODEL:nomic-embed-text}
+    quality-audit:
+      min-content-chars: ${CORPUS_AUDIT_MIN_CHARS:100}
+      empty-body-playwright-rate: ${CORPUS_AUDIT_EMPTY_BODY_RATE:0.15}
+      min-empty-body-docs: ${CORPUS_AUDIT_MIN_EMPTY_DOCS:3}
+      chunk-coverage-min: ${CORPUS_AUDIT_CHUNK_COVERAGE:0.85}
+      vector-coverage-min: ${CORPUS_AUDIT_VECTOR_COVERAGE:0.90}
+      min-parsed-docs-for-reindex: ${CORPUS_AUDIT_MIN_PARSED:10}
+    scheduler:
+      enabled: ${INGESTION_SCHEDULER_ENABLED:false}
+      fixed-delay-ms: ${INGESTION_SCHEDULER_DELAY_MS:3600000}
+    playwright:
+      enabled: ${INGESTION_PLAYWRIGHT_ENABLED:false}
+      timeout-ms: ${INGESTION_PLAYWRIGHT_TIMEOUT_MS:30000}
+    archive:
+      enabled: ${INGESTION_RAW_ARCHIVE_ENABLED:false}
+      provider: ${INGESTION_RAW_ARCHIVE_PROVIDER:noop}
+      endpoint: ${INGESTION_RAW_ARCHIVE_ENDPOINT:}
+      bucket: ${INGESTION_RAW_ARCHIVE_BUCKET:geostat-raw-html}
+      access-key: ${INGESTION_RAW_ARCHIVE_ACCESS_KEY:}
+      secret-key: ${INGESTION_RAW_ARCHIVE_SECRET_KEY:}
+      region: ${INGESTION_RAW_ARCHIVE_REGION:us-east-1}
+    freshness:
+      enabled: ${INGESTION_FRESHNESS_ENABLED:true}
+      stale-after-ms: ${INGESTION_FRESHNESS_STALE_MS:86400000}
+      batch-size: ${INGESTION_FRESHNESS_BATCH:50}

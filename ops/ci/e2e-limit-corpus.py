@@ -19,7 +19,12 @@ cur.execute(
     WHERE name = 'geostat-portal'
     RETURNING name, policy
     """,
-    (json.dumps({"maxPagesPerRun": 3, "maxDepth": 1}),),
+    (json.dumps({
+        "maxPagesPerRun": 3,
+        "maxDepth": 1,
+        "crawlMode": "bounded",
+        "autoContinue": False,
+    }),),
 )
 row = cur.fetchone()
 conn.commit()

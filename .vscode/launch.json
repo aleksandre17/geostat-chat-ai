@@ -5,9 +5,13 @@
       "name": "backend: Spring Boot",
       "type": "java",
       "request": "launch",
-      "mainClass": "Chatbot.ChatbotApplication",
+      "mainClass": "com.geostat.chat.ChatApplication",
       "cwd": "${workspaceFolder}/apps/backend",
-      "projectName": "geostat-chat-ai"
+      "projectName": "geostat-chat-ai",
+      "envFile": "${workspaceFolder}/ops/config/backend/.env.dev",
+      "env": {
+        "SPRING_PROFILES_ACTIVE": "local"
+      }
     },
     {
       "name": "frontend: npm run dev",
@@ -17,17 +21,28 @@
       "cwd": "${workspaceFolder}/apps/frontend"
     },
     {
+      "name": "retrieval: Spring Boot",
+      "type": "java",
+      "request": "launch",
+      "mainClass": "com.geostat.retrieval.RetrievalApplication",
+      "cwd": "${workspaceFolder}/apps/retrieval-service",
+      "projectName": "retrieval-service",
+      "envFile": "${workspaceFolder}/ops/config/retrieval/.env.dev"
+    },
+    {
+      "name": "ingestion: Spring Boot",
+      "type": "java",
+      "request": "launch",
+      "mainClass": "com.geostat.ingestion.IngestionApplication",
+      "cwd": "${workspaceFolder}/apps/ingestion-service",
+      "projectName": "ingestion-service",
+      "envFile": "${workspaceFolder}/ops/config/ingestion/.env.dev"
+    },
+    {
       "name": "geostat: stack (compose dev)",
       "type": "node-terminal",
       "request": "launch",
       "command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}/tools/geostat.ps1\" stack up -d --build",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "geostat: api check",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}/tools/geostat.ps1\" api check",
       "cwd": "${workspaceFolder}"
     },
     {
@@ -45,10 +60,31 @@
       "cwd": "${workspaceFolder}"
     },
     {
+      "name": "geostat: ing check",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}/tools/geostat.ps1\" ing check",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "geostat: ret check",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}/tools/geostat.ps1\" ret check",
+      "cwd": "${workspaceFolder}"
+    },
+    {
       "name": "geostat: ui check",
       "type": "node-terminal",
       "request": "launch",
       "command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}/tools/geostat.ps1\" ui check",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "geostat: worker check",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}/tools/geostat.ps1\" worker check",
       "cwd": "${workspaceFolder}"
     }
   ],
@@ -59,6 +95,15 @@
         "backend: Spring Boot",
         "frontend: npm run dev"
       ],
+      "stopAll": true
+    },
+    {
+      "name": "Hybrid: infra tunnel + API + UI",
+      "configurations": [
+        "backend: Spring Boot",
+        "frontend: npm run dev"
+      ],
+      "preLaunchTask": "geostat: infra tunnel",
       "stopAll": true
     }
   ]

@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class GeminiEmbeddingModel implements EmbeddingPort {
 
-    public static final String DEFAULT_MODEL = "text-embedding-004";
+    public static final String DEFAULT_MODEL = "gemini-embedding-001";
     public static final int DIMENSIONS = 768;
 
     private final String apiKey;
@@ -50,7 +50,8 @@ public class GeminiEmbeddingModel implements EmbeddingPort {
         }
         try {
             Map<String, Object> body = Map.of(
-                    "content", Map.of("parts", List.of(Map.of("text", text == null ? "" : text))));
+                    "content", Map.of("parts", List.of(Map.of("text", text == null ? "" : text))),
+                    "outputDimensionality", dimensions());
             String json = objectMapper.writeValueAsString(body);
             URI uri = URI.create("https://generativelanguage.googleapis.com/v1beta/models/"
                     + model + ":embedContent?key=" + apiKey);

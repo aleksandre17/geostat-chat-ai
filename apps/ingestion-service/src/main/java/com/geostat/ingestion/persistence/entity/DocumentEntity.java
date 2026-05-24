@@ -12,7 +12,9 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -40,11 +42,24 @@ public class DocumentEntity {
 
     private String language;
 
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "section_path", nullable = false, columnDefinition = "jsonb")
+    private List<String> sectionPath = new ArrayList<>();
+
     @Column(name = "content_text")
     private String contentText;
 
     @Column(name = "content_hash")
     private String contentHash;
+
+    @Column(name = "lead_text")
+    private String leadText;
+
+    @Column(name = "meta_description")
+    private String metaDescription;
+
+    @Column(name = "display_description")
+    private String displayDescription;
 
     @Column(name = "raw_storage_key")
     private String rawStorageKey;
@@ -59,6 +74,12 @@ public class DocumentEntity {
 
     @Column(name = "http_status")
     private Integer httpStatus;
+
+    @Column(name = "http_etag")
+    private String httpEtag;
+
+    @Column(name = "last_modified")
+    private Instant lastModified;
 
     @Column(name = "fetched_at")
     private Instant fetchedAt;
@@ -136,6 +157,14 @@ public class DocumentEntity {
         this.language = language;
     }
 
+    public List<String> getSectionPath() {
+        return sectionPath;
+    }
+
+    public void setSectionPath(List<String> sectionPath) {
+        this.sectionPath = sectionPath != null ? sectionPath : new ArrayList<>();
+    }
+
     public String getContentText() {
         return contentText;
     }
@@ -150,6 +179,30 @@ public class DocumentEntity {
 
     public void setContentHash(String contentHash) {
         this.contentHash = contentHash;
+    }
+
+    public String getLeadText() {
+        return leadText;
+    }
+
+    public void setLeadText(String leadText) {
+        this.leadText = leadText;
+    }
+
+    public String getMetaDescription() {
+        return metaDescription;
+    }
+
+    public void setMetaDescription(String metaDescription) {
+        this.metaDescription = metaDescription;
+    }
+
+    public String getDisplayDescription() {
+        return displayDescription;
+    }
+
+    public void setDisplayDescription(String displayDescription) {
+        this.displayDescription = displayDescription;
     }
 
     public String getRawStorageKey() {
@@ -182,6 +235,22 @@ public class DocumentEntity {
 
     public void setHttpStatus(Integer httpStatus) {
         this.httpStatus = httpStatus;
+    }
+
+    public String getHttpEtag() {
+        return httpEtag;
+    }
+
+    public void setHttpEtag(String httpEtag) {
+        this.httpEtag = httpEtag;
+    }
+
+    public Instant getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(Instant lastModified) {
+        this.lastModified = lastModified;
     }
 
     public Instant getFetchedAt() {

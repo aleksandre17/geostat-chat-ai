@@ -11,3 +11,15 @@ java {
         languageVersion.set(JavaLanguageVersion.of(if (major >= 21) 21 else major))
     }
 }
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+}

@@ -7,10 +7,10 @@
     "api_prod": "  {api_service}:\n    image: {api_image}\n    container_name: {api_service}\n    build:\n      context: {api_build_context}\n      dockerfile: {api_dockerfile_prod}\n    ports:\n      - \"${{API_PORT:-8090}}:${{API_PORT:-8090}}\"\n    environment:\n      SPRING_PROFILES_ACTIVE: prod\n      GOOGLE_APPLICATION_CREDENTIALS: /app/google-credentials.json\n      JAVA_TOOL_OPTIONS: >-\n        -XX:+UseContainerSupport\n        -XX:MaxRAMPercentage=75.0\n        -XX:+UseG1GC\n        -Xms256m -Xmx1g\n    volumes:\n      - {secrets_backend}/google-credentials.json:/app/google-credentials.json:ro\n      - {api_storage_vol}:/app/storage\n      - {api_uploads_vol}:/tmp/uploads\n      - {api_logs}:/app/logs\n    env_file:\n      - {secrets_backend}/.env.prod\n    networks:\n      - {network_key}\n    restart: always\n    healthcheck:\n      test: [\"CMD-SHELL\", \"wget -qO- http://localhost:${{API_PORT:-8090}}/health | grep -q UP || exit 1\"]\n      interval: 30s\n      timeout: 5s\n      retries: 3\n      start_period: 90s\n    logging:\n      driver: json-file\n      options:\n        max-size: \"50m\"\n        max-file: \"3\"\n",
     "worker_dev": "  {worker_service}:\n    image: {worker_image}\n    container_name: {worker_service}\n    build:\n      context: {worker_context}\n      dockerfile: {worker_dockerfile_dev}\n    ports:\n      - \"${{WORKER_PORT:-8091}}:${{WORKER_PORT:-8091}}\"\n    env_file:\n      - {secrets_backend}/.env.dev\n    environment:\n      SPRING_PROFILES_ACTIVE: dev\n      API_INTERNAL_URL: ${{API_INTERNAL_URL:-http://{api_service}:${{API_PORT:-8090}}}}\n    depends_on:\n      {api_service}:\n        condition: service_healthy\n    networks:\n      - {network_key}\n    restart: unless-stopped\n    healthcheck:\n      test: [\"CMD-SHELL\", \"wget -qO- http://localhost:${{WORKER_PORT:-8091}}/actuator/health | grep -q UP || exit 1\"]\n      interval: {health_interval}\n      timeout: 5s\n      retries: {health_retries}\n      start_period: {health_start}\n",
     "worker_prod": "  {worker_service}:\n    image: {worker_image}\n    container_name: {worker_service}\n    build:\n      context: {worker_build_context}\n      dockerfile: {worker_dockerfile_prod}\n    ports:\n      - \"${{WORKER_PORT:-8091}}:${{WORKER_PORT:-8091}}\"\n    environment:\n      SPRING_PROFILES_ACTIVE: prod\n      API_INTERNAL_URL: ${{API_INTERNAL_URL:-http://{api_service}:${{API_PORT:-8090}}}}\n      JAVA_TOOL_OPTIONS: >-\n        -XX:+UseContainerSupport\n        -XX:MaxRAMPercentage=75.0\n        -Xms128m -Xmx512m\n    env_file:\n      - {secrets_backend}/.env.prod\n    depends_on:\n      {api_service}:\n        condition: service_healthy\n    networks:\n      - {network_key}\n    restart: always\n    healthcheck:\n      test: [\"CMD-SHELL\", \"wget -qO- http://localhost:${{WORKER_PORT:-8091}}/actuator/health | grep -q UP || exit 1\"]\n      interval: 30s\n      timeout: 5s\n      retries: 3\n      start_period: 60s\n    logging:\n      driver: json-file\n      options:\n        max-size: \"20m\"\n        max-file: \"3\"\n",
-    "app_base": "  {app_service}:\n    image: {app_image}\n    container_name: {app_service}\n    build:\n      context: {app_context}\n      dockerfile: src/Dockerfile\n",
+    "app_base": "  {app_service}:\n    image: {app_image}\n    container_name: {app_service}\n    build:\n      context: {app_context}\n      dockerfile: Dockerfile\n",
     "app_dev_overlay": "  {app_service}:\n    build:\n      target: development\n    ports:\n      - \"${{DEPLOY_HOST_PORT:-5177}}:${{APP_DEV_CONTAINER_PORT:-5177}}\"\n    volumes:\n      - {app_dev_mount}:/app\n      - /app/node_modules\n    environment:\n      VITE_API_URL: ${{VITE_API_URL:-http://localhost:${{API_PORT:-8090}}}}\n    develop:\n      watch:\n        - action: sync\n          path: ./src\n          target: /app/src\n        - action: rebuild\n          path: package.json\n",
-    "app_stack_dev": "  {app_service}:\n    image: {app_image}\n    container_name: {app_service}\n    build:\n      context: {app_context}\n      dockerfile: src/Dockerfile\n      target: development\n    ports:\n      - \"${{DEPLOY_HOST_PORT:-5177}}:${{APP_DEV_CONTAINER_PORT:-5177}}\"\n    volumes:\n      - {app_dev_mount}:/app\n      - /app/node_modules\n    environment:\n      VITE_API_URL: ${{VITE_API_URL:-http://localhost:${{API_PORT:-8090}}}}\n    depends_on:\n      {api_service}:\n        condition: service_healthy\n    networks:\n      - {network_key}\n    restart: unless-stopped\n    develop:\n      watch:\n        - action: sync\n          path: ./src\n          target: /app/src\n        - action: rebuild\n          path: package.json\n",
-    "app_stack_prod": "  {app_service}:\n    image: {app_image}\n    container_name: {app_service}\n    build:\n      context: {app_context}\n      dockerfile: src/Dockerfile\n      target: production\n      args:\n        VITE_API_URL: ${{VITE_API_URL:-http://localhost:${{API_PORT:-8090}}}}\n    ports:\n      - \"${{DEPLOY_HOST_PORT:-5177}}:80\"\n    depends_on:\n      {api_service}:\n        condition: service_healthy\n    networks:\n      - {network_key}\n    restart: unless-stopped\n    healthcheck:\n      test: [\"CMD\", \"wget\", \"-qO-\", \"http://localhost/\"]\n      interval: 30s\n      timeout: 5s\n      retries: 3\n      start_period: 10s\n",
+    "app_stack_dev": "  {app_service}:\n    image: {app_image}\n    container_name: {app_service}\n    build:\n      context: {app_context}\n      dockerfile: Dockerfile\n      target: development\n    ports:\n      - \"${{DEPLOY_HOST_PORT:-5177}}:${{APP_DEV_CONTAINER_PORT:-5177}}\"\n    volumes:\n      - {app_dev_mount}:/app\n      - /app/node_modules\n    environment:\n      VITE_API_URL: ${{VITE_API_URL:-http://localhost:${{API_PORT:-8090}}}}\n    depends_on:\n      {api_service}:\n        condition: service_healthy\n    networks:\n      - {network_key}\n    restart: unless-stopped\n    develop:\n      watch:\n        - action: sync\n          path: ./src\n          target: /app/src\n        - action: rebuild\n          path: package.json\n",
+    "app_stack_prod": "  {app_service}:\n    image: {app_image}\n    container_name: {app_service}\n    build:\n      context: {app_context}\n      dockerfile: Dockerfile\n      target: production\n      args:\n        VITE_API_URL: ${{VITE_API_URL:-http://localhost:${{API_PORT:-8090}}}}\n    ports:\n      - \"${{DEPLOY_HOST_PORT:-5177}}:80\"\n    depends_on:\n      {api_service}:\n        condition: service_healthy\n    networks:\n      - {network_key}\n    restart: unless-stopped\n    healthcheck:\n      test: [\"CMD\", \"wget\", \"-qO-\", \"http://localhost/\"]\n      interval: 30s\n      timeout: 5s\n      retries: 3\n      start_period: 10s\n",
     "app_prod_overlay": "  {app_service}:\n    build:\n      target: production\n      args:\n        VITE_API_URL: ${{VITE_API_URL:-http://localhost:${{API_PORT:-8090}}}}\n    ports:\n      - \"${{DEPLOY_HOST_PORT:-5177}}:80\"\n    restart: unless-stopped\n    healthcheck:\n      test: [\"CMD\", \"wget\", \"-qO-\", \"http://localhost/\"]\n      interval: 30s\n      timeout: 5s\n      retries: 3\n      start_period: 10s\n",
     "stack_depends": "    depends_on:\n      {api_service}:\n        condition: service_healthy\n",
     "net_internal": "networks:\n  {network_key}:\n    name: {network_name}\n",
@@ -29,7 +29,7 @@
       },
       "fmt": {
         "api_context": ".",
-        "api_dockerfile_dev": "src/Dockerfile.dev",
+        "api_dockerfile_dev": "Dockerfile.dev",
         "worker_context": ".",
         "worker_dockerfile_dev": "worker/Dockerfile.dev",
         "secrets_backend": "../../ops/config/backend",
@@ -49,7 +49,7 @@
         "worker_prod": "worker"
       },
       "fmt": {
-        "api_build_context": "./src",
+        "api_build_context": ".",
         "api_dockerfile_prod": "Dockerfile",
         "worker_build_context": ".",
         "worker_dockerfile_prod": "worker/Dockerfile",
@@ -95,6 +95,13 @@
       },
       "networks": "net_bridge"
     },
+    "apps/retrieval-service/docker-compose.prod.yml": {
+      "comment": "# Prod — geostat ret deploy all --prod\n",
+      "manifestModule": "retrieval",
+      "manifestProfile": "prod",
+      "fmt": {},
+      "networks": "net_bridge"
+    },
     "apps/ingestion-service/docker-compose.dev.yml": {
       "comment": "# Dev — geostat ing compose up --build\n",
       "manifestModule": "ingestion",
@@ -104,6 +111,13 @@
         "health_retries": "5",
         "health_start": "60s"
       },
+      "networks": "net_bridge"
+    },
+    "apps/ingestion-service/docker-compose.prod.yml": {
+      "comment": "# Prod — geostat ing deploy all --prod\n",
+      "manifestModule": "ingestion",
+      "manifestProfile": "prod",
+      "fmt": {},
       "networks": "net_bridge"
     },
     "ops/compose/stack/docker-compose.yml": {

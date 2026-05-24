@@ -102,4 +102,14 @@ echo "[ci] docker compose stack up (-f $COMPOSE_FILE + integration override) in 
 WAIT_STACK="$(geostat_read_manifest_field ci.waitStackHealth "kits/geostat-kit/ci/wait-stack-health.sh")"
 bash "$ROOT/$WAIT_STACK"
 
+if [[ "${RUN_RAG_SMOKE:-}" == "1" ]]; then
+  bash "$ROOT/ops/ci/rag-pipeline-smoke.sh"
+  export RETRIEVAL_ENABLED=true
+  export REQUIRE_RETRIEVAL_HITS=1
+  bash "$ROOT/ops/ci/chat-rag-e2e-smoke.sh"
+  if [[ "${RUN_RAG_EVAL:-}" == "1" ]]; then
+    bash "$ROOT/ops/ci/rag-eval-smoke.sh" -Strict
+  fi
+fi
+
 echo "[ci] Integration stack passed."

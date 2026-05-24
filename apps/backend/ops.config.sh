@@ -1,4 +1,4 @@
-﻿# Module ops config — see kits/geostat-kit/docs/ADOPTION-LINE.md §9
+# Module ops config — see kits/geostat-kit/docs/ADOPTION-LINE.md §9
 OPS_SECRETS_MODULE="backend"
 # Optional fallback if DEPLOY_PROJECT unset in ops/config/deploy.env (else: repo folder name)
 OPS_PROJECT_NAME=""

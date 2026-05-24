@@ -1,8 +1,12 @@
 package com.geostat.retrieval.index.qdrant;
 
+import static io.qdrant.client.ConditionFactory.matchKeyword;
+
+import com.geostat.qdrant.QdrantOperationException;
 import com.geostat.platform.contracts.retrieval.RetrievedChunk;
 import io.qdrant.client.QdrantClient;
 import io.qdrant.client.grpc.JsonWithInt.Value;
+import io.qdrant.client.grpc.Points.Filter;
 import io.qdrant.client.grpc.Points.ScoredPoint;
 import io.qdrant.client.grpc.Points.SearchPoints;
 import io.qdrant.client.grpc.Points.WithPayloadSelector;
@@ -26,19 +30,29 @@ public class QdrantSearchStore {
     }
 
     public List<RetrievedChunk> search(String collectionName, float[] queryVector, int limit) {
+        return search(collectionName, queryVector, limit, null);
+    }
+
+    public List<RetrievedChunk> search(String collectionName, float[] queryVector, int limit, String locale) {
         List<Float> vector = new ArrayList<>(queryVector.length);
-        for (float value : queryVector) {
-            vector.add(value);
+        for (float v : queryVector) {
+            vector.add(v);
         }
-        SearchPoints request = SearchPoints.newBuilder()
+        SearchPoints.Builder builder = SearchPoints.newBuilder()
                 .setCollectionName(collectionName)
                 .addAllVector(vector)
                 .setLimit(limit)
-                .setWithPayload(
-                        WithPayloadSelector.newBuilder().setEnable(true).build())
-                .build();
+                .setWithPayload(WithPayloadSelector.newBuilder().setEnable(true).build());
+        if (locale != null && !locale.isBlank()) {
+            builder.setFilter(Filter.newBuilder()
+                    .addShould(matchKeyword("language", locale.toLowerCase()))
+                    .build());
+        }
         try {
-            List<ScoredPoint> hits = client.searchAsync(request).get();
+            List<ScoredPoint> hits = client.searchAsync(builder.build()).get();
+            if (hits.isEmpty() && locale != null && !locale.isBlank()) {
+                return search(collectionName, queryVector, limit, null);
+            }
             return hits.stream().map(this::toRetrievedChunk).toList();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -55,7 +69,16 @@ public class QdrantSearchStore {
                 stringValue(payload, "documentId"),
                 stringValue(payload, "url"),
                 stringValue(payload, "text"),
-                hit.getScore());
+                hit.getScore(),
+                emptyToNull(stringValue(payload, "language")),
+                emptyToNull(stringValue(payload, "pageTitle")),
+                emptyToNull(stringValue(payload, "sectionPath")),
+                emptyToNull(stringValue(payload, "pageDescription")),
+                emptyToNull(stringValue(payload, "fetchedAt")));
+    }
+
+    private static String emptyToNull(String value) {
+        return value == null || value.isBlank() ? null : value;
     }
 
     private static String stringValue(Map<String, Value> payload, String key) {

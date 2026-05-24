@@ -1,55 +1,72 @@
 package com.geostat.ingestion.crawl.job;
 
+import com.geostat.ingestion.crawl.frontier.FrontierResumeService;
+import com.geostat.ingestion.crawl.frontier.UrlHasher;
+import com.geostat.ingestion.crawl.runner.CrawlRunner;
 import com.geostat.ingestion.persistence.entity.CorpusEntity;
-import com.geostat.ingestion.persistence.repository.CorpusRepository;
 import com.geostat.ingestion.persistence.entity.CrawlRunEntity;
-import com.geostat.ingestion.persistence.repository.CrawlRunRepository;
+import com.geostat.ingestion.persistence.entity.UrlFrontierEntity;
 import com.geostat.ingestion.persistence.model.CrawlRunStatus;
 import com.geostat.ingestion.persistence.model.FrontierStatus;
-import com.geostat.ingestion.persistence.entity.UrlFrontierEntity;
+import com.geostat.ingestion.persistence.repository.CorpusRepository;
+import com.geostat.ingestion.persistence.repository.CrawlRunRepository;
 import com.geostat.ingestion.persistence.repository.UrlFrontierRepository;
 import com.geostat.platform.contracts.ingestion.IngestionJobRequest;
 import com.geostat.platform.contracts.ingestion.IngestionJobStatus;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
-import com.geostat.ingestion.crawl.runner.CrawlRunner;
-import com.geostat.ingestion.crawl.frontier.UrlHasher;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.web.server.ResponseStatusException;
+
 @Service
 @Profile("db")
 public class CrawlJobService {
 
     private static final String DEFAULT_CORPUS = "geostat-portal";
 
+    private static final EnumSet<CrawlRunStatus> ACTIVE =
+            EnumSet.of(CrawlRunStatus.pending, CrawlRunStatus.running);
+
     private final CorpusRepository corpusRepository;
     private final CrawlRunRepository crawlRunRepository;
     private final UrlFrontierRepository urlFrontierRepository;
+    private final FrontierResumeService frontierResumeService;
     private final CrawlRunner crawlRunner;
 
     public CrawlJobService(
             CorpusRepository corpusRepository,
             CrawlRunRepository crawlRunRepository,
             UrlFrontierRepository urlFrontierRepository,
+            FrontierResumeService frontierResumeService,
             CrawlRunner crawlRunner) {
         this.corpusRepository = corpusRepository;
         this.crawlRunRepository = crawlRunRepository;
         this.urlFrontierRepository = urlFrontierRepository;
+        this.frontierResumeService = frontierResumeService;
         this.crawlRunner = crawlRunner;
     }
 
     @Transactional
     public IngestionJobStatus startJob(IngestionJobRequest request) {
         CorpusEntity corpus = resolveCorpus(request.corpusName());
+        if (crawlRunRepository.existsByCorpus_IdAndStatusIn(corpus.getId(), ACTIVE)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "crawl already active for corpus: " + corpus.getName());
+        }
+
+        Optional<CrawlRunEntity> previousRun =
+                crawlRunRepository.findFirstByCorpus_IdOrderByCreatedAtDesc(corpus.getId());
+
         CrawlRunEntity run = new CrawlRunEntity();
         run.setCorpus(corpus);
         run.setTriggeredBy("api");
@@ -57,9 +74,15 @@ public class CrawlJobService {
         run.setConfigSnapshot(configSnapshot(request, corpus.getName()));
         run = crawlRunRepository.save(run);
 
-        seedFrontier(run, corpus, request);
-        scheduleCrawlAfterCommit(run.getId());
+        if (request.fullRecrawl()) {
+            seedFrontier(run, corpus, request);
+        } else if (request.seedUrl() != null && !request.seedUrl().isBlank()) {
+            seedFrontier(run, corpus, request);
+        } else if (!tryResumeFrontier(run, previousRun)) {
+            seedFrontier(run, corpus, request);
+        }
 
+        scheduleCrawlAfterCommit(run.getId());
         return toStatus(run, "crawl queued");
     }
 
@@ -68,6 +91,14 @@ public class CrawlJobService {
         CrawlRunEntity run = crawlRunRepository.findById(runId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "job not found"));
         return toStatus(run, statsSummary(run));
+    }
+
+    private boolean tryResumeFrontier(CrawlRunEntity run, Optional<CrawlRunEntity> previousRun) {
+        if (previousRun.isEmpty()) {
+            return false;
+        }
+        int copied = frontierResumeService.copyQueuedFrontier(previousRun.get().getId(), run);
+        return copied > 0;
     }
 
     private void scheduleCrawlAfterCommit(UUID runId) {

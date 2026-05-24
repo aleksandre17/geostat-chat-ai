@@ -1,10 +1,12 @@
 package com.geostat.ingestion.crawl.runner;
 
+import com.geostat.ingestion.crawl.job.CrawlContinuationService;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -16,9 +18,11 @@ public class CrawlRunner {
     private static final Logger log = LoggerFactory.getLogger(CrawlRunner.class);
 
     private final CrawlRunStore crawlRunStore;
+    private final CrawlContinuationService crawlContinuationService;
 
-    public CrawlRunner(CrawlRunStore crawlRunStore) {
+    public CrawlRunner(CrawlRunStore crawlRunStore, @Lazy CrawlContinuationService crawlContinuationService) {
         this.crawlRunStore = crawlRunStore;
+        this.crawlContinuationService = crawlContinuationService;
     }
 
     @Async
@@ -67,6 +71,12 @@ public class CrawlRunner {
             }
         }
 
-        crawlRunStore.markCompleted(runId, pagesFetched, linksDiscovered, failures);
+        long queuedRemaining = crawlRunStore.countQueuedFrontier(runId);
+        crawlRunStore.markCompleted(runId, pagesFetched, linksDiscovered, failures, queuedRemaining);
+        try {
+            crawlContinuationService.scheduleContinuationIfNeeded(runId, queuedRemaining);
+        } catch (Exception e) {
+            log.warn("continuation scheduling failed for run {}: {}", runId, e.getMessage());
+        }
     }
 }

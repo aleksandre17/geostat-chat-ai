@@ -1,6 +1,8 @@
 package com.geostat.ingestion.crawl.runner;
 
+import com.geostat.ingestion.config.IngestionProperties;
 import com.geostat.ingestion.chunk.DocumentChunkWriter;
+import com.geostat.ingestion.crawl.archive.RawHtmlArchivePort;
 import com.geostat.ingestion.crawl.fetch.FetchedPage;
 import com.geostat.ingestion.crawl.fetch.Crawler4jPageFetcher;
 import com.geostat.ingestion.crawl.fetch.PolicyBlockedException;
@@ -9,7 +11,10 @@ import com.geostat.ingestion.crawl.frontier.LinkDiscoverer;
 import com.geostat.ingestion.crawl.frontier.UrlHasher;
 import com.geostat.ingestion.crawl.policy.CorpusPolicy;
 import com.geostat.ingestion.events.DocumentIndexTrigger;
+import com.geostat.ingestion.locale.DocumentLocalePairLinker;
+import com.geostat.ingestion.parse.DocumentDisplayFields;
 import com.geostat.ingestion.parse.HtmlContentCleaner;
+import com.geostat.ingestion.parse.UrlLocaleInferer;
 import com.geostat.ingestion.persistence.entity.CorpusEntity;
 import com.geostat.ingestion.persistence.entity.CrawlRunEntity;
 import com.geostat.ingestion.persistence.entity.DocumentEntity;
@@ -21,6 +26,7 @@ import com.geostat.ingestion.persistence.repository.CrawlRunRepository;
 import com.geostat.ingestion.persistence.repository.DocumentRepository;
 import com.geostat.ingestion.persistence.repository.UrlFrontierRepository;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +49,9 @@ public class CrawlRunStore {
     private final LinkDiscoverer linkDiscoverer;
     private final DocumentChunkWriter documentChunkWriter;
     private final DocumentIndexTrigger documentIndexTrigger;
+    private final DocumentLocalePairLinker localePairLinker;
+    private final RawHtmlArchivePort rawHtmlArchive;
+    private final boolean archiveEnabled;
 
     public CrawlRunStore(
             CrawlRunRepository crawlRunRepository,
@@ -52,7 +61,10 @@ public class CrawlRunStore {
             HtmlContentCleaner contentCleaner,
             LinkDiscoverer linkDiscoverer,
             DocumentChunkWriter documentChunkWriter,
-            DocumentIndexTrigger documentIndexTrigger) {
+            DocumentIndexTrigger documentIndexTrigger,
+            DocumentLocalePairLinker localePairLinker,
+            RawHtmlArchivePort rawHtmlArchive,
+            IngestionProperties properties) {
         this.crawlRunRepository = crawlRunRepository;
         this.urlFrontierRepository = urlFrontierRepository;
         this.documentRepository = documentRepository;
@@ -61,6 +73,9 @@ public class CrawlRunStore {
         this.linkDiscoverer = linkDiscoverer;
         this.documentChunkWriter = documentChunkWriter;
         this.documentIndexTrigger = documentIndexTrigger;
+        this.localePairLinker = localePairLinker;
+        this.rawHtmlArchive = rawHtmlArchive;
+        this.archiveEnabled = properties.archive().enabled();
     }
 
     @Transactional(readOnly = true)
@@ -143,17 +158,29 @@ public class CrawlRunStore {
         });
     }
 
+    @Transactional(readOnly = true)
+    public long countQueuedFrontier(UUID runId) {
+        return urlFrontierRepository.countByCrawlRun_IdAndStatus(runId, FrontierStatus.queued);
+    }
+
     @Transactional
-    public void markCompleted(UUID runId, int pagesFetched, int linksDiscovered, int failures) {
+    public void markCompleted(
+            UUID runId, int pagesFetched, int linksDiscovered, int failures, long queuedRemaining) {
         CrawlRunEntity run = crawlRunRepository.findById(runId).orElseThrow();
         Map<String, Object> stats = new HashMap<>();
         stats.put("pagesFetched", pagesFetched);
         stats.put("linksDiscovered", linksDiscovered);
         stats.put("failures", failures);
+        stats.put("queuedRemaining", queuedRemaining);
         run.setStats(stats);
         run.setStatus(CrawlRunStatus.completed);
         run.setFinishedAt(Instant.now());
         crawlRunRepository.save(run);
+    }
+
+    @Transactional
+    public void markCompleted(UUID runId, int pagesFetched, int linksDiscovered, int failures) {
+        markCompleted(runId, pagesFetched, linksDiscovered, failures, countQueuedFrontier(runId));
     }
 
     @Transactional
@@ -177,19 +204,41 @@ public class CrawlRunStore {
         DocumentEntity document = documentRepository
                 .findByCorpusIdAndUrlHash(corpus.getId(), frontier.getUrlHash())
                 .orElseGet(DocumentEntity::new);
+        String newHash = UrlHasher.hash(cleaned.text());
+        boolean contentUnchanged = document.getId() != null && newHash.equals(document.getContentHash());
+
         document.setCorpus(corpus);
         document.setCanonicalUrl(frontier.getUrl());
         document.setUrlHash(frontier.getUrlHash());
-        document.setTitle(cleaned.title());
-        document.setLanguage(cleaned.language());
-        document.setContentText(cleaned.text());
-        document.setContentHash(UrlHasher.hash(cleaned.text()));
-        document.setFetchStatus(DocumentFetchStatus.parsed);
         document.setHttpStatus(page.statusCode());
+        document.setHttpEtag(page.httpEtag());
+        document.setLastModified(page.lastModified());
         document.setFetchedAt(Instant.now());
+        archiveRawHtml(corpus, document, page);
+
+        if (contentUnchanged) {
+            documentRepository.save(document);
+            List<UrlFrontierEntity> discovered =
+                    linkDiscoverer.discover(run.getId(), corpus, frontier, page.html(), maxDepth);
+            for (UrlFrontierEntity next : discovered) {
+                next.setCrawlRun(run);
+                urlFrontierRepository.save(next);
+            }
+            return discovered.size();
+        }
+
+        document.setTitle(cleaned.title());
+        document.setLanguage(UrlLocaleInferer.infer(frontier.getUrl(), cleaned.language()));
+        document.setSectionPath(cleaned.sectionPath());
+        document.setContentText(cleaned.text());
+        document.setContentHash(newHash);
+        DocumentDisplayFields.apply(document, cleaned);
+        document.setFetchStatus(DocumentFetchStatus.parsed);
         documentRepository.save(document);
 
-        documentChunkWriter.replaceChunks(document, corpus, cleaned.text());
+        documentChunkWriter.replaceChunks(document, corpus, cleaned.text(), cleaned.sectionPath(), document.getLanguage());
+
+        localePairLinker.link(corpus.getId(), document.getId(), document.getCanonicalUrl(), document.getLanguage());
 
         List<UrlFrontierEntity> discovered =
                 linkDiscoverer.discover(run.getId(), corpus, frontier, page.html(), maxDepth);
@@ -198,6 +247,15 @@ public class CrawlRunStore {
             urlFrontierRepository.save(next);
         }
         return discovered.size();
+    }
+
+    private void archiveRawHtml(CorpusEntity corpus, DocumentEntity document, FetchedPage page) {
+        if (!archiveEnabled || page.html() == null) {
+            return;
+        }
+        rawHtmlArchive
+                .store(corpus.getName(), document.getCanonicalUrl(), page.html().html().getBytes(StandardCharsets.UTF_8))
+                .ifPresent(document::setRawStorageKey);
     }
 
     private static String truncate(String value, int maxLen) {

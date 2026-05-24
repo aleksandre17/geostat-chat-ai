@@ -11,5 +11,6 @@ plugins {
 
 includeBuild("../../libs/platform-contracts")
 includeBuild("../../libs/embedding-adapters")
+includeBuild("../../libs/qdrant-client")
 
 rootProject.name = "retrieval-service"

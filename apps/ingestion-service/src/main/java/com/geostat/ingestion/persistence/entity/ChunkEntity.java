@@ -9,7 +9,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(schema = "ingestion", name = "chunk")
@@ -43,6 +47,10 @@ public class ChunkEntity {
 
     @Column(name = "embedding_model")
     private String embeddingModel;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(nullable = false, columnDefinition = "jsonb")
+    private Map<String, Object> metadata = new HashMap<>();
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
@@ -125,6 +133,14 @@ public class ChunkEntity {
 
     public void setEmbeddingModel(String embeddingModel) {
         this.embeddingModel = embeddingModel;
+    }
+
+    public Map<String, Object> getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(Map<String, Object> metadata) {
+        this.metadata = metadata != null ? metadata : new HashMap<>();
     }
 
     public Instant getCreatedAt() {

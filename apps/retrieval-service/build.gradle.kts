@@ -23,10 +23,15 @@ dependencies {
     implementation("com.geostat.embedding:embedding-adapters")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("io.qdrant:client:1.13.0")
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    runtimeOnly("org.postgresql:postgresql")
+    implementation("com.geostat.qdrant:qdrant-client")
     implementation("io.grpc:grpc-netty-shaded:1.68.2")
     implementation("com.google.protobuf:protobuf-java:3.25.5")
     implementation("com.google.guava:guava:33.4.0-jre")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.2.0")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("com.fasterxml.jackson.core:jackson-databind")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 

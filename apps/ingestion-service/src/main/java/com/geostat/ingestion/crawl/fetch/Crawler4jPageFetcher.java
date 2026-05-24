@@ -21,9 +21,23 @@ public class Crawler4jPageFetcher {
     private static final int MAX_REDIRECTS = 5;
 
     private final CrawlFetchInfrastructure infrastructure;
+    private final ConditionalHttpFetcher conditionalHttpFetcher = new ConditionalHttpFetcher();
 
     public Crawler4jPageFetcher(CrawlFetchInfrastructure infrastructure) {
         this.infrastructure = infrastructure;
+    }
+
+    /** Conditional GET when stored validators exist (freshness refresh). */
+    public FetchedPage fetchConditional(String url, CorpusEntity corpus, String etag, java.time.Instant lastModified)
+            throws IOException, InterruptedException, RobotsBlockedException, PolicyBlockedException,
+                    PageNotModifiedException {
+        if (!CorpusPolicy.isUrlAllowed(corpus, url)) {
+            throw new PolicyBlockedException(url);
+        }
+        if ((etag == null || etag.isBlank()) && lastModified == null) {
+            return fetch(url, corpus);
+        }
+        return conditionalHttpFetcher.fetch(url, CrawlFetchInfrastructure.USER_AGENT, etag, lastModified);
     }
 
     public FetchedPage fetch(String url, CorpusEntity corpus)
@@ -48,7 +62,12 @@ public class Crawler4jPageFetcher {
         Page page = new Page(webUrl);
         fetchResult.fetchContent(page, 10 * 1024 * 1024);
         Document document = Jsoup.parse(toHtml(page), webUrl.getURL());
-        return new FetchedPage(webUrl.getURL(), statusCode, document);
+        return new FetchedPage(
+                webUrl.getURL(),
+                statusCode,
+                document,
+                HttpResponseHeaders.etag(fetchResult),
+                HttpResponseHeaders.lastModified(fetchResult));
     }
 
     private PageFetchResult fetchWithRedirects(WebURL startUrl)

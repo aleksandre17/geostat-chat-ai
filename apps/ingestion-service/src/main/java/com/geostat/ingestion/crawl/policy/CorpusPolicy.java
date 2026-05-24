@@ -8,9 +8,15 @@ import java.util.Map;
 
 public final class CorpusPolicy {
 
+    public static final String CRAWL_MODE_FULL_SITE = "full-site";
+    public static final String CRAWL_MODE_BOUNDED = "bounded";
+
     private static final int DEFAULT_RATE_LIMIT_MS = 500;
+    /** Smoke / dev default when policy omits explicit limits. */
     private static final int DEFAULT_MAX_DEPTH = 2;
     private static final int DEFAULT_MAX_PAGES = 50;
+    /** Full-site crawl depth cap (link discovery). */
+    private static final int FULL_SITE_MAX_DEPTH = 12;
 
     private CorpusPolicy() {}
 
@@ -20,24 +26,35 @@ public final class CorpusPolicy {
 
     public static int maxDepth(CorpusEntity corpus) {
         Object value = corpus.getPolicy().get("maxDepth");
-        if (value == null) {
-            return DEFAULT_MAX_DEPTH;
-        }
         if (value instanceof Number number) {
-            return number.intValue();
+            return Math.max(0, number.intValue());
         }
-        return DEFAULT_MAX_DEPTH;
+        return isFullSite(corpus) ? FULL_SITE_MAX_DEPTH : DEFAULT_MAX_DEPTH;
     }
 
     public static int maxPagesPerRun(CorpusEntity corpus) {
         Object value = corpus.getPolicy().get("maxPagesPerRun");
-        if (value == null) {
-            return DEFAULT_MAX_PAGES;
-        }
         if (value instanceof Number number) {
-            return number.intValue();
+            int pages = number.intValue();
+            if (pages <= 0) {
+                return Integer.MAX_VALUE;
+            }
+            return pages;
         }
-        return DEFAULT_MAX_PAGES;
+        return isFullSite(corpus) ? Integer.MAX_VALUE : DEFAULT_MAX_PAGES;
+    }
+
+    public static boolean isFullSite(CorpusEntity corpus) {
+        Object mode = corpus.getPolicy().get("crawlMode");
+        return CRAWL_MODE_FULL_SITE.equals(mode);
+    }
+
+    public static boolean autoContinue(CorpusEntity corpus) {
+        Object value = corpus.getPolicy().get("autoContinue");
+        if (value instanceof Boolean enabled) {
+            return enabled;
+        }
+        return isFullSite(corpus);
     }
 
     public static boolean respectRobotsTxt(CorpusEntity corpus) {

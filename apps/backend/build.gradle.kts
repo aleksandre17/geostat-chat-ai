@@ -47,7 +47,7 @@ gradle.taskGraph.whenReady {
     val allowed = activeModules.toSet()
     (listOf(rootProject) + rootProject.subprojects).forEach { p ->
         val key = if (p == rootProject) "root" else p.name
-        if (key !in allowed && p.name != "shared") {
+        if (key !in allowed) {
             p.tasks.configureEach { enabled = false }
         }
     }
@@ -58,7 +58,6 @@ gradle.taskGraph.whenReady {
 }
 
 dependencies {
-    implementation(project(":shared"))
     implementation("com.geostat.platform:platform-contracts")
     // 1. The BOMs (Bill of Materials) - These manage all versioning for you
     implementation(platform("org.springframework.ai:spring-ai-bom:${property("spring-ai.version")}"))
@@ -80,8 +79,14 @@ dependencies {
     // 4. Google Cloud Speech (Jan 2026 Stable)
     implementation("com.google.cloud:google-cloud-speech:4.27.0")
 
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
     implementation("com.github.ben-manes.caffeine:caffeine")
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    implementation("org.springframework.boot:spring-boot-starter-flyway")
+    implementation("org.flywaydb:flyway-database-postgresql")
+    runtimeOnly("org.postgresql:postgresql")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

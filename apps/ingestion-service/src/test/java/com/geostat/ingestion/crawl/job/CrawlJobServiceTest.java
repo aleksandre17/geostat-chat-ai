@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.geostat.ingestion.crawl.frontier.FrontierResumeService;
 import com.geostat.ingestion.crawl.runner.CrawlRunner;
 import com.geostat.ingestion.persistence.entity.CorpusEntity;
 import com.geostat.ingestion.persistence.entity.CrawlRunEntity;
@@ -37,13 +38,17 @@ class CrawlJobServiceTest {
     private UrlFrontierRepository urlFrontierRepository;
 
     @Mock
+    private FrontierResumeService frontierResumeService;
+
+    @Mock
     private CrawlRunner crawlRunner;
 
     private CrawlJobService service;
 
     @BeforeEach
     void setUp() {
-        service = new CrawlJobService(corpusRepository, crawlRunRepository, urlFrontierRepository, crawlRunner);
+        service = new CrawlJobService(
+                corpusRepository, crawlRunRepository, urlFrontierRepository, frontierResumeService, crawlRunner);
     }
 
     @Test
@@ -55,6 +60,8 @@ class CrawlJobServiceTest {
         corpus.setStatus(CorpusStatus.active);
 
         when(corpusRepository.findByName("geostat-portal")).thenReturn(Optional.of(corpus));
+        when(crawlRunRepository.existsByCorpus_IdAndStatusIn(any(), any())).thenReturn(false);
+        when(crawlRunRepository.findFirstByCorpus_IdOrderByCreatedAtDesc(any())).thenReturn(Optional.empty());
         when(crawlRunRepository.save(any(CrawlRunEntity.class))).thenAnswer(invocation -> {
             CrawlRunEntity run = invocation.getArgument(0);
             run.setId(UUID.fromString("00000000-0000-4000-8000-000000000099"));
@@ -84,6 +91,8 @@ class CrawlJobServiceTest {
         corpus.setStatus(CorpusStatus.active);
 
         when(corpusRepository.findByName("geostat-portal")).thenReturn(Optional.of(corpus));
+        when(crawlRunRepository.existsByCorpus_IdAndStatusIn(any(), any())).thenReturn(false);
+        when(crawlRunRepository.findFirstByCorpus_IdOrderByCreatedAtDesc(any())).thenReturn(Optional.empty());
         when(crawlRunRepository.save(any())).thenAnswer(invocation -> {
             CrawlRunEntity run = invocation.getArgument(0);
             run.setId(UUID.randomUUID());

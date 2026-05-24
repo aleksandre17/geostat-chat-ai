@@ -16,6 +16,7 @@ cd apps/ingestion-service
 
 - Health: `http://localhost:8093/actuator/health`
 - Corpora (db profile): `GET /api/v1/ingestion/corpora`
+- Corpus quality (db profile): `GET /api/v1/ingestion/corpora/{name}/quality` — OPS-02 / P3-03b trigger
 - Jobs (db profile): `POST /api/v1/ingestion/jobs`, `GET /api/v1/ingestion/jobs/{id}`
 
 Example job:
@@ -24,6 +25,10 @@ Example job:
 POST /api/v1/ingestion/jobs
 { "corpusName": "geostat-portal", "seedUrl": null, "fullRecrawl": false }
 ```
+
+**B-26 crawl model:** single seed → link discovery → background `@Async` run until frontier empty.  
+Prod corpus policy `crawlMode: full-site` (Flyway V3). Bounded runs use `maxPagesPerRun`; `autoContinue` chains continuation runs.  
+Scheduler: `INGESTION_SCHEDULER_ENABLED=true` (prod) — periodic crawl + resume queued frontier.
 
 ## Database
 
@@ -50,7 +55,9 @@ com.geostat.ingestion/
 │   ├── fetch/              crawler4j PageFetcher + robots; Jsoup parse
 │   ├── frontier/           URL hash + link discovery
 │   └── policy/             corpus policy from JSON
-└── parse/                  HTML → clean text (P3-02)
+├── quality/                corpus metrics audit (OPS-02, P3-03b trigger)
+│   └── persistence/        JDBC aggregations
+├── parse/                  HTML → clean text (P3-02)
 └── chunk/                  text → DB chunks (P3-03)
     └── strategy/           chunking algorithms
 ```

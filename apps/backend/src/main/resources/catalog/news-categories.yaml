@@ -1,0 +1,30 @@
+# GeoStat news category filters — B-24 catalog externalization (topics.yaml follows)
+baseUrl: https://www.geostat.ge
+defaultCategoryId: 2
+defaultTitleKa: "სიახლეები"
+defaultTitleEn: News
+
+categories:
+  NATIONAL_ACCOUNTS:  { id: 3,  titleKa: "სიახლეები: ეროვნული ანგარიშები",      titleEn: "News: National Accounts" }
+  BUSINESS:           { id: 6,  titleKa: "სიახლეები: ბიზნეს სტატისტიკა",        titleEn: "News: Business Statistics" }
+  PRICES:             { id: 7,  titleKa: "სიახლეები: ფასების სტატისტიკა",        titleEn: "News: Price Statistics" }
+  TRADE:              { id: 4,  titleKa: "სიახლეები: საგარეო ვაჭრობა",           titleEn: "News: External Trade" }
+  FDI:                { id: 1,  titleKa: "სიახლეები: უცხოური ინვესტიციები",      titleEn: "News: Foreign Investment" }
+  MONETARY:           { id: 3,  titleKa: "სიახლეები: მონეტარული სტატისტიკა",     titleEn: "News: Monetary Statistics" }
+  GOVERNMENT_FINANCE: { id: 3,  titleKa: "სიახლეები: სახელმწიფო ფინანსები",      titleEn: "News: Government Finance" }
+  POPULATION:         { id: 9,  titleKa: "სიახლეები: მოსახლეობა და დემოგრაფია",  titleEn: "News: Population & Demographics" }
+  EMPLOYMENT:         { id: 8,  titleKa: "სიახლეები: დასაქმება და ხელფასები",    titleEn: "News: Employment & Wages" }
+  LIVING_STANDARDS:   { id: 10, titleKa: "სიახლეები: ცხოვრების დონე",            titleEn: "News: Living Standards" }
+  HEALTHCARE:         { id: 11, titleKa: "სიახლეები: ჯანდაცვა",                 titleEn: "News: Healthcare" }
+  EDUCATION:          { id: 12, titleKa: "სიახლეები: განათლება და კულტურა",      titleEn: "News: Education & Culture" }
+  GENDER:             { id: 16, titleKa: "სიახლეები: გენდერული სტატისტიკა",      titleEn: "News: Gender Statistics" }
+  YOUTH:              { id: 5,  titleKa: "სიახლეები: სოციალური სტატისტიკა",      titleEn: "News: Social Statistics" }
+  DISABILITY:         { id: 5,  titleKa: "სიახლეები: სოციალური სტატისტიკა",      titleEn: "News: Social Statistics" }
+  AGRICULTURE:        { id: 13, titleKa: "სიახლეები: სოფლის მეურნეობა",          titleEn: "News: Agriculture" }
+  INDUSTRY:           { id: 18, titleKa: "სიახლეები: მრეწველობა და ენერგეტიკა",  titleEn: "News: Industry & Energy" }
+  TOURISM:            { id: 15, titleKa: "სიახლეები: ტურიზმი",                   titleEn: "News: Tourism" }
+  SERVICES:           { id: 19, titleKa: "სიახლეები: მომსახურების სტატისტიკა",   titleEn: "News: Services Statistics" }
+  ENVIRONMENT:        { id: 14, titleKa: "სიახლეები: გარემოს სტატისტიკა",        titleEn: "News: Environment" }
+  ICT:                { id: 17, titleKa: "სიახლეები: საინფორმაციო ტექნოლოგიები", titleEn: "News: Information Technology" }
+  NEWS:               { id: 2,  titleKa: "სიახლეები",                             titleEn: "News" }
+  GENERAL:            { id: 2,  titleKa: "სიახლეები",                             titleEn: "News" }

@@ -35,6 +35,31 @@ class CorpusPolicyTest {
         assertThat(CorpusPolicy.respectRobotsTxt(disabled)).isFalse();
     }
 
+    @Test
+    void fullSitePolicyUsesUnlimitedPagesAndDepth() {
+        CorpusEntity corpus = corpusWithPolicy(Map.of("crawlMode", "full-site"));
+
+        assertThat(CorpusPolicy.isFullSite(corpus)).isTrue();
+        assertThat(CorpusPolicy.maxPagesPerRun(corpus)).isEqualTo(Integer.MAX_VALUE);
+        assertThat(CorpusPolicy.maxDepth(corpus)).isEqualTo(12);
+        assertThat(CorpusPolicy.autoContinue(corpus)).isTrue();
+    }
+
+    @Test
+    void boundedPolicyUsesDefaultsWhenOmitted() {
+        CorpusEntity corpus = corpusWithPolicy(Map.of("crawlMode", "bounded"));
+
+        assertThat(CorpusPolicy.maxPagesPerRun(corpus)).isEqualTo(50);
+        assertThat(CorpusPolicy.maxDepth(corpus)).isEqualTo(2);
+        assertThat(CorpusPolicy.autoContinue(corpus)).isFalse();
+    }
+
+    @Test
+    void zeroMaxPagesMeansUnlimited() {
+        CorpusEntity corpus = corpusWithPolicy(Map.of("maxPagesPerRun", 0));
+        assertThat(CorpusPolicy.maxPagesPerRun(corpus)).isEqualTo(Integer.MAX_VALUE);
+    }
+
     private static CorpusEntity corpusWithPolicy(Map<String, Object> policy) {
         CorpusEntity corpus = new CorpusEntity();
         corpus.setPolicy(policy);

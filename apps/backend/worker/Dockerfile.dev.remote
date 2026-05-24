@@ -1,7 +1,0 @@
-# Remote workspace dev — worker module (bootRun :worker:bootRun)
-FROM gradle:8.5-jdk21
-WORKDIR /app
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends wget \
-    && rm -rf /var/lib/apt/lists/*
-EXPOSE 8091

@@ -99,7 +99,7 @@ class ChunkVectorIndexerTest {
         assertThat(indexed).isEqualTo(1);
         verify(collectionManager).ensureCollection("geostat-portal", 384);
         verify(vectorStore).deleteByDocumentId("geostat-portal", documentId);
-        verify(vectorStore).upsert(eq("geostat-portal"), eq(List.of(chunk)), eq(document), eq(corpus), any());
+        verify(vectorStore).upsert(eq("geostat-portal"), eq(List.of(chunk)), eq(document), eq(corpus), any(), eq("v1"));
         verify(vectorIndexRepository).save(any());
         verify(chunkRepository).save(chunk);
     }

@@ -1,10 +1,5 @@
 export const translations = {
     ka: {
-        page: {
-            header: 'საქართველოს სტატისტიკის ეროვნული სამსახური',
-            title: 'ჩატბოტის სატესტო გვერდი',
-            description: 'ეს არის სატესტო გვერდი, სადაც შეგიძლიათ გამოსცადოთ საქსტატის ჩატბოტი. დააჭირეთ ქვედა მარჯვენა კუთხეში მდებარე ლურჯ ღილაკს ჩატის გასახსნელად.',
-        },
         chat: {
             title: 'საქსტატის ასისტენტი',
             subtitle: 'სტატისტიკის ეროვნული სამსახური',
@@ -17,6 +12,10 @@ export const translations = {
             footer: 'საქართველოს სტატისტიკის ეროვნული სამსახური',
             resources: 'რესურსები:',
             newConversation: 'ახალი საუბარი',
+            feedbackUp: 'სასარგებლო',
+            feedbackDown: 'არასასარგებლო',
+            feedbackThanks: 'გმადლობთ!',
+            groundedIn: 'დაფუძნებულია {n} წყაროზე',
         },
         voice: {
             micError: 'მიკროფონზე წვდომა ვერ მოხერხდა',
@@ -33,11 +32,6 @@ export const translations = {
         ],
     },
     en: {
-        page: {
-            header: 'National Statistics Office of Georgia',
-            title: 'Chatbot Test Page',
-            description: 'This is a test page where you can try the GeoStat chatbot. Click the blue button in the bottom right corner to open the chat.',
-        },
         chat: {
             title: 'GeoStat Assistant',
             subtitle: 'National Statistics Office',
@@ -50,6 +44,10 @@ export const translations = {
             footer: 'National Statistics Office of Georgia',
             resources: 'Resources:',
             newConversation: 'New conversation',
+            feedbackUp: 'Helpful',
+            feedbackDown: 'Not helpful',
+            feedbackThanks: 'Thank you!',
+            groundedIn: 'Grounded in {n} sources',
         },
         voice: {
             micError: 'Microphone access denied',

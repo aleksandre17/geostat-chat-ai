@@ -7,7 +7,7 @@ services:
     container_name: geostat-chat-ai-api
     build:
       context: .
-      dockerfile: src/Dockerfile.dev
+      dockerfile: Dockerfile.dev
     ports:
       - "${API_PORT:-8090}:${API_PORT:-8090}"
     volumes:

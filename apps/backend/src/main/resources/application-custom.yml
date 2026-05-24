@@ -1,0 +1,71 @@
+# Hand-maintained domain config — not touched by geostat config-gen (P0-kit-10)
+server:
+  max-http-request-header-size: 64KB
+  tomcat:
+    max-http-form-post-size: 10MB
+    max-swallow-size: 10MB
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+spring:
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:127.0.0.1}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+
+  ai:
+    google:
+      genai:
+        chat:
+          options:
+            model: gemini-2.5-flash
+            temperature: 0.3
+
+management:
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+logging:
+  level:
+    root: INFO
+    com.geostat.chat: INFO
+
+geostat:
+  cors:
+    allowed-origin-patterns: ${CORS_ALLOWED_ORIGIN_PATTERNS:*}
+  session:
+    store: ${GEOSTAT_SESSION_STORE:caffeine}
+  telemetry:
+    store: ${GEOSTAT_TELEMETRY_STORE:log}
+  ai:
+    chat:
+      main-temperature: 0.6
+      clarification-temperature: 0.3
+      classification-temperature: 0.0
+      max-history-messages: 10
+      max-rag-context-chars: 12000
+      max-system-prompt-chars: 28000
+      max-output-tokens: 2048
+      session-ttl-minutes: 30
+      json-response-mode: true
+  retrieval:
+    enabled: ${RETRIEVAL_ENABLED:false}
+    base-url: ${RETRIEVAL_BASE_URL:http://localhost:8092}
+    default-corpus: ${RETRIEVAL_DEFAULT_CORPUS:geostat-portal}
+    max-chunks: ${RETRIEVAL_MAX_CHUNKS:8}
+    clarification-max-chunks: ${RETRIEVAL_CLARIFICATION_MAX_CHUNKS:12}

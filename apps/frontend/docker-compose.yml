@@ -7,5 +7,5 @@ services:
     container_name: geostat-chat-ai-app
     build:
       context: .
-      dockerfile: src/Dockerfile
+      dockerfile: Dockerfile
 

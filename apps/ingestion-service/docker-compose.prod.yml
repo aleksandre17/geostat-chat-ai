@@ -1,0 +1,39 @@
+# GENERATED — do not edit. Run: geostat compose-gen
+
+# Prod — geostat ing deploy all --prod
+services:
+  geostat-chat-ai-ingestion:
+    image: geostat-chat-ai-ingestion
+    container_name: geostat-chat-ai-ingestion
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${INGESTION_PORT:-8093}:${INGESTION_PORT:-8093}"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod,docker
+      JAVA_TOOL_OPTIONS: >-
+        -XX:+UseContainerSupport
+        -XX:MaxRAMPercentage=75.0
+        -Xms128m -Xmx512m
+    env_file:
+      - ../../ops/config/ingestion/.env.prod
+    networks:
+      - geostat-chat-ai-net
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:${INGESTION_PORT:-8093}/actuator/health | grep -q UP || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+networks:
+  geostat-chat-ai-net:
+    driver: bridge
+

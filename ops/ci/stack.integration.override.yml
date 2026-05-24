@@ -1,6 +1,10 @@
 # CI / docker stack on geostat-chat-ai-net (used with ops/ci/integration-stack.sh)
 # Infra must be up first (postgres, qdrant, rabbitmq on shared network).
 services:
+  geostat-chat-ai-api:
+    environment:
+      RETRIEVAL_ENABLED: "true"
+      RETRIEVAL_BASE_URL: http://geostat-chat-ai-retrieval:8092
   geostat-chat-ai-ingestion:
     environment:
       SPRING_PROFILES_ACTIVE: dev,docker
