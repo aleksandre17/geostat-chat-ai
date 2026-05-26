@@ -55,8 +55,14 @@ ops/compose/stack/*.yml
 .pytest_cache/
 # Local dev artifacts (keep on disk, do not commit)
 apps/*/app.jar
+apps/ingestion-service/bin/
+apps/retrieval-service/bin/
 ops/ci/*.log
 ops/ci/logs/
 ops/ci/*-out.json
 ops/ci/test-inflation.json
 ops/ci/rag-chat-broad-queries.json
+ops/ci/__pycache__/
+tools/__pycache__/
+tools/*.class
+a.tar
