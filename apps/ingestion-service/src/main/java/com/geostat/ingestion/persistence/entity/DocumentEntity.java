@@ -88,6 +88,39 @@ public class DocumentEntity {
     @JoinColumn(name = "supersedes_document_id")
     private DocumentEntity supersedesDocument;
 
+    @Column(name = "summary_ka")
+    private String summaryKa;
+
+    @Column(name = "summary_en")
+    private String summaryEn;
+
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(nullable = false, columnDefinition = "text[]")
+    private String[] keywords = new String[0];
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(nullable = false, columnDefinition = "jsonb")
+    private List<Map<String, Object>> entities = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "locale_pair_doc_id")
+    private DocumentEntity localePairDocument;
+
+    @Column(name = "authority_score", nullable = false)
+    private double authorityScore;
+
+    @Column(name = "page_kind", nullable = false)
+    private String pageKind = "unknown";
+
+    @Column(name = "topic_cluster_id")
+    private UUID topicClusterId;
+
+    @Column(name = "score_boost", nullable = false)
+    private double scoreBoost = 1.0;
+
+    @Column(name = "enrichment_version", nullable = false)
+    private int enrichmentVersion;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
@@ -267,6 +300,86 @@ public class DocumentEntity {
 
     public void setSupersedesDocument(DocumentEntity supersedesDocument) {
         this.supersedesDocument = supersedesDocument;
+    }
+
+    public String getSummaryKa() {
+        return summaryKa;
+    }
+
+    public void setSummaryKa(String summaryKa) {
+        this.summaryKa = summaryKa;
+    }
+
+    public String getSummaryEn() {
+        return summaryEn;
+    }
+
+    public void setSummaryEn(String summaryEn) {
+        this.summaryEn = summaryEn;
+    }
+
+    public String[] getKeywords() {
+        return keywords;
+    }
+
+    public void setKeywords(String[] keywords) {
+        this.keywords = keywords != null ? keywords : new String[0];
+    }
+
+    public List<Map<String, Object>> getEntities() {
+        return entities;
+    }
+
+    public void setEntities(List<Map<String, Object>> entities) {
+        this.entities = entities != null ? entities : new ArrayList<>();
+    }
+
+    public DocumentEntity getLocalePairDocument() {
+        return localePairDocument;
+    }
+
+    public void setLocalePairDocument(DocumentEntity localePairDocument) {
+        this.localePairDocument = localePairDocument;
+    }
+
+    public double getAuthorityScore() {
+        return authorityScore;
+    }
+
+    public void setAuthorityScore(double authorityScore) {
+        this.authorityScore = authorityScore;
+    }
+
+    public String getPageKind() {
+        return pageKind;
+    }
+
+    public void setPageKind(String pageKind) {
+        this.pageKind = pageKind;
+    }
+
+    public UUID getTopicClusterId() {
+        return topicClusterId;
+    }
+
+    public void setTopicClusterId(UUID topicClusterId) {
+        this.topicClusterId = topicClusterId;
+    }
+
+    public double getScoreBoost() {
+        return scoreBoost;
+    }
+
+    public void setScoreBoost(double scoreBoost) {
+        this.scoreBoost = scoreBoost;
+    }
+
+    public int getEnrichmentVersion() {
+        return enrichmentVersion;
+    }
+
+    public void setEnrichmentVersion(int enrichmentVersion) {
+        this.enrichmentVersion = enrichmentVersion;
     }
 
     public Instant getCreatedAt() {

@@ -6,7 +6,7 @@ import com.geostat.ingestion.crawl.fetch.Crawler4jPageFetcher;
 import com.geostat.ingestion.crawl.fetch.FetchedPage;
 import com.geostat.ingestion.crawl.fetch.PageNotModifiedException;
 import com.geostat.ingestion.crawl.frontier.UrlHasher;
-import com.geostat.ingestion.events.DocumentIndexTrigger;
+import com.geostat.ingestion.events.DocumentPostPersistPipeline;
 import com.geostat.ingestion.locale.DocumentLocalePairLinker;
 import com.geostat.ingestion.parse.DocumentDisplayFields;
 import com.geostat.ingestion.parse.HtmlContentCleaner;
@@ -36,7 +36,7 @@ public class DocumentFreshnessRefreshService {
     private final Crawler4jPageFetcher pageFetcher;
     private final HtmlContentCleaner contentCleaner;
     private final DocumentChunkWriter documentChunkWriter;
-    private final DocumentIndexTrigger documentIndexTrigger;
+    private final DocumentPostPersistPipeline postPersistPipeline;
     private final DocumentLocalePairLinker localePairLinker;
     private final long staleAfterMs;
 
@@ -46,7 +46,7 @@ public class DocumentFreshnessRefreshService {
             Crawler4jPageFetcher pageFetcher,
             HtmlContentCleaner contentCleaner,
             DocumentChunkWriter documentChunkWriter,
-            DocumentIndexTrigger documentIndexTrigger,
+            DocumentPostPersistPipeline postPersistPipeline,
             DocumentLocalePairLinker localePairLinker,
             IngestionProperties properties) {
         this.corpusRepository = corpusRepository;
@@ -54,7 +54,7 @@ public class DocumentFreshnessRefreshService {
         this.pageFetcher = pageFetcher;
         this.contentCleaner = contentCleaner;
         this.documentChunkWriter = documentChunkWriter;
-        this.documentIndexTrigger = documentIndexTrigger;
+        this.postPersistPipeline = postPersistPipeline;
         this.localePairLinker = localePairLinker;
         this.staleAfterMs = properties.freshness().staleAfterMs();
     }
@@ -129,7 +129,7 @@ public class DocumentFreshnessRefreshService {
         documentChunkWriter.replaceChunks(
                 document, corpus, cleaned.text(), cleaned.sectionPath(), document.getLanguage());
         localePairLinker.link(corpus.getId(), document.getId(), document.getCanonicalUrl(), document.getLanguage());
-        documentIndexTrigger.requestIndex(document.getId(), corpus.getId());
+        postPersistPipeline.afterDocumentPersisted(document.getId(), corpus.getId());
         return true;
     }
 

@@ -1,0 +1,138 @@
+# Presentation-only styles (RAG spec §17). Icons/colors/labels — not routing data.
+
+defaultLinkType: general
+
+pageKinds:
+  portal:
+    icon: erovnuli_angarishebi
+    bgColor: "#8B5CF6"
+    lightBg: "#EDE9FE"
+    cardType: portal
+  dataset:
+    icon: metadata
+    bgColor: "#22C55E"
+    lightBg: "#DCFCE7"
+    cardType: statistics
+  report:
+    icon: publication
+    bgColor: "#6366F1"
+    lightBg: "#E0E7FF"
+    cardType: statistics
+  news:
+    icon: news
+    bgColor: "#10B981"
+    lightBg: "#D1FAE5"
+    cardType: news
+  faq:
+    icon: quest
+    bgColor: "#0891B2"
+    lightBg: "#CFFAFE"
+    cardType: general
+  navigation:
+    icon: metadata
+    bgColor: "#64748B"
+    lightBg: "#F1F5F9"
+    cardType: general
+  unknown:
+    icon: biznes_registri
+    bgColor: "#6B7280"
+    lightBg: "#F3F4F6"
+    cardType: general
+
+linkTypes:
+  portal:
+    icon: erovnuli_angarishebi
+    bgColor: "#8B5CF6"
+    lightBg: "#EDE9FE"
+    labelKa: "პორტალი"
+    labelEn: Portal
+  statistics:
+    icon: biznesSeqtori
+    bgColor: "#3B82F6"
+    lightBg: "#DBEAFE"
+    labelKa: "სტატისტიკა"
+    labelEn: Statistics
+  metadata:
+    icon: metadata
+    bgColor: "#06B6D4"
+    lightBg: "#CFFAFE"
+    labelKa: "მეტამონაცემები"
+    labelEn: Metadata
+  methodology:
+    icon: methodology
+    bgColor: "#F59E0B"
+    lightBg: "#FEF3C7"
+    labelKa: "მეთოდოლოგია"
+    labelEn: Methodology
+  news:
+    icon: news
+    bgColor: "#10B981"
+    lightBg: "#D1FAE5"
+    labelKa: "სიახლეები"
+    labelEn: News
+  general:
+    icon: biznes_registri
+    bgColor: "#6B7280"
+    lightBg: "#F3F4F6"
+    labelKa: "ბმული"
+    labelEn: Link
+  management:
+    icon: biznes_registri
+    bgColor: "#4F46E5"
+    lightBg: "#E0E7FF"
+    labelKa: "მმართველობა"
+    labelEn: Management
+  about_us:
+    icon: biznes_registri
+    bgColor: "#3B82F6"
+    lightBg: "#DBEAFE"
+    labelKa: "ჩვენ შესახებ"
+    labelEn: About Us
+  surveys:
+    icon: quest
+    bgColor: "#0891B2"
+    lightBg: "#CFFAFE"
+    labelKa: "გამოკვლევები"
+    labelEn: Surveys
+  calendar:
+    icon: news
+    bgColor: "#F87171"
+    lightBg: "#FEE2E2"
+    labelKa: "კალენდარი"
+    labelEn: Calendar
+  publications:
+    icon: publication
+    bgColor: "#B45309"
+    lightBg: "#FEF3C7"
+    labelKa: "პუბლიკაციები"
+    labelEn: Publications
+  database:
+    icon: metadata
+    bgColor: "#6B7280"
+    lightBg: "#F3F4F6"
+    labelKa: "მონაცემთა ბაზა"
+    labelEn: Database
+  legislation:
+    icon: samartaldargvevisStatistika
+    bgColor: "#334155"
+    lightBg: "#F1F5F9"
+    labelKa: "კანონმდებლობა"
+    labelEn: Legislation
+  contact:
+    icon: contact
+    bgColor: "#16A34A"
+    lightBg: "#DCFCE7"
+    labelKa: "საკონტაქტო"
+    labelEn: Contact
+  structure:
+    icon: biznes_registri
+    bgColor: "#475569"
+    lightBg: "#F1F5F9"
+    labelKa: "სტრუქტურა"
+    labelEn: Structure
+  source:
+    icon: publication
+    bgColor: "#6B7280"
+    lightBg: "#F3F4F6"
+    labelKa: "წყარო"
+    labelEn: Source

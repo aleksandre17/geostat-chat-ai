@@ -1,24 +1,22 @@
 # Project Cursor skills (geostat-chat-ai)
 
-Located in **project root** `.cursor/skills/` — active when this workspace is open.
+**Load:** on demand only (not every chat). **Rules:** one slim always-on hub — see [../rules/README.md](../rules/README.md).
 
-| Skill | Role |
-|-------|------|
-| [owner-agent-conduct](owner-agent-conduct/SKILL.md) | How to communicate, execute, verify |
-| [owner-architecture](owner-architecture/SKILL.md) | Structure, manifest, secrets, compose, portability |
-| [owner-geostat-ops](owner-geostat-ops/SKILL.md) | geostat-kit / geostat.ops.json |
-| [owner-approved-stack](owner-approved-stack/SKILL.md) | Plan-approved libs (crawler4j, Jsoup, Qdrant), kits vs Maven deps, CA adapters |
+| Skill | Role | Rules to pair |
+|-------|------|----------------|
+| [owner-agent-conduct](owner-agent-conduct/SKILL.md) | Communication, execution, verification | `owner-standards` hub |
+| [owner-architecture](owner-architecture/SKILL.md) | Layout, secrets, compose, boundaries | `owner-standards-extended`, `zero-gap`, `owner-no-domain-hardcode` |
+| [owner-geostat-ops](owner-geostat-ops/SKILL.md) | `geostat`, manifest, kit CLI | `kit-upstream`, `plan-automation-gate` |
+| [owner-approved-stack](owner-approved-stack/SKILL.md) | Plan Q-*, Maven vs kits | `plan-automation-gate`, `zero-gap` |
 
-## Copy of user skills
+**Rules index:** [../rules/README.md](../rules/README.md)
 
-Same content as `%USERPROFILE%\.cursor\skills\` — edit here for this project; sync to user folder if you want all repos.
+## User-folder mirror
+
+Same-named skills may exist in `%USERPROFILE%\.cursor\skills\` for other workspaces. For **this** project, treat **repo** `.cursor/skills/` as source of truth; sync to user folder manually if needed.
+
+Do **not** edit `~/.cursor/skills-cursor/` — Cursor built-ins only.
 
 ## Enable
 
-Open workspace `geostat-chat-ai` (or `.code-workspace`) → **Settings → Rules / Skills**.
-
-`Developer: Reload Window` after changes.
-
-## Do not use
-
-`~/.cursor/skills-cursor/` — Cursor built-ins only.
+Open workspace → **Settings → Rules / Skills** → `Developer: Reload Window` after changes.

@@ -131,6 +131,30 @@ Manifest: `geostat.ops.json` → `ci.chatCatalogRagSmoke`.
 
 
 
+## `chat-derived-catalog-smoke.ps1` (RAG-U02 cutover)
+
+
+
+Chat-api **`GEOSTAT_CHAT_CATALOG_SOURCE=derived`** — verifies catalog link cards from `mv_portal_link` / `mv_specific_link`.
+
+
+
+```powershell
+# After cutover prep + chat-api restart with derived env
+.\ops\ci\chat-derived-catalog-smoke.ps1
+.\ops\ci\chat-derived-catalog-smoke.ps1 -SkipReadiness
+```
+
+
+
+Prereq: enrichment + aggregation ON, MVs refreshed (`rag-derivation-cutover-prep.ps1`); `GEOSTAT_CHAT_CATALOG_JDBC_URL` on chat-api.
+
+
+
+Manifest: `ci.chatDerivedCatalogSmoke`.
+
+
+
 ## `rag-eval-smoke.ps1` (RAG-L08)
 
 
@@ -146,7 +170,68 @@ Golden queries from `ingestion.evaluation_query` (fallback hardcoded if API down
 
 
 
-Manifest: `ci.ragEvalSmoke`.
+Manifest: `ci.ragEvalSmoke` (quick pass rate). Full harness: `ci.ragEvalHarness`.
+
+
+
+## `run-eval.py` (RAG-U12)
+
+
+
+Full golden-set harness — hit@1, hit@5, MRR, NDCG@10, mean latency; baseline regression gate.
+
+
+
+```powershell
+.\ops\ci\rag-eval-harness.ps1
+.\ops\ci\rag-eval-harness.ps1 -WriteBaseline   # owner: after verified good run
+.\ops\ci\rag-eval-harness.ps1 -DryRun
+.\ops\ci\rag-eval-harness.ps1 -SkipMinQueries  # fallback 4-query smoke DB down
+```
+
+
+
+See [ops/eval/README.md](../eval/README.md) · spec [RAG-DERIVATION-ARCHITECTURE §9](../plan/RAG-DERIVATION-ARCHITECTURE.md).
+
+
+
+## `rag-eval-gate.ps1` (RAG-U12 P1-15)
+
+
+
+Health + golden set + derivation-readiness + lifecycle sync + full harness.
+
+
+
+```powershell
+.\ops\ci\rag-eval-gate.ps1
+.\ops\ci\rag-eval-gate.ps1 -WriteBaseline
+.\ops\ci\rag-eval-gate.ps1 -AllowNotReady   # YAML baseline when enrichment OFF
+```
+
+
+
+Manifest: `ci.ragEvalGate`.
+
+
+
+## `rag-derivation-cutover-prep.ps1` (Phase 8 section 13)
+
+
+
+API orchestration before eval gate: authority → remine → approve clusters → catalog refresh → lifecycle sync.
+
+
+
+```powershell
+# Requires INGESTION_ENRICHMENT_ENABLED + INGESTION_AGGREGATION_ENABLED
+.\ops\ci\rag-derivation-cutover-prep.ps1 -ApproveAllClusters
+.\ops\ci\rag-derivation-cutover-prep.ps1 -RunEvalGate -WriteBaseline
+```
+
+
+
+Manifest: `ci.ragDerivationCutoverPrep` · readiness: `GET …/derivation-readiness`.
 
 
 

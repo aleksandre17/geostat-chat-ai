@@ -1,7 +1,7 @@
 package com.geostat.chat.application.retrieval;
 
 import com.geostat.chat.domain.catalog.LinkCard;
-import com.geostat.chat.domain.catalog.TopicStyleCatalog;
+import com.geostat.chat.domain.catalog.PresentationStyleCatalog;
 import com.geostat.platform.contracts.retrieval.RetrievedChunk;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -21,6 +21,12 @@ public class CatalogRagLinkMerger {
     static final int MAX_TOTAL = 8;
     public static final int MAX_RAG = 4;
     private static final int SNIPPET_MAX = 240;
+
+    private final PresentationStyleCatalog presentationStyles;
+
+    public CatalogRagLinkMerger(PresentationStyleCatalog presentationStyles) {
+        this.presentationStyles = presentationStyles;
+    }
 
     public List<LinkCard> merge(List<LinkCard> catalogLinks, List<RetrievedChunk> ragChunks, boolean isGeorgian) {
         return merge(catalogLinks, ragChunks, isGeorgian, MAX_RAG);
@@ -70,7 +76,7 @@ public class CatalogRagLinkMerger {
         if (chunk == null || chunk.sourceUrl() == null || chunk.sourceUrl().isBlank()) {
             return null;
         }
-        TopicStyleCatalog.LinkTypeStyle style = TopicStyleCatalog.getLinkTypeStyle("source");
+        var style = presentationStyles.linkTypeStyle("source");
         String titleKa = resolveTitleKa(chunk);
         String titleEn = resolveTitleEn(chunk);
         String snippet = resolveDescription(chunk, isGeorgian);

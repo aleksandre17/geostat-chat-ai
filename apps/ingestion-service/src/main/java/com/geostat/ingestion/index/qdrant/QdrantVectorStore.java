@@ -6,6 +6,7 @@ import static io.qdrant.client.ValueFactory.value;
 import static io.qdrant.client.VectorsFactory.vectors;
 
 import com.geostat.qdrant.QdrantOperationException;
+import com.geostat.ingestion.index.lifecycle.DocumentServeState;
 import com.geostat.ingestion.persistence.entity.ChunkEntity;
 import com.geostat.ingestion.persistence.entity.CorpusEntity;
 import com.geostat.ingestion.persistence.entity.DocumentEntity;
@@ -13,6 +14,7 @@ import com.geostat.ingestion.parse.SectionPathExtractor;
 import io.qdrant.client.QdrantClient;
 import io.qdrant.client.grpc.Points.Filter;
 import io.qdrant.client.grpc.Points.PointStruct;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,13 +55,24 @@ public class QdrantVectorStore {
             CorpusEntity corpus,
             float[][] vectors,
             String indexVersion) {
+        upsert(collectionName, chunks, document, corpus, vectors, indexVersion, DocumentServeState.LIVE);
+    }
+
+    public void upsert(
+            String collectionName,
+            List<ChunkEntity> chunks,
+            DocumentEntity document,
+            CorpusEntity corpus,
+            float[][] vectors,
+            String indexVersion,
+            DocumentServeState serveState) {
         if (chunks.isEmpty()) {
             return;
         }
         List<PointStruct> points = new ArrayList<>(chunks.size());
         for (int i = 0; i < chunks.size(); i++) {
             ChunkEntity chunk = chunks.get(i);
-            points.add(buildPoint(chunk, document, corpus, vectors[i], indexVersion));
+            points.add(buildPoint(chunk, document, corpus, vectors[i], indexVersion, serveState));
         }
         try {
             client.upsertAsync(collectionName, points).get();
@@ -71,8 +84,30 @@ public class QdrantVectorStore {
         }
     }
 
+    public void syncDocumentMetadata(
+            String collectionName, UUID documentId, DocumentEntity document, DocumentServeState serveState) {
+        Map<String, io.qdrant.client.grpc.JsonWithInt.Value> payload = enrichmentPayload(document, serveState);
+        Filter filter = Filter.newBuilder()
+                .addMust(matchKeyword("documentId", documentId.toString()))
+                .build();
+        try {
+            client.setPayloadAsync(collectionName, payload, filter, true, null, Duration.ofSeconds(30))
+                    .get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new QdrantOperationException("interrupted syncing payload for document " + documentId, e);
+        } catch (ExecutionException e) {
+            throw new QdrantOperationException("failed syncing payload for document " + documentId, e.getCause());
+        }
+    }
+
     private static PointStruct buildPoint(
-            ChunkEntity chunk, DocumentEntity document, CorpusEntity corpus, float[] vector, String indexVersion) {
+            ChunkEntity chunk,
+            DocumentEntity document,
+            CorpusEntity corpus,
+            float[] vector,
+            String indexVersion,
+            DocumentServeState serveState) {
         List<Float> values = new ArrayList<>(vector.length);
         for (float v : vector) {
             values.add(v);
@@ -105,10 +140,20 @@ public class QdrantVectorStore {
         if (indexVersion != null && !indexVersion.isBlank()) {
             payload.put("indexVersion", value(indexVersion));
         }
+        payload.putAll(enrichmentPayload(document, serveState));
         return PointStruct.newBuilder()
                 .setId(id(chunk.getId()))
                 .setVectors(vectors(values))
                 .putAllPayload(payload)
                 .build();
+    }
+
+    private static Map<String, io.qdrant.client.grpc.JsonWithInt.Value> enrichmentPayload(
+            DocumentEntity document, DocumentServeState serveState) {
+        Map<String, io.qdrant.client.grpc.JsonWithInt.Value> payload = new HashMap<>();
+        payload.put("serveState", value(serveState.payloadValue()));
+        payload.put("pageKind", value(document.getPageKind() == null ? "unknown" : document.getPageKind()));
+        payload.put("scoreBoost", value(document.getScoreBoost()));
+        return payload;
     }
 }

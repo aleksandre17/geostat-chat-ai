@@ -69,3 +69,18 @@ geostat:
     default-corpus: ${RETRIEVAL_DEFAULT_CORPUS:geostat-portal}
     max-chunks: ${RETRIEVAL_MAX_CHUNKS:8}
     clarification-max-chunks: ${RETRIEVAL_CLARIFICATION_MAX_CHUNKS:12}
+  chat:
+    query-understanding:
+      enabled: ${GEOSTAT_CHAT_QUERY_UNDERSTANDING_ENABLED:false}
+      gemini-intent-enabled: ${GEOSTAT_CHAT_QUERY_GEMINI_INTENT:false}
+      spell-fix-enabled: ${GEOSTAT_CHAT_QUERY_SPELL_FIX:false}
+      gemini-entity-enabled: ${GEOSTAT_CHAT_QUERY_GEMINI_ENTITY:false}
+      llm-expand-enabled: ${GEOSTAT_CHAT_QUERY_LLM_EXPAND:false}
+    catalog:
+      source: ${GEOSTAT_CHAT_CATALOG_SOURCE:yaml}
+      jdbc-url: ${GEOSTAT_CHAT_CATALOG_JDBC_URL:jdbc:postgresql://127.0.0.1:5432/geostat?currentSchema=ingestion}
+      jdbc-user: ${GEOSTAT_CHAT_CATALOG_JDBC_USER:${POSTGRES_USER:geostat}}
+      jdbc-password: ${GEOSTAT_CHAT_CATALOG_JDBC_PASSWORD:${POSTGRES_PASSWORD:}}
+      max-clusters: ${GEOSTAT_CHAT_CATALOG_MAX_CLUSTERS:3}
+      max-specific-rank: ${GEOSTAT_CHAT_CATALOG_MAX_SPECIFIC_RANK:3}
+      max-portal-links: ${GEOSTAT_CHAT_CATALOG_MAX_PORTAL_LINKS:2}

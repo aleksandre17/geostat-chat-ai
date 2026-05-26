@@ -48,6 +48,11 @@ class RabbitDocumentIndexPublisherTest {
     private void whenEventsConfigured() {
         org.mockito.Mockito.when(properties.events())
                 .thenReturn(new IngestionProperties.Events(
-                        true, "geostat.ingestion", "geostat.ingestion.document-index", "document.index"));
+                        true,
+                        "geostat.ingestion",
+                        "geostat.ingestion.document-index",
+                        "document.index",
+                        "geostat.ingestion.document-parsed",
+                        "document.parsed"));
     }
 }

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.geostat.ingestion.config.IngestionProperties;
 import com.geostat.embedding.EmbeddingPort;
+import com.geostat.ingestion.index.lifecycle.DocumentServeState;
 import com.geostat.ingestion.index.qdrant.QdrantCollectionManager;
 import com.geostat.ingestion.index.qdrant.QdrantVectorStore;
 import com.geostat.ingestion.persistence.entity.ChunkEntity;
@@ -57,6 +58,9 @@ class ChunkVectorIndexerTest {
     @Mock
     private QdrantVectorStore vectorStore;
 
+    @Mock
+    private com.geostat.ingestion.index.lifecycle.DocumentServeStateResolver serveStateResolver;
+
     @InjectMocks
     private ChunkVectorIndexer indexer;
 
@@ -71,6 +75,7 @@ class ChunkVectorIndexerTest {
         when(embedding.dimensions()).thenReturn(384);
         when(embedding.modelId()).thenReturn("hash-v1");
         when(embedding.embed(any())).thenReturn(new float[] {0.1f, 0.2f, 0.3f});
+        when(serveStateResolver.resolve(any())).thenReturn(DocumentServeState.LIVE);
     }
 
     @Test
@@ -99,7 +104,15 @@ class ChunkVectorIndexerTest {
         assertThat(indexed).isEqualTo(1);
         verify(collectionManager).ensureCollection("geostat-portal", 384);
         verify(vectorStore).deleteByDocumentId("geostat-portal", documentId);
-        verify(vectorStore).upsert(eq("geostat-portal"), eq(List.of(chunk)), eq(document), eq(corpus), any(), eq("v1"));
+        verify(vectorStore)
+                .upsert(
+                        eq("geostat-portal"),
+                        eq(List.of(chunk)),
+                        eq(document),
+                        eq(corpus),
+                        any(),
+                        eq("v1"),
+                        eq(DocumentServeState.LIVE));
         verify(vectorIndexRepository).save(any());
         verify(chunkRepository).save(chunk);
     }

@@ -6,7 +6,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(schema = "ingestion", name = "evaluation_query")
@@ -29,6 +36,22 @@ public class EvaluationQueryEntity {
 
     @Column(name = "min_chunks", nullable = false)
     private int minChunks = 1;
+
+    @Column(name = "expected_intent")
+    private String expectedIntent;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "expected_entities", nullable = false, columnDefinition = "jsonb")
+    private List<Map<String, Object>> expectedEntities = new ArrayList<>();
+
+    @Column(name = "expected_topic")
+    private UUID expectedTopic;
+
+    @Column(nullable = false)
+    private String difficulty = "medium";
+
+    @Column(nullable = false)
+    private String source = "curated";
 
     @Column(nullable = false)
     private boolean active = true;
@@ -92,6 +115,46 @@ public class EvaluationQueryEntity {
 
     public void setMinChunks(int minChunks) {
         this.minChunks = minChunks;
+    }
+
+    public String getExpectedIntent() {
+        return expectedIntent;
+    }
+
+    public void setExpectedIntent(String expectedIntent) {
+        this.expectedIntent = expectedIntent;
+    }
+
+    public List<Map<String, Object>> getExpectedEntities() {
+        return expectedEntities;
+    }
+
+    public void setExpectedEntities(List<Map<String, Object>> expectedEntities) {
+        this.expectedEntities = expectedEntities != null ? expectedEntities : new ArrayList<>();
+    }
+
+    public UUID getExpectedTopic() {
+        return expectedTopic;
+    }
+
+    public void setExpectedTopic(UUID expectedTopic) {
+        this.expectedTopic = expectedTopic;
+    }
+
+    public String getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(String difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 
     public boolean isActive() {

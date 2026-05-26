@@ -1,6 +1,7 @@
 package com.geostat.chat.application.retrieval;
 
 import com.geostat.chat.domain.catalog.LinkCard;
+import com.geostat.chat.infrastructure.catalog.YamlPresentationStyleCatalog;
 import com.geostat.platform.contracts.retrieval.RetrievedChunk;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CatalogRagLinkMergerTest {
 
-    private final CatalogRagLinkMerger merger = new CatalogRagLinkMerger();
+    private final CatalogRagLinkMerger merger =
+            new CatalogRagLinkMerger(YamlPresentationStyleCatalog.fromClasspath());
 
     @Test
     void merge_deduplicatesCatalogUrlAgainstRag() {

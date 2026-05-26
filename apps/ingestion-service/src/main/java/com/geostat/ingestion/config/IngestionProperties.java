@@ -34,7 +34,23 @@ public record IngestionProperties(
 
     public record Indexing(boolean enabled, String indexVersion) {}
 
-    public record Events(boolean enabled, String exchange, String indexQueue, String routingKey) {}
+    public record Events(
+            boolean enabled,
+            String exchange,
+            String indexQueue,
+            String routingKey,
+            String enrichmentQueue,
+            String enrichmentRoutingKey) {
+
+        public Events {
+            if (enrichmentQueue == null || enrichmentQueue.isBlank()) {
+                enrichmentQueue = "geostat.ingestion.document-parsed";
+            }
+            if (enrichmentRoutingKey == null || enrichmentRoutingKey.isBlank()) {
+                enrichmentRoutingKey = "document.parsed";
+            }
+        }
+    }
 
     /** B-26 — background crawl scheduler (Q-09). */
     public record Scheduler(boolean enabled, long fixedDelayMs) {

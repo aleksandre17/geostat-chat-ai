@@ -10,11 +10,14 @@ import com.geostat.ingestion.crawl.fetch.RobotsBlockedException;
 import com.geostat.ingestion.crawl.frontier.LinkDiscoverer;
 import com.geostat.ingestion.crawl.frontier.UrlHasher;
 import com.geostat.ingestion.crawl.policy.CorpusPolicy;
-import com.geostat.ingestion.events.DocumentIndexTrigger;
+import com.geostat.ingestion.events.DocumentPostPersistPipeline;
 import com.geostat.ingestion.locale.DocumentLocalePairLinker;
 import com.geostat.ingestion.parse.DocumentDisplayFields;
 import com.geostat.ingestion.parse.HtmlContentCleaner;
 import com.geostat.ingestion.parse.UrlLocaleInferer;
+import com.geostat.ingestion.parse.profile.ParseProperties;
+import com.geostat.platform.parse.CorpusQualityGate;
+import com.geostat.platform.parse.QualityThresholds;
 import com.geostat.ingestion.persistence.entity.CorpusEntity;
 import com.geostat.ingestion.persistence.entity.CrawlRunEntity;
 import com.geostat.ingestion.persistence.entity.DocumentEntity;
@@ -48,10 +51,13 @@ public class CrawlRunStore {
     private final HtmlContentCleaner contentCleaner;
     private final LinkDiscoverer linkDiscoverer;
     private final DocumentChunkWriter documentChunkWriter;
-    private final DocumentIndexTrigger documentIndexTrigger;
+    private final DocumentPostPersistPipeline postPersistPipeline;
     private final DocumentLocalePairLinker localePairLinker;
     private final RawHtmlArchivePort rawHtmlArchive;
     private final boolean archiveEnabled;
+    private final ParseProperties parseProperties;
+    private final CorpusQualityGate corpusQualityGate;
+    private final QualityThresholds qualityThresholds;
 
     public CrawlRunStore(
             CrawlRunRepository crawlRunRepository,
@@ -61,10 +67,13 @@ public class CrawlRunStore {
             HtmlContentCleaner contentCleaner,
             LinkDiscoverer linkDiscoverer,
             DocumentChunkWriter documentChunkWriter,
-            DocumentIndexTrigger documentIndexTrigger,
+            DocumentPostPersistPipeline postPersistPipeline,
             DocumentLocalePairLinker localePairLinker,
             RawHtmlArchivePort rawHtmlArchive,
-            IngestionProperties properties) {
+            IngestionProperties properties,
+            ParseProperties parseProperties,
+            CorpusQualityGate corpusQualityGate,
+            QualityThresholds qualityThresholds) {
         this.crawlRunRepository = crawlRunRepository;
         this.urlFrontierRepository = urlFrontierRepository;
         this.documentRepository = documentRepository;
@@ -72,10 +81,13 @@ public class CrawlRunStore {
         this.contentCleaner = contentCleaner;
         this.linkDiscoverer = linkDiscoverer;
         this.documentChunkWriter = documentChunkWriter;
-        this.documentIndexTrigger = documentIndexTrigger;
+        this.postPersistPipeline = postPersistPipeline;
         this.localePairLinker = localePairLinker;
         this.rawHtmlArchive = rawHtmlArchive;
         this.archiveEnabled = properties.archive().enabled();
+        this.parseProperties = parseProperties;
+        this.corpusQualityGate = corpusQualityGate;
+        this.qualityThresholds = qualityThresholds;
     }
 
     @Transactional(readOnly = true)
@@ -133,7 +145,7 @@ public class CrawlRunStore {
     }
 
     public void indexPersistedPage(PersistedPage page) {
-        documentIndexTrigger.requestIndex(page.documentId(), page.corpusId());
+        postPersistPipeline.afterDocumentPersisted(page.documentId(), page.corpusId());
     }
 
     public record PersistedPage(UUID documentId, UUID corpusId, int linksDiscovered) {}
@@ -199,7 +211,9 @@ public class CrawlRunStore {
             CrawlRunEntity run, CorpusEntity corpus, UrlFrontierEntity frontier, int maxDepth)
             throws IOException, InterruptedException, RobotsBlockedException, PolicyBlockedException {
         FetchedPage page = pageFetcher.fetch(frontier.getUrl(), corpus);
-        HtmlContentCleaner.CleanedContent cleaned = contentCleaner.clean(page.html());
+        HtmlContentCleaner.ProfileCleanResult cleanResult =
+                contentCleaner.clean(page.html(), frontier.getUrl(), corpus.getName());
+        HtmlContentCleaner.CleanedContent cleaned = cleanResult.content();
 
         DocumentEntity document = documentRepository
                 .findByCorpusIdAndUrlHash(corpus.getId(), frontier.getUrlHash())
@@ -233,6 +247,23 @@ public class CrawlRunStore {
         document.setContentText(cleaned.text());
         document.setContentHash(newHash);
         DocumentDisplayFields.apply(document, cleaned);
+
+        CorpusQualityGate.Decision gateDecision = CorpusQualityGate.Decision.ACCEPT;
+        if (parseProperties.profile().enabled() && cleanResult.profileDocument().isPresent()) {
+            gateDecision = corpusQualityGate.evaluate(cleanResult.profileDocument().get(), qualityThresholds);
+        }
+        if (gateDecision != CorpusQualityGate.Decision.ACCEPT) {
+            document.setFetchStatus(DocumentFetchStatus.skipped);
+            documentRepository.save(document);
+            List<UrlFrontierEntity> discovered =
+                    linkDiscoverer.discover(run.getId(), corpus, frontier, page.html(), maxDepth);
+            for (UrlFrontierEntity next : discovered) {
+                next.setCrawlRun(run);
+                urlFrontierRepository.save(next);
+            }
+            return discovered.size();
+        }
+
         document.setFetchStatus(DocumentFetchStatus.parsed);
         documentRepository.save(document);
 

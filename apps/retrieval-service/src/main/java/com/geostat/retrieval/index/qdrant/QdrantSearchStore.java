@@ -4,6 +4,7 @@ import static io.qdrant.client.ConditionFactory.matchKeyword;
 
 import com.geostat.qdrant.QdrantOperationException;
 import com.geostat.platform.contracts.retrieval.RetrievedChunk;
+import com.geostat.retrieval.search.CitationEligibilityFilter;
 import io.qdrant.client.QdrantClient;
 import io.qdrant.client.grpc.JsonWithInt.Value;
 import io.qdrant.client.grpc.Points.Filter;
@@ -53,7 +54,12 @@ public class QdrantSearchStore {
             if (hits.isEmpty() && locale != null && !locale.isBlank()) {
                 return search(collectionName, queryVector, limit, null);
             }
-            return hits.stream().map(this::toRetrievedChunk).toList();
+            return hits.stream()
+                    .filter(hit -> CitationEligibilityFilter.isCitable(
+                            stringValue(hit.getPayloadMap(), "serveState"),
+                            stringValue(hit.getPayloadMap(), "pageKind")))
+                    .map(this::toRetrievedChunk)
+                    .toList();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new QdrantOperationException("interrupted searching collection " + collectionName, e);

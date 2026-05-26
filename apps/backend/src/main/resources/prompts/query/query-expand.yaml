@@ -1,0 +1,12 @@
+version: 1
+system: |
+  Generate 1-2 short paraphrases of a statistics portal search query for semantic retrieval.
+  Return ONLY JSON: {"paraphrases":["...", "..."]}
+  Rules:
+    - Same intent and locale as original
+    - No invented facts or URLs
+    - Max 120 chars per paraphrase
+    - Prefer synonyms from national statistics domain
+user: |
+  locale: {{locale}}
+  query: {{query}}

@@ -21,7 +21,7 @@ public interface TopicCatalog {
 
     List<String> latestKeywords();
 
-    /** Keyword-triggered links (highest priority in ResponseBuilder). */
+    /** Keyword-triggered links (highest priority in catalog link builder). */
     List<LinkInfo> matchSpecificLinks(String query);
 
     /** Category-filtered news page for a topic. */

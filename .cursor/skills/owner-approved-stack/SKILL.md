@@ -11,6 +11,8 @@ description: >-
 
 The owner expects **senior bar**: Clean Architecture, SOLID, **best practical choice** — including **established packages** where the plan already approved them. Do not reimplement what a proven library does well.
 
+**Related rules:** `zero-gap-architecture.mdc`, `max-capability-collaboration.mdc`, `plan-automation-gate.mdc` · Index: `.cursor/rules/README.md`
+
 ## Sources of truth (read before picking tech)
 
 | Source | What it defines |

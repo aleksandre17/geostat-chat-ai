@@ -2,13 +2,29 @@ package com.geostat.ingestion.parse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.geostat.ingestion.parse.profile.CorpusConfigurationLoader;
+import com.geostat.ingestion.parse.profile.DefaultParseProfile;
+import com.geostat.ingestion.parse.profile.JsoupContentExtractor;
+import com.geostat.ingestion.parse.profile.MarkerBoilerplateStripper;
+import com.geostat.ingestion.parse.profile.ParseProperties;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 class HtmlContentCleanerTest {
 
-    private final HtmlContentCleaner cleaner =
-            new HtmlContentCleaner(new PageDisplayMetadataExtractor());
+    private final HtmlContentCleaner cleaner = legacyCleaner();
+
+    private static HtmlContentCleaner legacyCleaner() {
+        ParseProperties disabled = new ParseProperties(new ParseProperties.Profile(false), "ops/config/corpus", "ops/eval/corpus-quality-gate.yaml");
+        CorpusConfigurationLoader loader = Mockito.mock(CorpusConfigurationLoader.class);
+        Mockito.when(loader.parseProfileFor(Mockito.anyString())).thenReturn(DefaultParseProfile.GEOSTAT_PORTAL);
+        return new HtmlContentCleaner(
+                new PageDisplayMetadataExtractor(),
+                disabled,
+                loader,
+                new JsoupContentExtractor(new MarkerBoilerplateStripper(), new PageDisplayMetadataExtractor()));
+    }
 
     @Test
     void stripsNoiseAndKeepsMainText() {

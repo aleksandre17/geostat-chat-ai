@@ -1,9 +1,12 @@
 ---
-description: Reusable ops/tooling goes upstream into kits/geostat-kit, not only in the consumer repo
-alwaysApply: true
+description: Consumer vs kits/geostat-kit split; promote reusable ops upstream; workflow
+globs: kits/**,tools/**,geostat.ops.json
+alwaysApply: false
 ---
 
 # geostat-kit upstream (package-first)
+
+**Package bar:** `kit-package-architecture.mdc` · **Plan gate:** `plan-automation-gate.mdc` · **Ops skill:** `owner-geostat-ops` · **Index:** `README.md`
 
 When working on **any** project that uses `kits/geostat-kit` (including this repo), follow this split.
 
@@ -40,12 +43,6 @@ Anything that **adds or improves shared capability** for deploy, dev modes, comp
 
 ## Senior view → discuss first
 
-If the task reveals a **new package** or **kit improvement** worth reusing elsewhere, **stop and propose** (plan + owner) before hand-writing more consumer-only ops. Skills: `.cursor/skills/owner-geostat-ops` § Package idea & Package principles.
+New package or kit extract → **stop and propose** per `plan-automation-gate.mdc` before consumer-only ops debt.
 
 Reference: `kits/geostat-kit/docs/ADOPTION-LINE.md`, `kits/geostat-kit/docs/PACKAGE-PRINCIPLES.md`.
-
-## Package quality bar
-
-- **Agnostic, extensible** — no narrowed stacks; manifest + compose fragments, not env toggles duplicating manifest
-- **SOLID / clean boundaries** — see `.cursor/rules/kit-package-architecture.mdc`
-- Reject changes that hardcode one consumer layout or three fixed databases in kit runtime

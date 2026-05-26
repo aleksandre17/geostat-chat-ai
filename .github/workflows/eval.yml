@@ -1,0 +1,25 @@
+name: RAG Eval
+
+on:
+  pull_request:
+    branches: [main, master, develop]
+  schedule:
+    - cron: "0 3 * * *"
+
+jobs:
+  eval-metrics-unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: RAG-U12 metric helper tests
+        run: python ops/ci/test_run_eval_metrics.py
+
+      - name: Golden set dry-run (query load only)
+        run: python ops/ci/run-eval.py --dry-run --min-queries 0

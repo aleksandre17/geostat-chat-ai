@@ -1,0 +1,20 @@
+{
+  "dbcode.connections": [
+    {
+      "connectionId": "geostat-postgres-dev",
+      "name": "Geostat Postgres (dev)",
+      "driver": "postgres",
+      "connectionType": "host",
+      "host": "127.0.0.1",
+      "port": 5432,
+      "database": "geostat",
+      "username": "geostat",
+      "savePassword": "secretStorage",
+      "role": "development",
+      "driverOptions": {
+        "application_name": "DBCode (geostat-chat-ai)"
+      }
+    }
+  ],
+  "dbcode.workspaceConnection": "geostat-postgres-dev"
+}

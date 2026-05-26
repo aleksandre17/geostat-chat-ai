@@ -1,0 +1,35 @@
+# RAG-U07e — acronym / synonym overlay (≤40 entries). Presentation-only YAML survives catalog cutover.
+entries:
+  - triggers: ["მშპ", "mshp"]
+    ka: "მთლიანი შიდა პროდუქტი"
+    en: "gross domestic product gdp"
+  - triggers: ["gdp"]
+    ka: "მშპ მთლიანი შიდა პროდუქტი"
+    en: "gross domestic product"
+  - triggers: ["cpi", "ინფლაც"]
+    ka: "ფასების ინდექსი ინფლაცია"
+    en: "consumer price index inflation"
+  - triggers: ["fdi"]
+    ka: "პირდაპირი ინვესტიცია"
+    en: "foreign direct investment"
+  - triggers: ["sna", "ეროვნული ანგარიშ"]
+    ka: "ეროვნული ანგარიშები"
+    en: "national accounts"
+  - triggers: ["უმუკველ", "unemployment"]
+    ka: "უმუკველწვერა დასაქმება"
+    en: "unemployment employment"
+  - triggers: ["export", "ექსპორტ"]
+    ka: "ექსპორტი საგარეო ვაჭრობა"
+    en: "export external trade"
+  - triggers: ["import", "იმპორტ"]
+    ka: "იმპორტი საგარეო ვაჭრობა"
+    en: "import external trade"
+  - triggers: ["sdg"]
+    ka: "მდგრადი განვითარების მიზნები"
+    en: "sustainable development goals"
+  - triggers: ["statistika", "statistics"]
+    ka: "სტატისტიკა"
+    en: "statistics geostat"
+  - triggers: ["დირექტორ", "direqtori", "executive director", "აღმასრულებელი", "ხელმძღვანელ", "manager"]
+    ka: "აღმასრულებელი დირექტორი"
+    en: "executive director"

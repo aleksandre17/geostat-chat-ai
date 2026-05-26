@@ -28,7 +28,8 @@ public final class RetrievalReranker {
                 score -= 0.05;
             }
             score += keywordOverlap(terms, hit.text()) * 0.2;
-            score += keywordOverlap(terms, hit.pageTitle()) * 0.1;
+            score += keywordOverlap(terms, hit.pageTitle()) * 0.15;
+            score += keywordOverlap(terms, hit.sourceUrl()) * 0.1;
             score += freshnessBoost(hit.fetchedAt());
             scored.add(new Scored(hit, score));
         }

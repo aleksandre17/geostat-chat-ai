@@ -48,6 +48,20 @@
 | RAG-U06 | Public catalog REST API | **dropped (2026-05-24)** — no external consumer; derived views accessed via existing retrieval-service |
 | RAG-U-py-sidecar | Python sidecar (Stanza/BERTopic/KeyBERT) | **deferred** — Java-native (Gemini few-shot + Smile + YAKE) tried first per ADR-010 benefit gate; reconsider only if eval entity_F1 < 0.75 OR topic_quality_score below threshold |
 | RAG-U15 | Knowledge graph (Apache AGE on Postgres) | **deferred (P4+)** — corpus too small (<50K docs); revisit when scale or entity-aware eval gap demands |
+| B-31 | Near-duplicate detector (SimHash/MinHash before chunk) | **proposed** — generic G-05; `content_hash` exact only today; [BORROW-FROM-GENERIC-RAG.md](BORROW-FROM-GENERIC-RAG.md) |
+| B-32 | Scale topology doc + Kafka benefit gate (>100K pages) | **proposed** — generic G-06; doc first, code when audit shows lag |
+| B-33 | Multi-corpus clarity (doc + optional admin UI) | **proposed** — generic G-07; `corpus` table sufficient, UX/docs gap |
+| B-34 | Realtime crawl + auto re-index policy explicit | **proposed** — generic G-08; builds on freshness + scheduler (done) |
+| B-35 | `UrlFrontierPort` abstraction (ports & adapters) | **proposed** — generic G-12; refactor; enables on-demand crawl (entity-miss → priority enqueue) |
+| B-36 | Embedding model migration playbook | **proposed** — generic G-14; dual-write + A/B + atomic flip; no code yet |
+| B-37 | Enrichment-service extraction (deferred) | **proposed** — D-27; extract `enrichment/` package only if 3 observed triggers fire simultaneously (spec § 13.5); **planning gate: P8-plan-01** |
+| P8-plan-01 | Service/package split **planning review** (not implementation) | **approved (gate)** — schedule after Phase 8 P2 cutover + 30d telemetry OR early scale signals (spec § 13.6); output = telemetry + split map + stay/extract decision |
+| P7-doc-01 | Free local dev path (no Gemini key) in DEV-MODES | **proposed** — generic G-02 |
+| P7-doc-02 | Ollama/hardware RAM guide in HYBRID-DEV | **proposed** — generic G-03 |
+| P3-doc-01 | Content cleaning REMOVE checklist (ingestion README) | **proposed** — generic G-04 |
+| P3-doc-02 | Chunk token target documented | **proposed** — generic G-09 |
+| P8-doc-01 | RAG MVP one-page flow diagram | **proposed** — generic G-01; `docs/RAG-MVP-FLOW.md` |
+| P0-config-enrichment | Manifest → enrichment model + flags (`geostat config-gen`) | **proposed** — duplicate `INGESTION_ENRICHMENT_*` in `ops/config/ingestion/.env*` today; baseline: `modules.ingestion.enrichment` in `geostat.ops.json` → generated Spring/env hints |
 
 ### გადაწყვეტილების კითხვები
 

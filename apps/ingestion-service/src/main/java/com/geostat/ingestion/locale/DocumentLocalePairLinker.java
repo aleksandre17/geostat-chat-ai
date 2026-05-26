@@ -60,7 +60,7 @@ public class DocumentLocalePairLinker {
         pairRepository.save(pair);
     }
 
-    static PathPair toPathPair(String url, String lang) {
+    public static PathPair toPathPair(String url, String lang) {
         if (url == null || url.isBlank()) {
             return null;
         }
@@ -84,5 +84,5 @@ public class DocumentLocalePairLinker {
         }
     }
 
-    record PathPair(String pathKey, String kaUrl, String enUrl) {}
+    public record PathPair(String pathKey, String kaUrl, String enUrl) {}
 }

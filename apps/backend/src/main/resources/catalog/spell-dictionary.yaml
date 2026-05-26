@@ -1,0 +1,24 @@
+# RAG-U07a — supplemental unigrams for SymSpell (frequency hints, higher = more likely)
+words:
+  - word: statistics
+    frequency: 1000
+  - word: inflation
+    frequency: 900
+  - word: employment
+    frequency: 800
+  - word: unemployment
+    frequency: 800
+  - word: export
+    frequency: 700
+  - word: import
+    frequency: 700
+  - word: population
+    frequency: 700
+  - word: tourism
+    frequency: 600
+  - word: statistika
+    frequency: 1000
+  - word: inflatsia
+    frequency: 900
+  - word: dasakmeba
+    frequency: 800

@@ -18,12 +18,9 @@ public class AiResponseParser {
 
     private final ObjectMapper objectMapper;
     private final TopicCatalog topicCatalog;
-    private final ResponseBuilder responseBuilder;
-
-    public AiResponseParser(ObjectMapper objectMapper, TopicCatalog topicCatalog, ResponseBuilder responseBuilder) {
+    public AiResponseParser(ObjectMapper objectMapper, TopicCatalog topicCatalog) {
         this.objectMapper = objectMapper;
         this.topicCatalog = topicCatalog;
-        this.responseBuilder = responseBuilder;
     }
 
     public AiChatResult parseMainResponse(String raw, List<LinkCard> links, boolean isGeorgian) {

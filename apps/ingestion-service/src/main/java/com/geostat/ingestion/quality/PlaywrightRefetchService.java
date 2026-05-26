@@ -3,7 +3,7 @@ package com.geostat.ingestion.quality;
 import com.geostat.ingestion.chunk.DocumentChunkWriter;
 import com.geostat.ingestion.crawl.fetch.PlaywrightPageFetcher;
 import com.geostat.ingestion.crawl.frontier.UrlHasher;
-import com.geostat.ingestion.events.DocumentIndexTrigger;
+import com.geostat.ingestion.events.DocumentPostPersistPipeline;
 import com.geostat.ingestion.locale.DocumentLocalePairLinker;
 import com.geostat.ingestion.parse.HtmlContentCleaner;
 import com.geostat.ingestion.parse.UrlLocaleInferer;
@@ -34,7 +34,7 @@ public class PlaywrightRefetchService {
     private final CorpusQualityReader qualityReader;
     private final HtmlContentCleaner contentCleaner;
     private final DocumentChunkWriter documentChunkWriter;
-    private final DocumentIndexTrigger documentIndexTrigger;
+    private final DocumentPostPersistPipeline postPersistPipeline;
     private final DocumentLocalePairLinker localePairLinker;
     private final Optional<PlaywrightPageFetcher> playwrightFetcher;
     private final int minContentChars;
@@ -45,7 +45,7 @@ public class PlaywrightRefetchService {
             CorpusQualityReader qualityReader,
             HtmlContentCleaner contentCleaner,
             DocumentChunkWriter documentChunkWriter,
-            DocumentIndexTrigger documentIndexTrigger,
+            DocumentPostPersistPipeline postPersistPipeline,
             DocumentLocalePairLinker localePairLinker,
             ObjectProvider<PlaywrightPageFetcher> playwrightFetcher,
             com.geostat.ingestion.config.IngestionProperties properties) {
@@ -54,7 +54,7 @@ public class PlaywrightRefetchService {
         this.qualityReader = qualityReader;
         this.contentCleaner = contentCleaner;
         this.documentChunkWriter = documentChunkWriter;
-        this.documentIndexTrigger = documentIndexTrigger;
+        this.postPersistPipeline = postPersistPipeline;
         this.localePairLinker = localePairLinker;
         this.playwrightFetcher = Optional.ofNullable(playwrightFetcher.getIfAvailable());
         this.minContentChars = properties.qualityAudit().minContentChars();
@@ -113,7 +113,7 @@ public class PlaywrightRefetchService {
                     document, corpus, cleaned.text(), cleaned.sectionPath(), document.getLanguage());
             localePairLinker.link(
                     corpus.getId(), document.getId(), document.getCanonicalUrl(), document.getLanguage());
-            documentIndexTrigger.requestIndex(document.getId(), corpus.getId());
+            postPersistPipeline.afterDocumentPersisted(document.getId(), corpus.getId());
             return true;
         } catch (Exception e) {
             return false;

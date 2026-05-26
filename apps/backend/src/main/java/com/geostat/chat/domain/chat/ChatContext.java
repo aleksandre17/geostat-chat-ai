@@ -13,7 +13,8 @@ public record ChatContext(
         String locale,
         QueryIntent intent,
         String sessionId,
-        Deque<Message> history
+        Deque<Message> history,
+        String retrievalQuery
 ) {
     public ChatContext {
         if (locale == null || locale.isBlank()) {
@@ -21,6 +22,9 @@ public record ChatContext(
         }
         if (intent == null) {
             intent = QueryIntent.NAVIGATE;
+        }
+        if (retrievalQuery == null || retrievalQuery.isBlank()) {
+            retrievalQuery = message;
         }
     }
 }

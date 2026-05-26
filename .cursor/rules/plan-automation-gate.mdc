@@ -1,9 +1,11 @@
 ---
-description: Proactively flag automatable work and reusable kit/package ideas; plan baseline before continuing
-alwaysApply: true
+description: Flag automation and reusable kit/package opportunities before manual debt; plan baseline first
+alwaysApply: false
 ---
 
 # Plan-first automation & package gate
+
+**Hub:** `owner-standards.mdc` · **Kit bar:** `kit-package-architecture.mdc` · **Stack libs:** `owner-approved-stack` skill · **Index:** `README.md`
 
 As we follow `docs/plan/PROJECT-PLAN.md`, **must** surface (1) automation / manifest-driven opportunities and (2) **reusable package** opportunities **before** creating more manual or consumer-only debt.
 
@@ -25,12 +27,6 @@ Typical signals — **reusable package** (like `kits/geostat-kit`):
 - Consumer-agnostic ops, codegen, drivers, or CLI that does not belong in `apps/*`
 - Third copy of the same script/tool across modules — candidate for `kits/<name>/`
 - Feature would force others to copy-paste our standards instead of importing a package
-
-Typical signals — **approved library not used** (see `owner-approved-stack` skill):
-
-- Plan / Q-* names a Maven lib (e.g. **crawler4j**, Q-06) but code reimplements the same concern **past the logical milestone** (e.g. robots.txt required but still hand-rolled)
-- Hand-rolled stopgap presented as final without adapter path to approved lib
-- New `build.gradle.kts` dependency needed but not reflected in plan
 
 ## What to propose (required format)
 

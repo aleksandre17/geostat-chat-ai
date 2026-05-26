@@ -68,12 +68,13 @@
 
 ## RAG derivation architecture (2026-05-24)
 
-სრული spec: [RAG-DERIVATION-ARCHITECTURE.md](../RAG-DERIVATION-ARCHITECTURE.md) · ADR: [011](../../adr/011-rag-derivation-architecture.md)
+Master plan: [PHASE-8-ARCHITECTURE-PLAN.md](../PHASE-8-ARCHITECTURE-PLAN.md) · Spec: [RAG-DERIVATION-ARCHITECTURE.md](../RAG-DERIVATION-ARCHITECTURE.md) · ADR: [011](../../adr/011-rag-derivation-architecture.md)
 
 | ID | გადაწყვეტილება |
 |----|----------------|
 | **D-25** | **Derivation architecture adopted.** Corpus (`ingestion.document` + Qdrant) = single source of truth. Topics, portals, specific links, keywords — **derived** by per-document enrichment + nightly aggregation, not authored in YAML. Hand-edited `topics.yaml` (2364 lines) deprecated and will be deleted after eval gate passes. Stays: `topic-style.yaml` (~80 lines, presentation only) + `terminology-overlay.yaml` (≤40 entries, synonym graph). |
 | **D-26** | **Curation overlay scope.** `ingestion.curation_override` is the only human authoring surface. Budget ≤50 rows. TTL default 90 days. `reason` mandatory. Actions: `boost / demote / exclude / pin_as_portal / rename_topic`. Overlay fixes derivation edge cases — does **not** create content. If overlay row count exceeds 50, signals upstream deriver problem to fix. |
+| **D-27** | **Service split — deferred.** 4 deployables sufficient for Phase 8: `frontend`, `chat-api`, `retrieval-service`, `ingestion-service`. No new `enrichment-service`, `query-understanding-service`, `eval-service`, or `aggregation-service` until **observed** triggers (see B-37, spec § 13.5). Derivers, catalog aggregation, and curation API stay in `ingestion-service`; query understanding (RAG-U07) stays in `chat-api`; eval harness (RAG-U12) stays as `ops/ci/run-eval.py` + scheduled job. Internal modularization (`enrichment/`, `catalog/`, `curation/` packages) provides future-split optionality without operational cost today. Scope: ≤100K docs, 1 corpus, 1 owner team (ADR-009 unchanged). **Planning review scheduled:** **P8-plan-01** — after Phase 8 P2 cutover (YAML deleted, derived catalog live) + 30d telemetry, owner decides whether to plan additional deployables; implementation only if B-37 triggers fire. |
 | **RAG-U03** | ~~SourceComposer~~ **superseded** — merged into RAG-U10 unified hybrid retriever |
 | **RAG-U04** | ~~Hybrid keyword topic classifier~~ **superseded** — replaced by RAG-U07c IntentClassifier |
 | **RAG-U06** | ~~Public catalog API~~ **dropped** — derived materialized views suffice |

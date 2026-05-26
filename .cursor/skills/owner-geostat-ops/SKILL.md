@@ -9,7 +9,7 @@ description: >-
 
 # Owner geostat-ops context
 
-Apply **senior engineer/architect** bar: Clean Architecture boundaries (kit vs apps), SOLID in `lib/` and drivers, manifest as contract — see `owner-architecture` skill.
+Apply **senior engineer/architect** bar: Clean Architecture boundaries (kit vs apps), SOLID in `lib/` and drivers, manifest as contract — see `owner-architecture` skill. **Rules:** `kit-upstream.mdc`, `kit-package-architecture.mdc`, `plan-automation-gate.mdc` · Index: `.cursor/rules/README.md`
 
 ## Package
 
@@ -54,34 +54,11 @@ python -m pytest tests -q
 
 ## Package idea & upstream (owner gate)
 
-მუშაობისას, **სენიორ არქიტექტორის ხედვით**, თუ გამოჩნდება:
+ახალი kit / extract upstream → **ჯერ owner-თან** — ფორმატი: `plan-automation-gate.mdc`. Package bar: `kit-package-architecture.mdc`, `PACKAGE-PRINCIPLES.md`, `test_toolkit_hardcodes.py`.
 
-- ახალი reusable **პაკეტის** / kit-ის იდეა (`kits/<name>/`, ახალი driver, manifest capability)
-- არსებული **geostat-kit** (ან სხვა kit) **გაუმჯობესება** ან consumer ლოგიკის extract upstream
+**Owner-ს ვკითხოთ (Georgian):** „ჩავინიშნოთ გეგმაში საბაზისო ვარიანტით?“ / „გავიტანოთ `kits/`-ში reusable package-ად?“
 
-→ **ჯერ owner-თან ვისაუბრებთ** — არ ვაგრძელებთ ჩუმად, არ ვწერთ kit runtime-ში consumer brand/artifact/alias-ებს.
-
-**ფორმატი:** `.cursor/rules/plan-automation-gate.mdc` — problem, baseline variant, plan ID (`P0-kit-*`, `BACKLOG`).
-
-**Owner-ს ვკითხოთ (Georgian):**
-
-- „ჩავინიშნოთ გეგმაში საბაზისო ვარიანტით?“
-- „გავიტანოთ `kits/`-ში reusable package-ად (geostat-kit სტანდარტით)?“
-
-Implement kit/package extraction **მხოლოდ** owner-ის approval-ის შემდეგ.
-
-## Package principles (უცვლელი bar)
-
-ვიცავთ იმ პრინციპებს, რომ kit **სხვა developer base-ებისა და აპლიკაციებისთვის** გამოყენებადი ops framework იყოს — არა ეს პროდუქტი.
-
-| Kit runtime **არ არის** | Kit runtime **არის** |
-|-------------------------|----------------------|
-| consumer brand, product alias (`fe`, `be`, …) help/კოდში | manifest-driven CLI (`cli.aliases` consumer manifest-ში) |
-| consumer repo path (`kits/geostat-kit`) runtime string-ებში | generic ops (`hybrid boot <alias\|moduleId>`) |
-| artifacts, secrets, `.env` values, app/domain logic | drivers, compose-gen, tunnel, deploy paths |
-| ფიქსირებული postgres/redis/qdrant სამეული | `stack.infra.services` + consumer `services/*.yml` |
-
-**Reference:** `kits/geostat-kit/docs/PACKAGE-PRINCIPLES.md`, `tests/test_toolkit_hardcodes.py`, `.cursor/rules/kit-package-architecture.mdc`.
+Implement extraction **მხოლოდ** approval-ის შემდეგ.
 
 ## Submodule install (share with others)
 

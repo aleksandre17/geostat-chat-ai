@@ -1,3 +1,5 @@
+val springAiVersion = "2.0.0-M2"
+
 plugins {
     id("org.springframework.boot") version "4.0.2"
     id("io.spring.dependency-management") version "1.1.7"
@@ -16,9 +18,13 @@ java {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://repo.spring.io/milestone") }
 }
 
+extra["spring-ai.version"] = springAiVersion
+
 dependencies {
+    implementation(platform("org.springframework.ai:spring-ai-bom:${property("spring-ai.version")}"))
     implementation("com.geostat.platform:platform-contracts")
     implementation("com.geostat.embedding:embedding-adapters")
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -32,6 +38,7 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine:3.2.0")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("com.fasterxml.jackson.core:jackson-databind")
+    implementation("org.springframework.ai:spring-ai-starter-model-google-genai")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 

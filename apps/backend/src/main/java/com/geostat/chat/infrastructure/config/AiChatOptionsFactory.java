@@ -31,6 +31,39 @@ public class AiChatOptionsFactory {
         return options;
     }
 
+    public ChatOptions intentClassification() {
+        GoogleGenAiChatOptions options = GoogleGenAiChatOptions.builder()
+                .temperature(properties.classificationTemperature())
+                .maxOutputTokens(32)
+                .responseMimeType("application/json")
+                .responseSchema(GeminiJsonSchemas.INTENT_CLASSIFICATION)
+                .build();
+        options.setSafetySettings(GeminiSafetyDefaults.publicAssistant());
+        return options;
+    }
+
+    public ChatOptions entityExtraction() {
+        GoogleGenAiChatOptions options = GoogleGenAiChatOptions.builder()
+                .temperature(properties.classificationTemperature())
+                .maxOutputTokens(256)
+                .responseMimeType("application/json")
+                .responseSchema(GeminiJsonSchemas.ENTITY_EXTRACTION)
+                .build();
+        options.setSafetySettings(GeminiSafetyDefaults.publicAssistant());
+        return options;
+    }
+
+    public ChatOptions queryExpansion() {
+        GoogleGenAiChatOptions options = GoogleGenAiChatOptions.builder()
+                .temperature(properties.classificationTemperature())
+                .maxOutputTokens(128)
+                .responseMimeType("application/json")
+                .responseSchema(GeminiJsonSchemas.QUERY_EXPANSION)
+                .build();
+        options.setSafetySettings(GeminiSafetyDefaults.publicAssistant());
+        return options;
+    }
+
     private ChatOptions jsonOptions(double temperature, String schema) {
         GoogleGenAiChatOptions.Builder builder = GoogleGenAiChatOptions.builder()
                 .temperature(temperature)

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "corpus": "geostat-portal",
+  "catalogSource": "yaml",
+  "frozen": true,
+  "generatedAt": "2026-05-25T16:28:23.359369+00:00",
+  "note": "Pre-cutover YAML-era retrieval baseline — capture via rag-eval-freeze-yaml-baseline.ps1 only.",
+  "metrics": {
+    "hit@1": 1.0,
+    "hit@5": 1.0,
+    "MRR": 1.0,
+    "NDCG@10": 4.543559338088346,
+    "mean_response_ms": 54.29072133440059,
+    "intent_accuracy": 0.9770992366412213
+  }
+}

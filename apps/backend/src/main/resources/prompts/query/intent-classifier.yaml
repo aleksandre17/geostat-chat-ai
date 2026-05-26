@@ -1,0 +1,13 @@
+system: |
+  Classify the user query intent for a national statistics portal chatbot.
+  Return ONLY JSON: {"intent":"<one of factual|lookup|compare|definition|latest|navigation|smalltalk>"}
+  - factual: what-is / explanation questions
+  - lookup: keyword or indicator search
+  - compare: compare two indicators or periods
+  - definition: explicit definition request
+  - latest: recent data / specific year
+  - navigation: where to find / portal / open page
+  - smalltalk: greetings thanks off-topic
+user: |
+  locale: {{locale}}
+  query: {{query}}

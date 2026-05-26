@@ -30,7 +30,7 @@ class AiResponseParserTest {
                 new TopicDefinition.TopicStyle("icon", "#fff", "#eee"),
                 0);
         Mockito.when(catalog.get(Topic.STRUCTURE)).thenReturn(def);
-        parser = new AiResponseParser(new ObjectMapper(), catalog, Mockito.mock(ResponseBuilder.class));
+        parser = new AiResponseParser(new ObjectMapper(), catalog);
     }
 
     @Test

@@ -73,7 +73,7 @@ Geostat ჩატბოტი + **RAG pipeline** (საიტის კონ�
 | **7** | Cursor skills/rules + გეგმის ფოლდერი | **done** | `.cursor/`, `docs/plan/` |
 | **7b** | Stack decisions Q-01…Q-05, Q-13, Q-15 + benefit gate | **done** | [ADR-010](../adr/010-product-stack-benefit-gate.md), approved D-18…D-24 |
 
-| **8** | **RAG derivation architecture** — corpus → enrichment → catalog views → curation overlay; RAG-U series | **approved** | [ADR-011](../adr/011-rag-derivation-architecture.md), [RAG-DERIVATION-ARCHITECTURE.md](RAG-DERIVATION-ARCHITECTURE.md), approved D-25, D-26 |
+| **8** | **RAG derivation architecture** — corpus → enrichment → catalog views → curation overlay; RAG-U series | **plan source ✅ 100%** · impl: P1 code ✅, runtime ⏳, P2+ approved | [PHASE-8-ARCHITECTURE-PLAN.md](PHASE-8-ARCHITECTURE-PLAN.md) (master), [P1](PHASE-8-P1-ARCHITECTURE-COMPLETION.md), [P2](PHASE-8-P2-ARCHITECTURE-PLAN.md), [P3-P4](PHASE-8-P3-P4-ARCHITECTURE-PLAN.md), [spec](RAG-DERIVATION-ARCHITECTURE.md), [ADR-011](../adr/011-rag-derivation-architecture.md) |
 
 
 
@@ -168,28 +168,29 @@ Geostat ჩატბოტი + **RAG pipeline** (საიტის კონ�
 | RAG-L07+ | Semantic cross-encoder rerank (embedding bi-encoder) | **done** | `SemanticCrossEncoderReranker` |
 | RAG-L-cache | Redis retrieval cache backend | **done** | `RETRIEVAL_CACHE_BACKEND=redis` |
 
-| RAG-U01a | **SummaryDeriver** — Gemini 2-3 sentence summary ka/en | **approved (P1)** | `apps/ingestion-service` enrichment/summary; spec: [RAG-DERIVATION-ARCHITECTURE.md §5.U01a](RAG-DERIVATION-ARCHITECTURE.md) |
-| RAG-U01b | **KeywordDeriver** — YAKE Java port top-15 per locale | **approved (P1)** | enrichment/keywords; spec §5.U01b |
-| RAG-U01c | **EntityDeriver** — Gemini few-shot INDICATOR/YEAR/REGION/ORG/INDEX_CODE | **approved (P1)** | enrichment/entities; spec §5.U01c |
-| RAG-U01d | **LocalePairDeriver** — URL pattern + embedding cosine | **approved (P1)** | enrichment/locale-pair; spec §5.U01d |
-| RAG-U01e | **AuthorityDeriver** — JGraphT PageRank + recency, nightly batch | **approved (P1)** | enrichment/authority; spec §5.U01e |
-| RAG-U01f | **PageKindClassifier** — closed-set portal/dataset/report/news/faq/navigation/unknown | **approved (P1)** | enrichment/page-kind; spec §5.U01f |
-| RAG-U01g | **TopicMiner + TopicAssigner** — Smile k-means + Gemini cluster label (admin-approved) | **approved (P1)** | enrichment/topic; spec §5.U01g |
-| RAG-U01h | **Title/SummaryVectorDeriver** — Qdrant named vectors `title`, `summary` | **approved (P1)** | enrichment/vectors; spec §5.U01h |
-| RAG-U02 | **Catalog views** — `mv_portal_link`, `mv_specific_link`, `mv_topic_keywords` + V11 migration + `CatalogViewRefreshJob` | **approved (P1)** | spec §6 |
+| RAG-U01a | **SummaryDeriver** — Gemini 2-3 sentence summary ka/en | **done (P1 code)** | `gemini-2.5-flash-lite`; runtime backfill ⏳ |
+| RAG-U01b | **KeywordDeriver** — YAKE Java port top-15 per locale | **done (P1 code)** | spec §5.U01b |
+| RAG-U01c | **EntityDeriver** — Gemini few-shot INDICATOR/YEAR/REGION/ORG/INDEX_CODE | **done (P1 code)** | spec §5.U01c |
+| RAG-U01d | **LocalePairDeriver** — URL pattern + embedding cosine | **done (P1 code)** | spec §5.U01d |
+| RAG-U01e | **AuthorityDeriver** — JGraphT PageRank + recency, nightly batch | **done (P1 code)** | spec §5.U01e |
+| RAG-U01f | **PageKindClassifier** — closed-set portal/dataset/report/news/faq/navigation/unknown | **done (P1 code)** | spec §5.U01f |
+| RAG-U01g | **TopicMiner + TopicAssigner** — Smile k-means + Gemini cluster label (admin-approved) | **done (P1 code)** | spec §5.U01g |
+| RAG-U01h | **Title/SummaryVectorDeriver** — Qdrant named vectors `title`, `summary` | **done (P1 code)** | `INGESTION_NAMED_VECTORS_ENABLED=false` until U08 |
+| RAG-U02 | **Catalog views** — `mv_portal_link`, `mv_specific_link`, `mv_topic_keywords` + refresh + status | **done (P1 code)** | V13–V16; chat `source=yaml|derived` |
 | RAG-U03 | ~~SourceComposer (catalog vs RAG separate path)~~ | **superseded by U10** | merged into unified hybrid retriever |
 | RAG-U04 | ~~Hybrid keyword topic classifier~~ | **superseded by U07c** | replaced by IntentClassifier |
-| RAG-U05 | **Curation overlay UI** — admin tab for boost/demote/exclude/pin_as_portal/rename_topic | **approved (P3)** | minimal CRUD; budget ≤50 rows; reason mandatory; TTL 90d default; spec §7 |
+| RAG-U05 | **Curation overlay UI** — admin tab for boost/demote/exclude/pin_as_portal/rename_topic | **done (API, P1)** / UI **P3** | REST API + budget; admin tab pending |
 | RAG-U06 | ~~Public catalog API~~ | **dropped** | derived views suffice; no external consumer |
-| RAG-U07 | **Query understanding pipeline** — SpellFixer (SymSpell) + Normalizer + IntentClassifier (Gemini) + EntityExtractor + QueryExpander (terminology-overlay.yaml + LLM) | **approved (P1)** | `apps/backend` query/; spec §8 stages 1–5 |
+| RAG-U07 | **Query understanding pipeline** — SpellFixer (SymSpell) + Normalizer + IntentClassifier (Gemini) + EntityExtractor + QueryExpander (terminology-overlay.yaml + LLM) | **done (P1 code)** | flags default OFF until eval |
 | RAG-U08 | **Multi-vector index** — Qdrant migration v1 → v2 (named vectors `body`, `title`, `summary`); backfill | **approved (P2)** | spec §4 |
 | RAG-U09 | **HyDE + multi-query** — `QueryEmbeddingStrategy` (Direct \| HyDE \| MultiQuery) | **approved (P2)** | spec §8 stage 6 |
 | RAG-U10 | **Hybrid retrieval + RRF fusion + MMR** — Qdrant(summary,title,body) + Postgres tsvector → RRF k=60 → CrossEncoder → MMR λ=0.7 | **approved (P2)** | spec §8 stage 7-9 |
 | RAG-U11 | **Confidence + smart fallback** — `RetrievalConfidence` HIGH/MEDIUM/LOW/NONE; `ResponseRouter` answer/suggest/clarify/refuse | **approved (P2)** | spec §8 stages 10-11 |
-| RAG-U12 | **Eval harness + CI gate** — extend `evaluation_query`, golden 150–300, `ops/ci/run-eval.py` (hit@1/5, MRR, NDCG@10, intent_acc, entity_F1), 5% regression block | **approved (P1)** | spec §9 |
+| RAG-U12 | **Eval harness + CI gate** — extend `evaluation_query`, golden 150–300, `ops/ci/run-eval.py` (hit@1/5, MRR, NDCG@10, intent_acc, entity_F1), 5% regression block | **done (P1 code)** / **runtime gate ⏳** | `rag-p1-cutover.ps1`, dual baseline |
 | RAG-U13 | **Feedback-driven score boost** — `document.score_boost` from `chat.feedback_*` aggregator | **approved (P3)** | spec §10 |
 | RAG-U14 | **Caching tier** — `query_intent_cache` (24h, PG), retrieval cache (1h, Redis), response cache (5m, Redis, optional) | **approved (P3)** | spec §11 |
 | RAG-U15 | **Knowledge graph** — Apache AGE on Postgres; entity+relation extraction | **deferred (P4+)** | trigger when corpus > 50K docs OR entity-aware eval gap |
+| **P8-plan-01** | **Service/package split planning review** — telemetry audit + candidate split map (`enrichment-service`, `query-understanding-service`, …); ADR draft **only if** review recommends extraction | **approved (gate)** | after Phase 8 P2 cutover (YAML deleted) **+ 30d prod telemetry** OR early if scale signals approach (spec § 13.6); **planning only** — code split = B-37 triggers |
 | P3-03b | Playwright SPA refetch (audit trigger) | **done** | `PlaywrightPageFetcher`, `POST …/playwright-refetch` |
 | B-28 | Raw HTML archive port + schema hook | **baseline** | `RawHtmlArchivePort`, V6 `raw_archive_key`; S3/MinIO adapter backlog |
 | B-30 | Chat telemetry JDBC (`chat.*`) | **done** | Flyway V1, profile `telemetry-db`, `JdbcChatTurnWriter` |
@@ -276,9 +277,13 @@ Geostat ჩატბოტი + **RAG pipeline** (საიტის კონ�
 7. **B-25** — zero-gap: StructureLookup removed; clarification via corpus (Q-13 superseded) — **done**
 8. **P5-ux** — streaming / Redis sessions / feedback (B-17…B-19) — **done** (2026-05-23)
 
-### A2. RAG ხარისხი — ფაზა 8 derivation architecture (**approved**, ჯერ არ დაწყებული)
+### A2. RAG ხარისხი — ფაზა 8 derivation architecture
 
-სრული spec: [RAG-DERIVATION-ARCHITECTURE.md](RAG-DERIVATION-ARCHITECTURE.md) · ADR: [011](../adr/011-rag-derivation-architecture.md) · DB: V9, V10, V11, V12 migrations.
+**არქიტექტურული source plan: ✅ 100%** — [PHASE-8-ARCHITECTURE-PLAN.md](PHASE-8-ARCHITECTURE-PLAN.md) (master) · P1 [completion](PHASE-8-P1-ARCHITECTURE-COMPLETION.md) · P2 [plan](PHASE-8-P2-ARCHITECTURE-PLAN.md) · P3/P4 [plan](PHASE-8-P3-P4-ARCHITECTURE-PLAN.md)  
+**Normative spec:** [RAG-DERIVATION-ARCHITECTURE.md](RAG-DERIVATION-ARCHITECTURE.md) · ADR: [011](../adr/011-rag-derivation-architecture.md) · Flyway **V9–V16**  
+**Implementation:** P1 code ✅ · runtime cutover ⏳ · P2+ approved, not started
+
+**Orchestrator (owner):** `.\ops\ci\rag-p1-cutover.ps1` — `-Step status|freeze|prep|gate|run` (manifest `ci.ragP1Cutover`).
 
 **წესი (ZERO-GAP)**: RAG-U-ის ნებისმიერი feature flag prod-ში მხოლოდ მაშინ ჩაირთვება, როცა golden eval (RAG-U12) **≥ baseline**. ძველი YAML catalog რჩება ცოცხალი feature-flag-ით, წაიშლება მხოლოდ eval pass-ის შემდეგ.
 
@@ -318,6 +323,52 @@ Geostat ჩატბოტი + **RAG pipeline** (საიტის კონ�
 **P4+ — Deferred**:
 
 25. **RAG-U15** — Knowledge graph (Apache AGE) — only when corpus > 50K docs OR entity-aware eval gap
+
+**P4+ — Planning gate (not implementation)**:
+
+26. **P8-plan-01** — **Service/package split planning review** — სწორ დროს დავგეგმოთ დამატებით deployable-ებად დაჭრა (spec § 13.6). **არა Phase 8 build task** — owner review meeting + short doc/ADR draft. Implementation მხოლოდ B-37 observed triggers-ზე.
+
+**P1 → 100% — არქიტექტურული maturity (Senior bar)**
+
+> სრული evidence, package map, SOLID, cutover FSM: **[PHASE-8-P1-ARCHITECTURE-COMPLETION.md](PHASE-8-P1-ARCHITECTURE-COMPLETION.md)**  
+> **განსხვავება:** *architecture/plan* = 100% (კოდი + კონტრაქტები + manifest + ops); *runtime P1 done* = cutover S0–S6 + eval gate.
+
+| ზოლი | Arch % | Runtime | Done criteria |
+|------|--------|---------|---------------|
+| **L1 Corpus** | 100 | ✅ | crawler4j+Jsoup → `ingestion.document`; resume; single seed |
+| **L2 Enrichment** | 100 | ⏳ | ports/adapters U01a–h; backfill API; ≥95% summary/page_kind |
+| **L3 Aggregation** | 100 | ⏳ | remine → approve → `catalog:refresh` → `mv_*` rows > 0 |
+| **L4 Catalog (chat-api)** | 100 | ⏳ | dual-mode code ✅; flip `derived` + smoke after S3 |
+| **L5 Curation** | 100 | ✅ | overlay REST + budget; UI = P3 |
+| **L6 Query understanding** | 100 | ✅ | U07 pipeline; flags OFF until eval |
+| **Eval gate (U12)** | 100 | ⏳ | frozen YAML baseline ✅; derived hit@5 ≥ YAML −5% |
+| **Ops/manifest** | 100 | ⏳ | `modules.*.derivation`; prod enrichment ON; cutover scripts |
+| **Zero-gap** | 100 plan | ⏳ | YAML delete **only** S7 after eval + owner OK |
+| **SOLID / layers** | 100 | ✅ | `platform-contracts` ports; readiness single view |
+| **Agnostic growth** | 100 | ✅ | flags; manifest; presentation YAML only |
+
+**Runtime sequence (S0–S7)** — იხ. completion doc §7; backfill **background** (`p1-prep-background.log`).
+
+**Tests/quality (P1 შემდეგ, არა ადრე)**:
+
+- Integration: enrichment backfill + readiness gates (`EnrichmentBackfillService`, `DerivationReadinessService`)
+- **Unit ✅ started:** `EnrichmentBackfillServiceTest` (queue, progress, failure tolerance, catalog refresh)
+- Eval CI: `run-eval.py` regression vs `ops/eval/baseline.yaml-frozen.json`
+- Module tests: deriver unit + catalog MV refresh; chat derived catalog smoke in hybrid matrix
+
+**Automation gate (BACKLOG, არა block P1 runtime)**:
+
+- **P0-config-enrichment** — `geostat config-gen` / manifest declares enrichment model + flags (duplicate `.env` literals today)
+
+**Phase 8 plan tree (source 100%):**
+
+```text
+docs/plan/PHASE-8-ARCHITECTURE-PLAN.md      ← master
+├── PHASE-8-P1-ARCHITECTURE-COMPLETION.md   ← P1 Senior bar + cutover FSM
+├── PHASE-8-P2-ARCHITECTURE-PLAN.md         ← U08–U11 (post eval)
+├── PHASE-8-P3-P4-ARCHITECTURE-PLAN.md      ← U13/U14/UI, S7 YAML exit, P4+
+└── RAG-DERIVATION-ARCHITECTURE.md          ← normative spec §1–19
+```
 
 ### B. Ops / deploy (ფაზა 6 დასრულება)
 

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "corpus": "geostat-portal",
+  "metrics": {
+    "hit@1": 1.0,
+    "hit@5": 1.0,
+    "MRR": 1.0,
+    "NDCG@10": 4.543559338088346,
+    "mean_response_ms": 55.70160867025455,
+    "intent_accuracy": 0.9770992366412213
+  }
+}

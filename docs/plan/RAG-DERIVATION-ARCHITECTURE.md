@@ -1,8 +1,11 @@
 # RAG Derivation Architecture — სრული spec
 
-განახლება: **2026-05-24** · სტატუსი: **approved (baseline)** · ADR: [011-rag-derivation-architecture](../adr/011-rag-derivation-architecture.md)
+განახლება: **2026-05-26** · სტატუსი: **COMPLETE** · P1 **100% ✅** · G2 pass · YAML deleted · ADR: [011-rag-derivation-architecture](../adr/011-rag-derivation-architecture.md)
 
-ეს დოკუმენტი ერთადერთი წყაროა RAG-U სერიის ფაზებისთვის (RAG-U01a..h, U02..U15). თუ ახალი აგენტი იწყებს ამ მიმართულებას, უნდა წაიკითხოს მთლიანად, შემდეგ მიჰყვეს PROJECT-PLAN.md ცხრილს.
+ეს დოკუმენტი ერთადერთი **normative spec**-ია RAG-U სერიისთვის (RAG-U01a..h, U02..U15). Phase plans (Senior bar): [PHASE-8-ARCHITECTURE-PLAN.md](PHASE-8-ARCHITECTURE-PLAN.md). იმპლემენტაციის evidence: §20.
+
+**P1 completion (Senior bar):** [PHASE-8-P1-ARCHITECTURE-COMPLETION.md](PHASE-8-P1-ARCHITECTURE-COMPLETION.md)  
+**Master plan (P1→P4+, source 100%):** [PHASE-8-ARCHITECTURE-PLAN.md](PHASE-8-ARCHITECTURE-PLAN.md)
 
 ---
 
@@ -76,13 +79,57 @@ UserMessage
 | **Zero-gap** | ძველი path ცოცხალი რჩება feature-flag-ით; წაიშლება მხოლოდ eval pass-ის შემდეგ |
 | **Java-native first** | Python sidecar მხოლოდ თუ Java alternative არ აღწევს ხარისხს |
 
+### Layer 1 prerequisites (assumed inputs to enrichment)
+
+Phase 8 აშენდება **არსებული** ingestion pipeline-ზე. Layer 2 derivers ემოლოდულია, რომ Layer 1-ი უკვე შემდეგ გამოშვებებს ანახორციელებს. **ეს ცხრილი არის contract-ი** — თუ რომელიმე row "✅ done"-ი წარიკითხება და უცებ წყდება, Phase 8-ი გათიშულია.
+
+| Capability | Where | Status | რას უზრუნველყოფს Phase 8-ისთვის |
+|---|---|---|---|
+| Crawl4j + Jsoup pipeline | `Crawler4jPageFetcher` | ✅ done | `document.canonical_url`, `.title`, `.language`, `.content_text` |
+| Content cleaning policy | `HtmlContentCleaner` + `DisplayBoilerplate` | ✅ done (RAG-L11) | clean text, no nav/footer/ads/cookie/accessibility boilerplate |
+| `document.content_hash` (SHA-256 of cleaned body) | `CrawlRunStore.fetchAndPersist` | ✅ done | unchanged-body detection |
+| Idempotent re-fetch on hash-unchanged | `CrawlRunStore` + `DocumentFreshnessRefreshService` | ✅ done | re-crawl ≠ re-chunk ≠ re-embed when content unchanged — Gemini budget saver |
+| Conditional HTTP (ETag / If-Modified-Since) | `ConditionalHttpFetcher` | ✅ done | bandwidth saver during freshness refresh |
+| `chunk.text` + `chunk.embedding_model` | `DocumentChunkWriter` | ✅ done | body vector ready in Qdrant |
+| `document.section_path` (JSONB array) | `SectionPathExtractor` | ✅ done | breadcrumb context for retrieval |
+| `document.display_description` (RAG-L11) | `PageDisplayMetadataExtractor` | ✅ done | citation snippet input |
+| URL frontier + link discovery | `LinkDiscoverer` + PG `url_frontier` | ✅ done | self-extending corpus |
+
+> **წესი**: თუ ახალი deriver ახალ Layer 1 capability-ს ითხოვს (მაგ. table extraction), **ჯერ Layer 1-ში დავამატოთ**, მერე deriver. **არ გადააბიჯო** Layer 1-ს.
+
+**არ შედის Phase 8-ში** (ცალკე backlog ID-ები):
+
+- **B-31** — Near-duplicate detector (SimHash/MinHash). Phase 8 derivers მუშაობენ ამის გარეშე; ჩართვისას ერთხელ მოშორდება redundant chunks Qdrant-დან.
+- **B-35** — `UrlFrontierPort` abstraction. Phase 8 derivers-ისთვის ცვლილება არ ჭირდება; მომავალში entity-miss → priority enqueue.
+
 ---
 
 ## 3. Database schema additions
 
-ყველა ცვლილება ახალი Flyway migration-ით (`V9..V12`). არსებული `ingestion.*` ცხრილები არ ირღვევა — მხოლოდ ახალი სვეტები + ახალი ცხრილები.
+ყველა ცვლილება ახალი Flyway migration-ით. არსებული `ingestion.*` ცხრილები არ ირღვევა — მხოლოდ ახალი სვეტები + ახალი ცხრილები.
+
+### Flyway map (spec ↔ repo)
+
+Spec-ის ძველი „V9–V12“ ლეიბლები გადანაწილდა რეალურ migration-ებში **V9–V16** (Layer 1 უკვე V1–V8):
+
+| Flyway | RAG-U | შინაარსი | ფაილი |
+|--------|-------|----------|-------|
+| **V9** | U12 | `evaluation_query` metadata columns | `V9__evaluation_query_phase8.sql` |
+| **V10** | U01 | `document` enrichment columns | `V10__document_enrichment_columns.sql` |
+| **V11** | U01 | `enrichment_run` log | `V11__enrichment_run.sql` |
+| **V12** | U01g, U05 | `topic_cluster`, `curation_override`, FKs | `V12__topic_cluster.sql` |
+| **V13** | U02 | `mv_portal_link`, `mv_specific_link`, `mv_topic_keywords` | `V13__catalog_materialized_views.sql` |
+| **V14** | U12 | golden set seed → 150 queries | `V14__evaluation_query_golden_set.sql` |
+| **V15** | U14, U05 | `query_intent_cache`; `mv_portal_link` + `pin_as_portal` | `V15__query_intent_cache_and_portal_pin.sql` |
+| **V16** | U02 | `catalog_view_refresh` audit (staleness) | `V16__catalog_view_refresh_audit.sql` |
+
+> **V13 MV-ები** მოითხოვს `topic_cluster.approved=true` join-ს (admin approve gate). **V15** ამატებს pinned portal rows overlay-იდან.
+
+ქვემოთ SQL არის **normative schema** (conceptual); authoritative DDL = migration ფაილები.
 
 ### V9 — document enrichment columns
+
+> **Repo:** Flyway **V10** (`V10__document_enrichment_columns.sql`). Spec label „V9“ = conceptual Layer 2 start.
 
 ```sql
 -- RAG-U01: per-document derived enrichment columns
@@ -122,6 +169,8 @@ CREATE INDEX IF NOT EXISTS idx_document_authority ON ingestion.document (authori
 | `enrichment_version` | enrichment runner | counter | bump → re-enrich on schema change |
 
 ### V10 — topic_cluster + curation_override + enrichment_run
+
+> **Repo:** split — **V11** `enrichment_run`, **V12** `topic_cluster` + `curation_override`.
 
 ```sql
 -- RAG-U01g: derived topic clusters
@@ -174,7 +223,7 @@ CREATE TABLE ingestion.enrichment_run (
                                 'authority','page_kind','topic_assign','title_vector','summary_vector')),
     status          TEXT NOT NULL DEFAULT 'pending'
         CHECK (status IN ('pending','running','completed','failed','skipped')),
-    model_version   TEXT NOT NULL,           -- e.g. 'gemini-2.0-flash@2026-05-24'
+    model_version   TEXT NOT NULL,           -- e.g. 'gemini-2.5-flash-lite@2026-05-25'
     started_at      TIMESTAMPTZ,
     finished_at     TIMESTAMPTZ,
     duration_ms     INT,
@@ -189,6 +238,8 @@ CREATE INDEX idx_enrichment_run_status ON ingestion.enrichment_run (status, deri
 ```
 
 ### V11 — derived materialized views (Layer 3 catalog)
+
+> **Repo:** Flyway **V13** (`V13__catalog_materialized_views.sql`).
 
 ```sql
 -- mv_portal_link: top-authority page per (topic_cluster, locale)
@@ -274,10 +325,12 @@ CREATE INDEX idx_mv_topic_keywords_lookup
 -- REFRESH MATERIALIZED VIEW CONCURRENTLY ingestion.mv_topic_keywords;
 ```
 
-### V12 — query intent + retrieval cache
+### V12 (spec) — query intent cache → **Flyway V15**
+
+`query_intent_cache` DDL იხ. `V15__query_intent_cache_and_portal_pin.sql`. Spec-ის ქვემოთ მოცემული SQL **reference**-ია:
 
 ```sql
--- RAG-U14: intent classification cache (24h TTL)
+-- RAG-U14: intent classification cache (24h TTL) — implemented V15
 CREATE TABLE ingestion.query_intent_cache (
     query_hash    TEXT PRIMARY KEY,        -- sha256(normalized_query + locale)
     locale        TEXT NOT NULL,
@@ -293,6 +346,34 @@ CREATE INDEX idx_query_intent_cache_expires ON ingestion.query_intent_cache (exp
 ```
 
 > Retrieval result cache (1h) და response cache (5m) **არ ინახება Postgres-ში** — Redis-ში არსებული `RETRIEVAL_CACHE_BACKEND=redis` infrastructure-ით (RAG-L-cache).
+
+### V13 — catalog materialized views (implemented)
+
+Authoritative: `V13__catalog_materialized_views.sql`. MV definitions ემთხვევა §6 ცხრილს + `approved=true` filter on `topic_cluster`.
+
+### V14 — golden set expansion (implemented)
+
+Authoritative: `V14__evaluation_query_golden_set.sql`. Idempotent INSERT → **150 active** curated queries (`geostat-portal`).
+
+### V15 — intent cache + portal pin (implemented)
+
+Authoritative: `V15__query_intent_cache_and_portal_pin.sql`.
+
+- `query_intent_cache` — U14 schema
+- `mv_portal_link` rebuilt: `pinned` CTE (`pin_as_portal` overrides) **UNION** `derived` rank-by-authority
+
+### V16 — catalog refresh audit (implemented)
+
+Authoritative: `V16__catalog_view_refresh_audit.sql`.
+
+```sql
+CREATE TABLE ingestion.catalog_view_refresh (
+    view_name    TEXT PRIMARY KEY,
+    refreshed_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+`GET /api/v1/ingestion/catalog/status` — `anyStale` if any view older than threshold (default 25h). Spec §8 degraded mode „mv stale“.
 
 ---
 
@@ -363,29 +444,99 @@ RRF fusion (k=60) → top-50
 → MMRDiversifier (lambda=0.7) → top-5
 ```
 
+### Qdrant payload contract (complete)
+
+ყოველი point-ის payload ცხრილი — ვინ წერს, როდის, ვინ კითხულობს. **ეს ცხრილი არის ერთადერთი წყარო** — ნებისმიერი ახალი payload field ჯერ აქ უნდა დაემატოს.
+
+| Field | Type | Source (PG) | When set | Used by (retrieval) |
+|---|---|---|---|---|
+| `documentId` | uuid | `document.id` | index | dedup, link to PG |
+| `chunkId` | uuid | `chunk.id` | index | rerank traceability |
+| `corpusId` | uuid | `document.corpus_id` | index | per-corpus filter |
+| `canonicalUrl` | string | `document.canonical_url` | index | citation card url |
+| `language` | string `ka`/`en` | `document.language` | index | locale filter (mandatory) |
+| `pageTitle` | string | `document.title` | index | citation title, title vector source |
+| `pageDescription` | string | `document.display_description` | index (RAG-L11) | snippet (CatalogRagLinkMerger) |
+| `sectionPath` | string | `document.section_path` | index | breadcrumb fallback snippet |
+| `pageKind` | string (enum) | `document.page_kind` | enrichment (U01f) | retrieval pre-filter (e.g. exclude `navigation`) |
+| `topicClusterId` | uuid \| null | `document.topic_cluster_id` | enrichment (U01g) | topic-aware filter |
+| `authorityScore` | float `[0..1]` | `document.authority_score` | enrichment (U01e) | rerank weight |
+| `scoreBoost` | float `[0.5..2.0]` | `document.score_boost` | feedback loop (U13) | rerank multiplier (default 1.0) |
+| `keywords` | array<string> | `document.keywords[]` | enrichment (U01b) | sparse hint, faceted filter |
+| `entities` | array<object> | `document.entities` | enrichment (U01c) | entity filter pushdown |
+| `localePairDocId` | uuid \| null | `document.locale_pair_doc_id` | enrichment (U01d) | citation card cross-locale switch |
+| `enrichmentVersion` | int | `document.enrichment_version` | enrichment runner | stale-payload detection |
+
+**წესი**: payload-ში ყველაფერი **denormalized** ასლია PG-დან. PG = source of truth; Qdrant = read-optimized index. Enrichment update → republish point (idempotent overwrite by `chunkId`).
+
+**არ შედის payload-ში**:
+
+- raw `chunk.text` body (already in vector + index — duplication waste)
+- `summary_ka/en` (replicated chunk-ში მძიმეა; მხოლოდ summary vector ინახება Qdrant-ში)
+- secrets, personal data — corpus-ი public
+
 ---
 
 ## 5. Layer 2 — Per-document enrichment (8 derivers)
 
 ყოველი deriver = port + adapter. ყველა port `libs/platform-contracts/src/main/java/com/geostat/platform/enrichment/`-ში. Adapter-ები — `apps/ingestion-service/src/main/java/com/geostat/ingestion/enrichment/<kind>/`.
 
+### Service boundary — no split (D-27)
+
+Phase 8 **არ ქმნის** ახალ deployable-ებს. Derivers, aggregation jobs, curation API — ყველა `ingestion-service`-ში რჩება. Query understanding (RAG-U07) — `chat-api`-ში. Eval harness (RAG-U12) — `ops/ci/run-eval.py` + cron, არა ცალკე JVM.
+
+**Rejected candidates (now)**:
+
+| Candidate | Why not now |
+|---|---|
+| `enrichment-service` | `ingestion.*` write owner უნდა დარჩეს ერთი; RabbitMQ უკვე async decouples Gemini work crawl-ისგან |
+| `query-understanding-service` | hot path +1 hop; 1 consumer; workload მცირეა |
+| `eval-service` | scheduled script საკმარისია |
+| `aggregation-service` | nightly idempotent job — ცალკე JVM ფასადია |
+
+**Future extraction trigger** (observed only, not planned): **B-37** — `enrichment-service` მხოლოდ თუ **სამივე** ერთდროულად: (1) Gemini rate-limit chat-api budget-ზე enrichment-ის გამო, (2) enrichment p95 > 30 min / 1K docs, (3) crawl throughput −30% enrichment-ის გამო. იხ. § 13.5.
+
+**Planning review** (scheduled, not implementation): **P8-plan-01** — Phase 8 P2 cutover + 30d telemetry-ის შემდეგ owner review: stay 4 services vs plan extraction. იხ. § 13.6.
+
+### Ingestion-service package layout (Phase 8)
+
+Strangler Fig წინსაფარი — ჯერ მოდულარიზაცია, extraction მხოლოდ B-37 trigger-ზე:
+
+```text
+apps/ingestion-service/src/main/java/com/geostat/ingestion/
+  crawl/ parse/ chunk/ index/     # Layer 1 (existing)
+  enrichment/                     # Layer 2 — adapters (ports in platform-contracts)
+    summary/ keyword/ entity/ locale/ authority/ pagekind/ topic/ vectors/
+    runner/                       DocumentEnrichmentOrchestrator, EnrichmentBackfillService
+    config/                       EnrichmentAiConfiguration, EnrichmentProperties
+  catalog/                        # Layer 3
+    refresh/ readiness/ topic/
+  curation/                       # Layer 4
+  events/                         DocumentEnrichmentListener (RabbitMQ, when enabled)
+  api/                            CorpusController, CatalogController, CurationController, …
+```
+
+**წესი**: ყოველი deriver = `com.geostat.platform.enrichment.*` port + 1 ingestion adapter. B-37 trigger-ზე მთელი `enrichment/` package extract — `crawl/` და `catalog/` არ ეხება.
+
 ### საერთო trigger model
 
 ```text
 document.fetch_status = 'parsed' AND content_text != ''
-  → publish RabbitMQ event 'document.parsed' (existing)
-  → multiple consumers:
-      EnrichmentRouter
-        → SummaryDeriver       (when enrichment_run row missing)
-        → KeywordDeriver
-        → EntityDeriver
-        → LocalePairDeriver
-        → AuthorityDeriver        (waits for in-link graph snapshot, see U01e)
-        → PageKindDeriver
-        → TitleVectorDeriver
-        → SummaryVectorDeriver    (depends on SummaryDeriver completion)
-  → eventually publish 'document.enriched'
-      → TopicAssignDeriver        (cluster lookup; inserts topic_cluster_id)
+  → optional RabbitMQ 'document.parsed' (INGESTION_EVENTS_ENABLED)
+  → DocumentEnrichmentOrchestrator.enrichDocument(id)  — sync path + backfill batch
+  → per deriver: summary → locale_pair → keywords → entities → page_kind → vectors
+  → authority: batch POST …/authority:recompute (U01e)
+  → topics: POST …/topics:remine + admin approve (U01g)
+  → catalog: POST …/catalog:refresh (U02)
+```
+
+**Production default:** enrichment ON + aggregation ON; async events when RabbitMQ in stack (`max-capability-collaboration.mdc`).
+
+Legacy diagram (event fan-out, when events ON):
+
+```text
+  → EnrichmentRouter consumers per deriver kind (idempotent enrichment_run)
+  → eventually 'document.enriched' → TopicAssigner
 ```
 
 თითოეული deriver:
@@ -413,7 +564,7 @@ public record DocumentContext(UUID documentId, String url, String title,
 public record SummaryResult(String summaryKa, String summaryEn, String modelVersion) {}
 ```
 
-**Adapter**: `GeminiSummaryDeriver` (Spring AI `ChatClient`, batch via `BatchPredictionService` future). Cheap model (`gemini-2.0-flash-lite`), max 256 tokens output, temperature 0.2.
+**Adapter**: `GeminiSummaryDeriver` (Spring AI `ChatClient`, batch via `BatchPredictionService` future). Cheap model (`gemini-2.5-flash-lite`), max 256 tokens output, temperature 0.2.
 
 **Prompt template** (`apps/ingestion-service/src/main/resources/prompts/enrichment/summary.yaml`):
 
@@ -623,6 +774,34 @@ public class CatalogViewRefreshJob {
 
 **Manual API**: `POST /api/v1/ingestion/catalog:refresh` (idempotent).
 
+### Per-corpus refresh policy
+
+Phase 8 spec assumes single corpus (`geostat-portal`). მომავალში მრავალი corpus-ი იქნება (იხ. § 13.5 scale thresholds). რეფრეშის რიტმი **per corpus** დეცკლარირდება არა გლობალურად:
+
+| Field | Where | Default | მაგალითი |
+|---|---|---|---|
+| `corpus.refresh_cron` | `ingestion.corpus` table column (V11+ extension) | `0 0 3 * * *` (nightly 03:00) | high-traffic news → `0 0 */6 * * *` |
+| `corpus.realtime_enabled` | same | `false` | true-სი მხოლოდ თუ news/bulletin source |
+| `corpus.full_recrawl_cron` | same | weekly Sunday 04:00 | მსხვილი sites → monthly |
+
+**Realtime path** (when `realtime_enabled = true`):
+
+```text
+RSS / sitemap-changed webhook
+   → enqueue with priority=HIGH on url_frontier
+   → fetch + chunk + enrich (single-doc pipeline)
+   → emit doc.indexed event
+   → catalog mv refresh on demand (only affected cluster row)
+```
+
+**Ops command** (geostat-kit, planned):
+
+```text
+geostat ingestion refresh --corpus <slug> [--full] [--since=<iso8601>]
+```
+
+**არ ვაკეთებთ Phase 8-ში**: per-page TTL, websocket-based realtime — Phase 8 spec-ის გარეთ (B-34 backlog).
+
 ---
 
 ## 7. Layer 4 — Curation overlay
@@ -727,6 +906,21 @@ qdrant.search(collection, vectorName="summary", queryVector,
         .and(should(notExclude(curationOverrides))));
 ```
 
+### Pipeline fallback chain (degraded modes)
+
+ყოველი stage-ი **ცალკე feature flag-ით** ირთვება/იხსნება. რეცეპტი — **არასოდეს დახშო ბოლო ცოცხალი path**, ყოველთვის ჩაიგდე degraded mode.
+
+| Failure | Trigger | Fallback | User-visible | Telemetry |
+|---|---|---|---|---|
+| Gemini timeout / 5xx (intent classifier) | 1× retry → still fail | rule-based intent (regex on entities + heuristics from § 8) | `intent=heuristic` flag in trace | `chat.intent_fallback{reason}` |
+| Cross-encoder service down | health check fail | bi-encoder-only ranking (Qdrant raw cosine) | none | `chat.rerank_fallback` |
+| Qdrant timeout > 1s | per-query budget | BM25-only search (Postgres tsvector) | "ვერ მოიძებნა highly-relevant; sparse match" suffix | `chat.qdrant_fallback` |
+| Catalog mv stale (`last_refreshed > 25h`) | scheduled check | serve from mv anyway + warn admin via `geostat ingestion catalog status` | none | `ingestion.mv_stale{view,age_h}` |
+| Confidence = NONE (§ 8 last branch) | top score < threshold | suggested topics (mv_topic_keywords) + clarifying chips | "ვერ ვიპოვე ჩვენს კატალოგში — სცადე..." | `chat.confidence_none` |
+| All retrievers fail | all 3 vectors + BM25 fail | safe refusal copy (no hallucination) | "სამწუხაროდ, ამ მომენტში ვერ ვპასუხობ. სცადეთ ცოტა ხანში." | `chat.fallback_total_failure` |
+
+**წესი**: მონიტორინგი მუდმივად საზომავს fallback rate-ს. **`fallback_rate > 5% per day`** → on-call ალერტი (Risk Register-ში RR-FB-01).
+
 ---
 
 ## 9. Eval harness — golden set + nightly regression (RAG-U12)
@@ -778,7 +972,17 @@ ALTER TABLE ingestion.evaluation_query
 | `mean_response_ms` | ≤ 3000 |
 | `confidence_calibration` | HIGH-tier hit@1 ≥ 90%; NONE-tier hit@5 ≤ 20% |
 
-**Output**: `ops/eval/reports/<YYYY-MM-DD>.json` + diff vs `baseline.json`.
+**Output**: `ops/eval/reports/<YYYY-MM-DD>.json` + diff vs baseline.
+
+**P1 baselines (implemented)**:
+
+| File | When |
+|------|------|
+| `ops/eval/baseline.yaml-frozen.json` | G0 — YAML-era frozen (Step 0 cutover) ✅ |
+| `ops/eval/baseline.derived.json` | G2 — after derived catalog eval pass (written by gate) |
+| `ops/eval/p1-prep-background.log` | prep script tee (background cutover) |
+
+Orchestrator: `ops/ci/rag-p1-cutover.ps1` · Gate: `ops/ci/rag-eval-gate.ps1`
 
 ### CI gate
 
@@ -937,6 +1141,55 @@ P4 — Advanced (defer)
 10. Delete topics.yaml; keep topic-style.yaml + terminology-overlay.yaml
 ```
 
+### MVP cutover set — minimum derivers to switch off YAML
+
+გარდა derivers-ისა, ვერ გავთიშავთ YAML-ს. შემდეგი 4 deriver არის **ყველაზე მცირე საკმარისი ნაკრები** იმისათვის, რომ `mv_portal_link` + `mv_specific_link` შეცვალოს `topics.yaml`. დანარჩენი 4 deriver-ი (P2) ხარისხს აუმჯობესებს, მაგრამ cutover-ის ბლოკერი არ არის.
+
+| # | Deriver | რატომ MVP | რა მოხდება ამის გარეშე |
+|---|---|---|---|
+| 1 | **U01a SummaryDeriver** | summary vector + snippet წყარო | retrieval ხარისხი = baseline; snippets = lead-text fallback |
+| 2 | **U01e AuthorityDeriver** | `mv_portal_link.top_authority` rank-ისთვის | portal links = arbitrary order |
+| 3 | **U01f PageKindClassifier** | `WHERE page_kind='portal'` ფილტრი | mv-ში დატა + nav + dataset რევარდად |
+| 4 | **U01g TopicMiner + Assigner** | `(cluster, locale)` group-ისთვის | mv-ს არ აქვს row-ები (no clusters = no aggregates) |
+
+**Cutover gate**: ამ ოთხის გაშვება + eval `hit@5 ≥ baseline_yaml` → `geostat.chat.catalog.source = derived` → topics.yaml-ის წაშლა.
+
+**Deferred to P2** (quality additions, not cutover blockers): U01b Keywords, U01c Entities, U01d LocalePair, U01h Title/Summary vectors.
+
+### Scale thresholds (when current architecture stops being enough)
+
+ეს Phase 8 spec არის **5K–50K docs / 1 corpus** target-ისთვის. **მისი ცვლილება არ არის Phase 8 part-ი**, მაგრამ უნდა გვქონდეს გასაღებები (signals) რომ ვიცოდეთ როდის გავაფართოოთ.
+
+| Threshold | Signal (telemetry metric) | Triggered work | Plan ID |
+|---|---|---|---|
+| Enrichment JVM pressure | **all three simultaneously**: (1) Gemini rate-limit on shared key affects chat-api; (2) `enrichment_run.duration_ms` p95 > 30 min per 1K-doc batch; (3) crawl pages/hour −30% vs baseline while enrichment queue depth > 0 | extract `enrichment/` package → `enrichment-service` deployable; keep `ingestion.*` write via single owner contract | **B-37** (observed trigger only) |
+| Single corpus growth | `ingestion.documents_total > 100K` | Kafka instead of RabbitMQ for index events; Qdrant sharding | **B-32** (P4+) |
+| Multi-corpus (≥2 sites) | second corpus added to manifest | per-corpus refresh policies (§ 6.5), corpus admin UI | **B-33** (P4) |
+| Cross-corpus knowledge | repeated entity-aware questions failing | knowledge graph layer (Apache AGE) | **RAG-U15** (P4+) |
+| Embedding model upgrade | new model superior on eval set | dual-write embeddings, A/B compare, atomic flip | **B-36** (P3+) |
+
+> **Default**: არ ვცვლი არქიტექტურას, თუ არც ერთი threshold არ არის გადაჭარბებული — ეს განზრახ "boring" საფეხურია.
+
+### Planned service-split review (P8-plan-01)
+
+Phase 8 **implementation-ის დროს არ ვჭრით** ახალ deployable-ებს (D-27). მაგრამ **სწორ დროს დავგეგმავთ** — owner + agent review, რომ решить: რჩება 4 service თუ plan-ში ჩანს extraction.
+
+**როდის schedule-დება review** (რომელიმე პირობა საკმარისია):
+
+| Gate | როდის | რატომ |
+|---|---|---|
+| **Primary** | Phase 8 P2 cutover done (YAML deleted, `geostat.chat.catalog.source=derived`) **+ 30 დღე** prod telemetry | პირველი რეალური enrichment load + derived catalog steady-state |
+| **Early** | `documents_total > 80K` OR enrichment queue depth p95 > 100 (7 consecutive days) OR Gemini rate-limit incident on shared key (≥2×/week) | threshold-ებამდე არ ველოდებით |
+
+**Review output** (planning only — არა code):
+
+1. Telemetry snapshot: `enrichment_run.duration_ms`, crawl pages/hour, chat-api latency p95, Gemini quota usage
+2. Candidate split map — რომელი `ingestion-service` package-ები extraction candidate-ია (`enrichment/`, `catalog/`, …)
+3. Decision: **stay 4 services** OR **plan extraction** → BACKLOG row update + ADR draft (ADR-012 only if extraction approved)
+4. თუ extraction approved → B-37 implementation triggers რჩება observed gate; review ≠ automatic split
+
+**არ შედის review-ში**: hardware sizing, Gemini cost tables, kit extraction to `kits/` (separate gate per `plan-automation-gate.mdc`).
+
 ---
 
 ## 14. Quality gates
@@ -1001,36 +1254,188 @@ What stays (presentation only):
 - `apps/backend/src/main/resources/catalog/topic-style.yaml` (icons, colors per page_kind — ≤80 lines)
 - `apps/backend/src/main/resources/catalog/terminology-overlay.yaml` (synonym graph, ≤40 entries)
 
+### Document lifecycle state machine
+
+ერთი document-ის ცხოვრების ყველა state-ი — ეს ცხრილი არის **single source of truth** და eval debugging-ისთვის ერთიანი მენტალური მოდელი.
+
+```text
+discovered ─▶ fetching ─▶ fetched ─▶ chunked ─▶ embedded ─▶ enriching ─▶ enriched ─▶ indexed ─▶ live
+   │             │           │           │           │             │
+   ▼             ▼           ▼           ▼           ▼             ▼
+ dropped     fetch_fail   parse_fail  empty_chunks  embed_fail  enrich_fail
+                                                                     │
+                                                                     ▼
+                                                              partial_enriched
+                                                                     │
+                                                                     ▼
+                                                                  retried
+```
+
+| State | Where stored | Trigger to next |
+|---|---|---|
+| `discovered` | `url_frontier.status='queued'` | crawler picks up |
+| `fetching` | `url_frontier.status='in_progress'` | HTTP 2xx |
+| `fetched` | `document` row created, `content_hash` set | Layer 1 cleaner runs |
+| `chunked` | `chunk` rows present | embedder consumes |
+| `embedded` | Qdrant point exists with `body` vector | enrichment dispatcher emits N events |
+| `enriching` | ≥1 `enrichment_run` row `status=running` | all derivers either `completed` or `failed` |
+| `enriched` | all 8 derivers `completed` (or marked optional-fail) | `enrichment_version=N`; index update |
+| `indexed` | Qdrant payload reflects enrichment fields | published to retrieval |
+| `live` | catalog mv-ში appears; chat-api ციტირდება | — |
+| `partial_enriched` | ≥1 deriver `failed` after retries, but mandatory subset (summary, page_kind, topic) succeeded | served with degraded payload + `enrichment_warning` flag |
+| `retried` | failed derivers re-queued with backoff | back to `enriching` |
+| `dropped` | curation override `action=exclude` OR robots disallow OR fetch fail × max_retries | not served |
+
+**წესი**: chat-api **მხოლოდ `live` ან `partial_enriched`** state-ის documents-ს ასრულებს ციტირებას. ამის გარდა — invisible to retrieval.
+
 ---
 
-## 18. Acceptance checklist (junior agent runbook)
+## 18. Acceptance checklist (agent runbook)
 
-For an agent starting RAG-U cold, verify in order:
+### Phase A — P1 code (✅ done 2026-05-25)
 
-1. ☐ Read this doc top-to-bottom, then [ADR-011](../adr/011-rag-derivation-architecture.md).
-2. ☐ Confirm Postgres + Qdrant + Redis are up via `geostat infra remote status`.
-3. ☐ Run V9 migration on dev, verify columns added (`\d ingestion.document`).
-4. ☐ Implement first deriver port + adapter (start with U01a SummaryDeriver — biggest single win).
-5. ☐ Test deriver on 10 sample docs locally; persist `enrichment_run` rows.
-6. ☐ Wire RabbitMQ event consumer for `document.parsed`.
-7. ☐ Backfill 100 docs; verify `summary_ka/en` populated.
-8. ☐ Add unit tests + smoke script.
-9. ☐ Update `CHANGELOG-PLAN.md` row `done` for U01a.
-10. ☐ Move to next deriver in the sequence (do not skip).
-11. ☐ Only enable retrieval changes (U07–U11) **after** all derivers pass smoke.
-12. ☐ Eval harness must show ≥ baseline before deprecating YAML catalog.
-13. ☐ Delete YAML files only after eval pass + owner approval.
+1. ☑ Flyway V9–V16 applied (`ingestion` schema)
+2. ☑ Ports in `libs/platform-contracts` + ingestion adapters U01a–h
+3. ☑ `DocumentEnrichmentOrchestrator` + `EnrichmentBackfillService` + readiness API
+4. ☑ Catalog MVs + refresh + `catalog/status` (V16 audit)
+5. ☑ Curation REST + budget (D-26)
+6. ☑ Chat-api dual catalog (`yaml` \| `derived`) + `DerivedCatalogReader`
+7. ☑ U07 pipeline code (flags OFF until eval)
+8. ☑ Eval harness: 150 golden queries + `run-eval.py` + cutover scripts
+9. ☑ Unit tests per deriver + `EnrichmentBackfillServiceTest`
+10. ☑ Manifest `modules.ingestion.derivation` + plan docs ([PHASE-8-ARCHITECTURE-PLAN.md](PHASE-8-ARCHITECTURE-PLAN.md))
 
-> If any step fails: stop, log in `CHANGELOG-PLAN.md`, ask owner. **Do not skip eval gates.**
+### Phase B — P1 runtime cutover (✅ COMPLETE 2026-05-26)
+
+1. ☑ G0 frozen baseline captured (`baseline.yaml-frozen.json`) — **done 2026-05-25**
+2. ☑ Enrichment backfill ≥95% summary + page_kind — **summary=100%, page_kind=99.2%**
+3. ☑ `topics:remine` → approve clusters → `catalog:refresh` — **5 approved clusters, 10 portal links**
+4. ☑ `lifecycle:sync-qdrant` — **237 docs synced**
+5. ☑ `GEOSTAT_CHAT_CATALOG_SOURCE=derived` — **chat-api live on derived**
+6. ☑ G2 eval gate pass — **hit@5=100%, MRR=1.0, intent=97.7%**
+7. ☑ S7 YAML delete — **topics.yaml + 4 loaders deleted**
+
+### Phase C — P2+ (unlocked after G2)
+
+1. ☐ U08 Qdrant v2 named vectors — [P2 plan](PHASE-8-P2-ARCHITECTURE-PLAN.md)
+2. ☐ U09–U11 query/retrieval flags ON per staged eval
+3. ☐ P3 U13/U14/UI — [P3-P4 plan](PHASE-8-P3-P4-ARCHITECTURE-PLAN.md)
+
+> Failure: stop, log `CHANGELOG-PLAN.md`, ask owner. **Do not skip eval gates.**
 
 ---
 
-## 19. References
+## 19. Implementation status (P1 code map)
 
+| RAG-U | Component | Location | Status |
+|-------|-----------|----------|--------|
+| U01a | `GeminiSummaryDeriver` | `enrichment/summary/` | ✅ |
+| U01b | `YakeKeywordDeriver` | `enrichment/keyword/` | ✅ |
+| U01c | `GeminiFewShotEntityDeriver` | `enrichment/entity/` | ✅ |
+| U01d | `UrlPlusEmbeddingLocalePairer` | `enrichment/locale/` | ✅ |
+| U01e | `JGraphTAuthorityDeriver` | `enrichment/authority/` | ✅ |
+| U01f | `GeminiFewShotPageKindClassifier` | `enrichment/pagekind/` | ✅ |
+| U01g | `TopicRemineService`, cluster admin | `enrichment/topic/`, `catalog/topic/` | ✅ |
+| U01h | `QdrantNamedVectorWriter` / NoOp | `enrichment/vectors/` | ✅ (OFF until U08) |
+| U02 | MV refresh, `CatalogViewStatusService` | `catalog/refresh/` | ✅ |
+| U05 | `CurationController` | `curation/`, `api/CurationController` | ✅ API |
+| U07 | Spell/Intent/Expand pipeline | chat-api `query/` | ✅ code, flags OFF |
+| U12 | `DerivationReadinessService`, eval queries | `catalog/readiness/`, V14 seed | ✅ |
+| — | Cutover prep | `ops/ci/rag-derivation-cutover-prep.ps1` | ✅ |
+| — | Master cutover | `ops/ci/rag-p1-cutover.ps1` | ✅ |
+
+**Gemini model (runtime):** `gemini-2.5-flash-lite` — `gemini-2.0-flash-lite` returns API 404 (2026-05-25).
+
+---
+
+## 20. Ops REST API catalog (ingestion, db profile)
+
+Base: `http://<host>:8093/api/v1/ingestion` · Corpus default: `geostat-portal`
+
+| Method | Path | RAG-U | Purpose |
+|--------|------|-------|---------|
+| GET | `/corpora/{name}/derivation-readiness` | U12 | Cutover + eval gate checks (§14) |
+| POST | `/corpora/{name}/enrichment:backfill` | U01 | Async backfill parsed docs |
+| GET | `/corpora/{name}/enrichment/status` | U01 | Backfill progress |
+| POST | `/corpora/{name}/authority:recompute` | U01e | PageRank batch |
+| POST | `/corpora/{name}/topics:remine` | U01g | Topic mining |
+| GET | `/corpora/{name}/topic-clusters` | U01g | List / pending approve |
+| POST | `/topic-clusters/{id}:approve` | U01g | Admin approve label |
+| POST | `/catalog:refresh` | U02 | REFRESH MATERIALIZED VIEW |
+| GET | `/catalog/status` | U02 | MV freshness (V16) |
+| POST | `/corpora/{name}/lifecycle:sync-qdrant` | L1 | Payload metadata sync |
+| GET | `/corpora/{name}/evaluation-queries` | U12 | Golden set export |
+| GET/POST/DELETE | `/curation/overrides` | U05 | Overlay CRUD |
+
+**Chat-api (catalog flip):**
+
+| Env | Purpose |
+|-----|---------|
+| `GEOSTAT_CHAT_CATALOG_SOURCE=yaml\|derived` | Strategy selector |
+| `GEOSTAT_CHAT_CATALOG_JDBC_URL` | Derived mode PG read |
+| GET `/api/v1/chat/catalog/status` | Smoke: `source`, `derivedReaderActive` |
+
+Scripts: `geostat.ops.json` → `ci.ragP1Cutover`, `ci.ragDerivationCutoverPrep`, `ci.ragEvalGate`, `ci.chatDerivedCatalogSmoke`.
+
+---
+
+## 21. Configuration & feature flags
+
+### Ingestion (`ops/config/ingestion/.env.*`)
+
+| Variable | Default (dev) | Layer |
+|----------|---------------|-------|
+| `INGESTION_ENRICHMENT_ENABLED` | `true` (prod/hybrid cutover) | L2 |
+| `INGESTION_ENRICHMENT_CHAT_MODEL` | `gemini-2.5-flash-lite` | L2 |
+| `INGESTION_ENRICHMENT_MODEL_VERSION` | `gemini-2.5-flash-lite@2026-05-25` | L2 idempotency |
+| `INGESTION_AGGREGATION_ENABLED` | `true` | L3 |
+| `INGESTION_NAMED_VECTORS_ENABLED` | `false` | U01h until U08 |
+| `INGESTION_EVENTS_ENABLED` | stack-dependent | async index/enrich |
+| `GEMINI_API_KEY` | secret | L2 |
+
+Manifest mirror: `geostat.ops.json` → `modules.ingestion.derivation`.
+
+### Chat-api (`ops/config/backend/.env.*`)
+
+| Variable | Until G2 | After cutover |
+|----------|----------|---------------|
+| `GEOSTAT_CHAT_CATALOG_SOURCE` | `yaml` | `derived` |
+| `GEOSTAT_CHAT_CATALOG_JDBC_*` | set for flip readiness | required |
+| U07 flags (`GEOSTAT_QUERY_*`) | `false` | eval-gated ON (P2) |
+
+Presentation YAML (always kept): `topic-style.yaml`, `terminology-overlay.yaml` — not env toggles.
+
+---
+
+## 22. References
+
+- [PHASE-8-ARCHITECTURE-PLAN.md](PHASE-8-ARCHITECTURE-PLAN.md) — **master source plan** (P1→P4+)
+- [PHASE-8-P1-ARCHITECTURE-COMPLETION.md](PHASE-8-P1-ARCHITECTURE-COMPLETION.md)
+- [PHASE-8-P2-ARCHITECTURE-PLAN.md](PHASE-8-P2-ARCHITECTURE-PLAN.md)
+- [PHASE-8-P3-P4-ARCHITECTURE-PLAN.md](PHASE-8-P3-P4-ARCHITECTURE-PLAN.md)
 - [ADR-011 RAG derivation architecture](../adr/011-rag-derivation-architecture.md)
 - [ADR-010 Product stack benefit gate](../adr/010-product-stack-benefit-gate.md)
 - [INGESTION-DATA-MODEL.md](INGESTION-DATA-MODEL.md)
 - [INFRA-DATA-STORES.md](INFRA-DATA-STORES.md)
 - [PROJECT-PLAN.md](PROJECT-PLAN.md) RAG-U rows
+- [BACKLOG.md](BACKLOG.md) — Phase 8-ის გარეთ ცალკე IDs
 - `.cursor/rules/zero-gap-architecture.mdc`
 - `.cursor/rules/max-capability-collaboration.mdc`
+
+### Backlog IDs referenced in this spec
+
+| ID | Title | Where mentioned |
+|---|---|---|
+| **B-31** | Near-duplicate detector (SimHash/MinHash) | § 3 prerequisites, post-Phase-8 |
+| **B-32** | Kafka switch (>100K docs / corpus) | § 13.5 scale thresholds |
+| **B-33** | Multi-corpus admin UI | § 13.5 scale thresholds |
+| **B-34** | Realtime refresh policy + ops command | § 6.5 per-corpus refresh |
+| **B-35** | `UrlFrontierPort` abstraction | § 3 prerequisites |
+| **B-36** | Embedding model migration playbook | § 13.5 scale thresholds |
+| **B-37** | Enrichment-service extraction (deferred) | § 5 service boundary, § 13.5 — 3-condition observed trigger only |
+| **P0-config-enrichment** | Manifest → enrichment env codegen | BACKLOG — duplicate `.env` literals |
+| **P8-plan-01** | Service/package split planning review | § 13.6 — scheduled gate after P2 cutover + 30d telemetry |
+
+---
+
+*Spec completeness: §1–22. **P1 COMPLETE** (2026-05-26). G2 pass, YAML deleted, derived catalog live. Plan tree: [PHASE-8-ARCHITECTURE-PLAN.md](PHASE-8-ARCHITECTURE-PLAN.md).*

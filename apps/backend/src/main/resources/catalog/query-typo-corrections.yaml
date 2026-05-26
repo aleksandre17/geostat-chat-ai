@@ -1,0 +1,10 @@
+# Manifest-driven query typo fixes (always applied before retrieval).
+corrections:
+  - from: "არმასრულებელი"
+    to: "აღმასრულებელი"
+  - from: "არმასრულებელ"
+    to: "აღმასრულებელ"
+  - from: "დირეტორი"
+    to: "დირექტორი"
+  - from: "დირექტორ"
+    to: "დირექტორი"

@@ -58,8 +58,29 @@ com.geostat.ingestion/
 ├── quality/                corpus metrics audit (OPS-02, P3-03b trigger)
 │   └── persistence/        JDBC aggregations
 ├── parse/                  HTML → clean text (P3-02)
-└── chunk/                  text → DB chunks (P3-03)
-    └── strategy/           chunking algorithms
+├── chunk/                  text → DB chunks (P3-03)
+│   └── strategy/
+├── index/                  Qdrant vector index
+├── events/                 RabbitMQ document.indexed
+├── quality/                corpus audit, freshness, playwright
+├── enrichment/             **Phase 8 Layer 2** — derivers (RAG-U01a..h)
+│   └── runner/             Orchestrator, BackfillService, EnrichmentProperties
+├── catalog/                **Phase 8 Layer 3** — MVs, readiness, topic admin (RAG-U02)
+│   └── readiness/          DerivationReadinessService — cutover gate (spec §14)
+└── curation/               **Phase 8 Layer 4** — overlay API (RAG-U05)
 ```
+
+**Phase 8 P1 APIs (db + enrichment ON):**
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET …/corpora/{name}/derivation-readiness` | Cutover + eval gate checks |
+| `POST …/corpora/{name}/enrichment:backfill` | Async backfill parsed docs |
+| `GET …/corpora/{name}/enrichment/status` | Backfill progress |
+| `POST …/corpora/{name}/topics:remine` | TopicMiner (U01g) |
+| `POST …/catalog:refresh` | Refresh `mv_*` (U02) |
+| `GET …/catalog/status` | MV freshness (V16) |
+
+Architecture completion doc: [docs/plan/PHASE-8-P1-ARCHITECTURE-COMPLETION.md](../../docs/plan/PHASE-8-P1-ARCHITECTURE-COMPLETION.md).
 
 See [docs/plan/INGESTION-DATA-MODEL.md](../../docs/plan/INGESTION-DATA-MODEL.md).

@@ -11,7 +11,12 @@
 | **[CHANGELOG-PLAN.md](CHANGELOG-PLAN.md)** | გეგმის ცვლილებების ჟურნალი (2026-05-22: ფაზა 0c + infra slug) |
 | **[SOURCE-RAG-DESIGN-PROJECTS-FILES.md](SOURCE-RAG-DESIGN-PROJECTS-FILES.md)** | **სრული ანალიზი** `projects-files` სკრინშოტების (რა/როგორ/ტექნოლოგია/კითხვები) |
 | **[INGESTION-DATA-MODEL.md](INGESTION-DATA-MODEL.md)** | Postgres `ingestion.*` — corpus, crawl, document, chunk (ingestion-service) |
-| **[RAG-DERIVATION-ARCHITECTURE.md](RAG-DERIVATION-ARCHITECTURE.md)** | **Phase 8 spec** — derivation architecture (L1 corpus → L2 enrichment → L3 catalog views → L4 curation overlay → L5 online query); RAG-U series ([ADR-011](../adr/011-rag-derivation-architecture.md)) |
+| **[RAG-DERIVATION-ARCHITECTURE.md](RAG-DERIVATION-ARCHITECTURE.md)** | **Phase 8 normative spec** — §1–22: schema, derivers, API, config, acceptance |
+| **[PHASE-8-ARCHITECTURE-PLAN.md](PHASE-8-ARCHITECTURE-PLAN.md)** | **Phase 8 master plan** — roadmap P1→P4+, gates, doc map (**source plan 100%**) |
+| **[PHASE-8-P1-ARCHITECTURE-COMPLETION.md](PHASE-8-P1-ARCHITECTURE-COMPLETION.md)** | P1 Senior completion — layers, SOLID, cutover FSM |
+| **[PHASE-8-P2-ARCHITECTURE-PLAN.md](PHASE-8-P2-ARCHITECTURE-PLAN.md)** | P2 U08–U11 retrieval quality (approved, post eval) |
+| **[PHASE-8-P3-P4-ARCHITECTURE-PLAN.md](PHASE-8-P3-P4-ARCHITECTURE-PLAN.md)** | P3 ops/polish, S7 YAML exit, P4+ deferred |
+| **[BORROW-FROM-GENERIC-RAG.md](BORROW-FROM-GENERIC-RAG.md)** | Generic blueprint vs ours — **მხოლოდ generic-ის უპირატესობები** (G-01..G-09) + adoption roadmap |
 | **[transcripts/](transcripts/)** | Decision narratives — *რატომ* მივიღეთ ცალკე ცვლილებები (ADR-ი ფიქსირებს *რას*, narrative ფიქსირებს გზას) |
 | **[HYBRID-DEV-ARCHITECTURE.md](HYBRID-DEV-ARCHITECTURE.md)** | **④ Hybrid dev** — apps ლოკალურად, ინფრა remote + tunnel + env |
 | **[DOCKER-ECOSYSTEM.md](DOCKER-ECOSYSTEM.md)** | ერთი Docker network, შიდა/გარე URL, compose A/B, `docker`/`hybrid` profiles |

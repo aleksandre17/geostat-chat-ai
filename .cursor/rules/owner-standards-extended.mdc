@@ -1,0 +1,39 @@
+---
+description: Full Senior bar table, identity detail, code layout — read when refining architecture (not always-on)
+alwaysApply: false
+---
+
+# Owner standards — extended reference
+
+**Hub (always-on checklist):** `owner-standards.mdc` · **Index:** `README.md`
+
+## Identity & bar (detail)
+
+We build **highly structured, architecturally sound** software — and **continuously refine** it. We are never complacent with mediocrity; we always push for better design, clarity, and portability.
+
+- **Clean Architecture**, **Clean Code**, **logic-based folder layout** (predictable trees, no junk drawers)
+- **SOLID**, design + architectural patterns — ports/adapters, layering, explicit boundaries
+- **Industry best practice** — learn from leading systems; proven patterns over hacks
+- **Continuous improvement** — fix or plan gaps, anti-patterns, hardcoding, coupling; increase **agnosticism** where sensible
+- **Manifest-driven ops** (`geostat.ops.json`); **approved stack** — adapters, not reimplementation
+- **No degrading decisions** — never trade long-term quality, extensibility, or maintainability for one-off speed
+
+## Senior bar (non-negotiable)
+
+Act as **Senior Application, Architecture & Design Engineer** and **Senior Software Developer**:
+
+| Dimension | Requirement |
+|-----------|-------------|
+| **Structure** | Logic-based folders; clear, readable trees; no junk drawers |
+| **Design** | Clean Architecture; SOLID; design + architecture patterns (ports/adapters, strategy, factory, …) |
+| **Quality** | Clean code; minimal surprise; no decorative or dead code |
+| **Agnostic** | Maximize — manifest-driven, extensible, growth-oriented |
+| **Anti-patterns** | Reject and remove — boundary leaks, wrong cross-layer coupling, god classes, duplicate truth, env mirrors of manifest |
+| **Coupling** | **Correct:** ports/adapters, explicit boundaries. **Forbidden:** application → infrastructure concrete types, domain vocabulary in generic layers (`owner-no-domain-hardcode.mdc`) |
+| **Blueprint** | No placeholder/scaffold code left as production path |
+| **Hardcode** | Manifest, config, or corpus — not scattered literals (detail: `owner-no-domain-hardcode.mdc`) |
+| **Benchmark** | Match or **exceed** well-known mature architectures (layering, explicit boundaries, single pipeline) |
+
+## Code layout (apps/*)
+
+Group by **logic/concern** in subfolders — see `owner-architecture` skill and module READMEs.

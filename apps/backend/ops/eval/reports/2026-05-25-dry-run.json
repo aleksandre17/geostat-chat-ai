@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-25T13:56:37.267191+00:00",
+  "corpus": "geostat-portal",
+  "metrics": {
+    "queries": 19,
+    "hit@1": 0.0,
+    "hit@5": 0.0,
+    "MRR": 0.0,
+    "NDCG@10": 0.0,
+    "mean_response_ms": 0.0,
+    "intent_accuracy": null,
+    "entity_F1": null
+  },
+  "perQuery": [],
+  "dryRun": true
+}

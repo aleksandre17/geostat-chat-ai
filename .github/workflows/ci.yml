@@ -115,6 +115,11 @@ jobs:
 
           python3 -m py_compile kits/geostat-kit/adapters/render_nginx.py
 
+          python3 -m py_compile ops/ci/run-eval.py
+
+      - name: RAG-U12 eval metric tests
+        run: python3 ops/ci/test_run_eval_metrics.py
+
       - name: Shell syntax (bash)
 
         run: |

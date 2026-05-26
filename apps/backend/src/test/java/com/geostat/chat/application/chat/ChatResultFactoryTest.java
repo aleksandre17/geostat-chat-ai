@@ -2,9 +2,11 @@ package com.geostat.chat.application.chat;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.geostat.chat.domain.catalog.CatalogTopicLabelResolver;
 import com.geostat.chat.domain.catalog.Topic;
 import com.geostat.chat.domain.catalog.TopicCatalog;
 import com.geostat.chat.domain.catalog.TopicDefinition;
+import com.geostat.chat.infrastructure.catalog.YamlPresentationStyleCatalog;
 import com.geostat.platform.contracts.retrieval.RetrievedChunk;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -15,12 +17,13 @@ class ChatResultFactoryTest {
     @Test
     void grounded_whenRagItemOrCitedExplanation() {
         TopicCatalog catalog = mockCatalog();
-        ChatResultFactory factory = new ChatResultFactory(catalog);
+        ChatResultFactory factory = new ChatResultFactory(catalog, YamlPresentationStyleCatalog.fromClasspath());
 
         ChatResult cited = factory.build(
                 "passage about consumer price index measurement monthly",
                 List.of(),
                 List.of(Topic.PRICES),
+                new CatalogTopicLabelResolver.Labels("PRICES", List.of("PRICES")),
                 false,
                 "s",
                 "t",

@@ -35,6 +35,13 @@ subprojects {
     }
 }
 
+subprojects {
+    repositories {
+        mavenCentral()
+        maven { url = uri("https://repo.spring.io/milestone") }
+    }
+}
+
 extra["spring-ai.version"] = springAiVersion
 
 val activeModules: List<String>? = (findProperty("activeModules") as String?)
@@ -79,6 +86,8 @@ dependencies {
     // 4. Google Cloud Speech (Jan 2026 Stable)
     implementation("com.google.cloud:google-cloud-speech:4.27.0")
 
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
+    implementation("io.gitlab.rxp90:jsymspell:1.0")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
     implementation("com.github.ben-manes.caffeine:caffeine")
     implementation("org.springframework.boot:spring-boot-starter-jdbc")

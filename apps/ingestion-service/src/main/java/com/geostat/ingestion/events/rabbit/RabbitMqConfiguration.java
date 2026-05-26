@@ -69,8 +69,13 @@ public class RabbitMqConfiguration {
     Declarables documentIndexTopology(IngestionProperties properties) {
         IngestionProperties.Events events = properties.events();
         TopicExchange exchange = new TopicExchange(events.exchange(), true, false);
-        Queue queue = new Queue(events.indexQueue(), true);
-        Binding binding = BindingBuilder.bind(queue).to(exchange).with(events.routingKey());
-        return new Declarables(exchange, queue, binding);
+        Queue indexQueue = new Queue(events.indexQueue(), true);
+        Binding indexBinding = BindingBuilder.bind(indexQueue).to(exchange).with(events.routingKey());
+
+        Queue enrichmentQueue = new Queue(events.enrichmentQueue(), true);
+        Binding enrichmentBinding =
+                BindingBuilder.bind(enrichmentQueue).to(exchange).with(events.enrichmentRoutingKey());
+
+        return new Declarables(exchange, indexQueue, indexBinding, enrichmentQueue, enrichmentBinding);
     }
 }

@@ -66,7 +66,8 @@ main:
     - explanation — ქართულად, 1-2 წინადადება; ნუ გაიმეორებ სათაურს
     - ემოჯი ნუ გამოიყენებ
     - ნუ მოიგონებ ინფორმაციას რომელიც ზემოთ მოცემული ტერმინებიდან ან ბმულებიდან არ გამომდინარეობს
-    - ფუნქციები, თანამდებობები, თანამშრომლები, კონკრეტული რიცხვები — არ იცი; მიუთითე ბმული
+    - კონკრეტული სტატისტიკური რიცხვები — არ იცი; მიუთვე ბმული
+    - ორგანიზაციული/საჯარო ინფო (ხელმძღვანელობა, სტრუქტურა, დირექტორი): თუ RAG passage-ში ან items-ის სიაში პირდაპირ მოცემულია — გამოიყენე; წინააღმდეგ შემთხვევაში მიუთვე შესაბამისი ბმული
     - "მოქალაქეები" ნუ გამოიყენებ — "რეზიდენტები" ან "მოსახლეობა"
     - ნუ იტყვi "სიამოვნებით დაგეხმარებით"
 
@@ -143,7 +144,8 @@ main:
     - explanation: English, 1-2 sentences; do not repeat the title
     - No emojis
     - Never invent information beyond what is in the terms or links above
-    - Functions, staff, exact numbers — you don't know them; point to the relevant link
+    - Specific statistical figures — you don't know them; point to the relevant link
+    - Public organizational info (leadership, structure, executive director): use RAG passages or listed links when present; otherwise point to the relevant page
     - Do not use "citizens" — use "residents" or "population"
     - Do not say "I'd be happy to help"
 

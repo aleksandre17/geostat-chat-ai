@@ -2,6 +2,8 @@ package com.geostat.ingestion.index;
 
 import com.geostat.ingestion.config.IngestionProperties;
 import com.geostat.embedding.EmbeddingPort;
+import com.geostat.ingestion.index.lifecycle.DocumentServeState;
+import com.geostat.ingestion.index.lifecycle.DocumentServeStateResolver;
 import com.geostat.ingestion.index.qdrant.QdrantCollectionManager;
 import com.geostat.qdrant.QdrantOperationException;
 import com.geostat.qdrant.VectorCollectionNaming;
@@ -36,6 +38,7 @@ public class ChunkVectorIndexer {
     private final VectorIndexRepository vectorIndexRepository;
     private final QdrantCollectionManager collectionManager;
     private final QdrantVectorStore vectorStore;
+    private final DocumentServeStateResolver serveStateResolver;
 
     public ChunkVectorIndexer(
             IngestionProperties properties,
@@ -45,7 +48,8 @@ public class ChunkVectorIndexer {
             ChunkRepository chunkRepository,
             VectorIndexRepository vectorIndexRepository,
             QdrantCollectionManager collectionManager,
-            QdrantVectorStore vectorStore) {
+            QdrantVectorStore vectorStore,
+            DocumentServeStateResolver serveStateResolver) {
         this.properties = properties;
         this.embedding = embedding;
         this.documentRepository = documentRepository;
@@ -54,6 +58,7 @@ public class ChunkVectorIndexer {
         this.vectorIndexRepository = vectorIndexRepository;
         this.collectionManager = collectionManager;
         this.vectorStore = vectorStore;
+        this.serveStateResolver = serveStateResolver;
     }
 
     public int indexDocument(UUID documentId, UUID corpusId) {
@@ -81,6 +86,13 @@ public class ChunkVectorIndexer {
             return 0;
         }
 
+        DocumentServeState serveState = serveStateResolver.resolve(document);
+        if (serveState == DocumentServeState.DROPPED) {
+            String collectionName = VectorCollectionNaming.collectionForName(corpus.getName());
+            vectorStore.deleteByDocumentId(collectionName, documentId);
+            return 0;
+        }
+
         String collectionName = VectorCollectionNaming.collectionForName(corpus.getName());
         String indexVersion = properties.indexing().indexVersion();
         collectionManager.ensureCollection(collectionName, embedding.dimensions());
@@ -94,7 +106,7 @@ public class ChunkVectorIndexer {
             chunk.setEmbeddingModel(embedding.modelId());
         }
 
-        vectorStore.upsert(collectionName, chunks, document, corpus, vectors, indexVersion);
+        vectorStore.upsert(collectionName, chunks, document, corpus, vectors, indexVersion, serveState);
 
         for (ChunkEntity chunk : chunks) {
             chunkRepository.save(chunk);

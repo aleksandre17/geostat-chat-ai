@@ -1,8 +1,15 @@
 package com.geostat.chat.application.chat;
 
+import com.geostat.chat.application.query.QueryIntentMapper;
+import com.geostat.chat.application.query.QueryUnderstandingPipeline;
+import com.geostat.chat.application.query.QueryUnderstandingProperties;
 import com.geostat.chat.application.retrieval.CatalogRagLinkMerger;
 import com.geostat.chat.application.retrieval.RetrievalContextService;
+import com.geostat.chat.domain.query.AnalyzedQuery;
+import com.geostat.chat.domain.query.SpellFixer;
 import com.geostat.chat.application.telemetry.ChatTelemetryService;
+import com.geostat.chat.domain.catalog.CatalogResponseAssembler;
+import com.geostat.chat.domain.catalog.CatalogTopicLabelResolver;
 import com.geostat.chat.domain.catalog.LinkCard;
 import com.geostat.chat.domain.catalog.LinkedExplanation;
 import com.geostat.chat.domain.catalog.Topic;
@@ -39,7 +46,7 @@ public class ChatService {
 
     private final ChatClient chatClient;
     private final TopicDetector topicDetector;
-    private final ResponseBuilder responseBuilder;
+    private final CatalogResponseAssembler catalogResponseAssembler;
     private final ConversationHistory conversationHistory;
     private final PromptBuilder promptBuilder;
     private final SmallTalkHandler smallTalkHandler;
@@ -57,11 +64,15 @@ public class ChatService {
     private final ResponseGroundingEnforcer responseGroundingEnforcer;
     private final QueryRouter queryRouter;
     private final PromptCatalog promptCatalog;
+    private final QueryUnderstandingProperties queryUnderstandingProperties;
+    private final QueryUnderstandingPipeline queryUnderstandingPipeline;
+    private final QueryIntentMapper queryIntentMapper;
+    private final SpellFixer spellFixer;
 
     public ChatService(
             ChatClient chatClient,
             TopicDetector topicDetector,
-            ResponseBuilder responseBuilder,
+            CatalogResponseAssembler catalogResponseAssembler,
             ConversationHistory conversationHistory,
             PromptBuilder promptBuilder,
             SmallTalkHandler smallTalkHandler,
@@ -78,10 +89,14 @@ public class ChatService {
             AiChatProperties aiChatProperties,
             ResponseGroundingEnforcer responseGroundingEnforcer,
             QueryRouter queryRouter,
-            PromptCatalog promptCatalog) {
+            PromptCatalog promptCatalog,
+            QueryUnderstandingProperties queryUnderstandingProperties,
+            QueryUnderstandingPipeline queryUnderstandingPipeline,
+            QueryIntentMapper queryIntentMapper,
+            SpellFixer spellFixer) {
         this.chatClient = chatClient;
         this.topicDetector = topicDetector;
-        this.responseBuilder = responseBuilder;
+        this.catalogResponseAssembler = catalogResponseAssembler;
         this.conversationHistory = conversationHistory;
         this.promptBuilder = promptBuilder;
         this.smallTalkHandler = smallTalkHandler;
@@ -99,6 +114,10 @@ public class ChatService {
         this.responseGroundingEnforcer = responseGroundingEnforcer;
         this.queryRouter = queryRouter;
         this.promptCatalog = promptCatalog;
+        this.queryUnderstandingProperties = queryUnderstandingProperties;
+        this.queryUnderstandingPipeline = queryUnderstandingPipeline;
+        this.queryIntentMapper = queryIntentMapper;
+        this.spellFixer = spellFixer;
     }
 
     public ChatResult getChatResponse(String userMessage, String sessionId) {
@@ -110,19 +129,29 @@ public class ChatService {
         try {
             String smallTalk = smallTalkHandler.handle(ctx.message(), ctx.isGeorgian());
             if (smallTalk != null) {
-                return respond(ctx, smallTalk, List.of(), List.of(Topic.GENERAL), List.of(), ChatResponseKind.smalltalk);
+                return respond(
+                        ctx,
+                        smallTalk,
+                        List.of(),
+                        List.of(Topic.GENERAL),
+                        resolveTopicLabels(List.of(Topic.GENERAL), ctx),
+                        List.of(),
+                        ChatResponseKind.smalltalk);
             }
             if (smallTalkHandler.isPortalListQuery(ctx.lowerQuery())) {
                 return respondWithPortals(ctx);
             }
 
             List<Topic> topics = topicDetector.detect(ctx.lowerQuery(), ctx.message(), ctx.history());
-            List<RetrievedChunk> ragChunks = retrievalContextService.retrieve(ctx.message(), ctx.locale());
-            List<LinkCard> links = mergedLinks(topics, ctx, ragChunks);
+            CatalogResponseAssembler.Bundle catalog =
+                    catalogResponseAssembler.assemble(topics, ctx.retrievalQuery(), ctx.locale(), ctx.isGeorgian());
+            CatalogTopicLabelResolver.Labels topicLabels = catalog.topicLabels();
+            List<RetrievedChunk> ragChunks = retrievalContextService.retrieve(ctx.retrievalQuery(), ctx.locale());
+            List<LinkCard> links = mergedLinks(catalog.links(), ctx, ragChunks);
 
             if (links.isEmpty()) {
                 List<RetrievedChunk> corpusContext = ragChunks.isEmpty()
-                        ? retrievalContextService.retrieveForClarification(ctx.message(), ctx.locale())
+                        ? retrievalContextService.retrieveForClarification(ctx.retrievalQuery(), ctx.locale())
                         : ragChunks;
                 AiChatResult clarification = clarificationService.generate(ctx, corpusContext);
                 return respond(
@@ -130,12 +159,13 @@ public class ChatService {
                         clarification.intro(),
                         clarification.items(),
                         topics,
+                        topicLabels,
                         corpusContext,
                         ChatResponseKind.clarification);
             }
 
-            AiChatResult result = generateAiResponse(ctx, topics, links, ragChunks);
-            return respond(ctx, result.intro(), result.items(), topics, ragChunks, ChatResponseKind.answer);
+            AiChatResult result = generateAiResponse(ctx, topicLabels, links, ragChunks);
+            return respond(ctx, result.intro(), result.items(), topics, topicLabels, ragChunks, ChatResponseKind.answer);
         } catch (Exception e) {
             log.error("Error processing chat: {}", e.getMessage(), e);
             return chatResultFactory.error(ctx.isGeorgian(), ctx.sessionId());
@@ -151,20 +181,29 @@ public class ChatService {
         try {
             String smallTalk = smallTalkHandler.handle(ctx.message(), ctx.isGeorgian());
             if (smallTalk != null) {
-                return Flux.just(completeEvent(
-                        respond(ctx, smallTalk, List.of(), List.of(Topic.GENERAL), List.of(), ChatResponseKind.smalltalk)));
+                return Flux.just(completeEvent(respond(
+                        ctx,
+                        smallTalk,
+                        List.of(),
+                        List.of(Topic.GENERAL),
+                        resolveTopicLabels(List.of(Topic.GENERAL), ctx),
+                        List.of(),
+                        ChatResponseKind.smalltalk)));
             }
             if (smallTalkHandler.isPortalListQuery(ctx.lowerQuery())) {
                 return Flux.just(completeEvent(respondWithPortals(ctx)));
             }
 
             List<Topic> topics = topicDetector.detect(ctx.lowerQuery(), ctx.message(), ctx.history());
-            List<RetrievedChunk> ragChunks = retrievalContextService.retrieve(ctx.message(), ctx.locale());
-            List<LinkCard> links = mergedLinks(topics, ctx, ragChunks);
+            CatalogResponseAssembler.Bundle catalog =
+                    catalogResponseAssembler.assemble(topics, ctx.retrievalQuery(), ctx.locale(), ctx.isGeorgian());
+            CatalogTopicLabelResolver.Labels topicLabels = catalog.topicLabels();
+            List<RetrievedChunk> ragChunks = retrievalContextService.retrieve(ctx.retrievalQuery(), ctx.locale());
+            List<LinkCard> links = mergedLinks(catalog.links(), ctx, ragChunks);
 
             if (links.isEmpty()) {
                 List<RetrievedChunk> corpusContext = ragChunks.isEmpty()
-                        ? retrievalContextService.retrieveForClarification(ctx.message(), ctx.locale())
+                        ? retrievalContextService.retrieveForClarification(ctx.retrievalQuery(), ctx.locale())
                         : ragChunks;
                 AiChatResult clarification = clarificationService.generate(ctx, corpusContext);
                 return Flux.just(completeEvent(respond(
@@ -172,11 +211,12 @@ public class ChatService {
                         clarification.intro(),
                         clarification.items(),
                         topics,
+                        topicLabels,
                         corpusContext,
                         ChatResponseKind.clarification)));
             }
 
-            String systemPrompt = promptBuilder.build(topics, links, ctx.isGeorgian(), ragChunks);
+            String systemPrompt = promptBuilder.build(topicLabels, links, ctx.isGeorgian(), ragChunks);
             Prompt prompt = buildGeminiPrompt(systemPrompt, ctx);
 
             StringBuilder buffer = new StringBuilder();
@@ -196,7 +236,7 @@ public class ChatService {
                         AiChatResult result = aiResponseParser.parseMainResponse(
                                 buffer.toString(), links, ctx.isGeorgian());
                         return completeEvent(respond(
-                                ctx, result.intro(), result.items(), topics, ragChunks, ChatResponseKind.answer));
+                                ctx, result.intro(), result.items(), topics, topicLabels, ragChunks, ChatResponseKind.answer));
                     }).flatMapMany(Flux::just));
         } catch (Exception e) {
             log.error("Stream chat error: {}", e.getMessage(), e);
@@ -204,8 +244,7 @@ public class ChatService {
         }
     }
 
-    private List<LinkCard> mergedLinks(List<Topic> topics, ChatContext ctx, List<RetrievedChunk> ragChunks) {
-        List<LinkCard> catalogLinks = responseBuilder.buildLinks(topics, ctx.message(), ctx.isGeorgian());
+    private List<LinkCard> mergedLinks(List<LinkCard> catalogLinks, ChatContext ctx, List<RetrievedChunk> ragChunks) {
         int maxRag = switch (ctx.intent()) {
             case CONCEPT -> CatalogRagLinkMerger.MAX_RAG;
             case DATA_REQUEST, NAVIGATE -> 2;
@@ -220,15 +259,26 @@ public class ChatService {
         String locale = languageDetector.resolveLocale(trimmed, localeHint);
         boolean isGeorgian = "ka".equals(locale);
         QueryIntent intent = queryRouter.route(trimmed, trimmed.toLowerCase());
+        String retrievalQuery = trimmed;
+        if (queryUnderstandingProperties.isEnabled()) {
+            AnalyzedQuery analyzed = queryUnderstandingPipeline.analyze(trimmed, locale);
+            retrievalQuery = analyzed.retrievalText();
+            intent = queryIntentMapper.toChatIntent(analyzed.intent());
+        } else {
+            retrievalQuery = spellFixer.fix(trimmed, locale);
+        }
         Deque<Message> history = HistoryBudgetTrimmer.trim(
                 conversationHistory.getOrCreate(sid), aiChatProperties.maxHistoryMessages());
-        return new ChatContext(trimmed, trimmed.toLowerCase(), isGeorgian, locale, intent, sid, history);
+        return new ChatContext(trimmed, trimmed.toLowerCase(), isGeorgian, locale, intent, sid, history, retrievalQuery);
     }
 
     private AiChatResult generateAiResponse(
-            ChatContext ctx, List<Topic> topics, List<LinkCard> links, List<RetrievedChunk> ragChunks) {
+            ChatContext ctx,
+            CatalogTopicLabelResolver.Labels topicLabels,
+            List<LinkCard> links,
+            List<RetrievedChunk> ragChunks) {
         try {
-            String systemPrompt = promptBuilder.build(topics, links, ctx.isGeorgian(), ragChunks);
+            String systemPrompt = promptBuilder.build(topicLabels, links, ctx.isGeorgian(), ragChunks);
             Prompt prompt = buildGeminiPrompt(systemPrompt, ctx);
             String raw = chatClient.prompt(prompt).call().content();
             return aiResponseParser.parseMainResponse(raw, links, ctx.isGeorgian());
@@ -253,11 +303,13 @@ public class ChatService {
                 .build();
     }
 
+
     private ChatResult respond(
             ChatContext ctx,
             String intro,
             List<LinkedExplanation> items,
             List<Topic> topics,
+            CatalogTopicLabelResolver.Labels topicLabels,
             List<RetrievedChunk> ragChunks,
             ChatResponseKind kind) {
         List<LinkedExplanation> enforcedItems = responseGroundingEnforcer.enforce(items, ragChunks);
@@ -272,17 +324,38 @@ public class ChatService {
                 promptCatalog.promptVersion(),
                 promptCatalog.promptContentHash());
         return chatResultFactory.build(
-                sanitized, enforcedItems, topics, ctx.isGeorgian(), ctx.sessionId(), turnId, kind, ragChunks);
+                sanitized,
+                enforcedItems,
+                topics,
+                topicLabels,
+                ctx.isGeorgian(),
+                ctx.sessionId(),
+                turnId,
+                kind,
+                ragChunks);
+    }
+
+    private CatalogTopicLabelResolver.Labels resolveTopicLabels(List<Topic> topics, ChatContext ctx) {
+        return catalogResponseAssembler
+                .assemble(topics, ctx.retrievalQuery(), ctx.locale(), ctx.isGeorgian())
+                .topicLabels();
     }
 
     private ChatResult respondWithPortals(ChatContext ctx) {
         log.info("Portal list query: {}", ctx.message());
-        List<LinkCard> portals = responseBuilder.buildPortalLinks(ctx.isGeorgian());
+        List<LinkCard> portals = catalogResponseAssembler.buildPortalLinks(ctx.isGeorgian());
         String intro = ctx.isGeorgian()
                 ? "საქსტატს აქვს მრავალი ინტერაქტიული პორტალი და კალკულატორი. ქვემოთ ნახავთ სრულ ჩამონათვალს."
                 : "GeoStat has many interactive portals and calculators. Below is the full list.";
         List<LinkedExplanation> portalItems = portals.stream().map(l -> new LinkedExplanation(null, l)).toList();
-        return respond(ctx, intro, portalItems, List.of(Topic.GENERAL), List.of(), ChatResponseKind.portal_list);
+        return respond(
+                ctx,
+                intro,
+                portalItems,
+                List.of(Topic.GENERAL),
+                resolveTopicLabels(List.of(Topic.GENERAL), ctx),
+                List.of(),
+                ChatResponseKind.portal_list);
     }
 
     private void addToHistory(

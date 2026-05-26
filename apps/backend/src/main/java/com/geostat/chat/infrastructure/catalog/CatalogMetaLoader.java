@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.geostat.chat.domain.catalog.LinkInfo;
 import com.geostat.chat.domain.catalog.Topic;
 import jakarta.annotation.PostConstruct;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +18,7 @@ import java.util.Set;
 
 /** Loads catalog constants from {@code catalog/catalog-meta.yaml} (B-24). */
 @Component
+@ConditionalOnProperty(prefix = "geostat.chat.catalog", name = "source", havingValue = "yaml", matchIfMissing = true)
 public class CatalogMetaLoader {
 
     private record PortalEntry(String url, String urlEn, String titleKa, String titleEn) {}

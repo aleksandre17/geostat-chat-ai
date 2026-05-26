@@ -1,6 +1,7 @@
 package com.geostat.ingestion.crawl.fetch;
 
 import com.geostat.ingestion.crawl.policy.CorpusPolicy;
+import com.geostat.ingestion.parse.profile.RoutingUrlFilter;
 import com.geostat.ingestion.persistence.entity.CorpusEntity;
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.crawler.exceptions.PageBiggerThanMaxSizeException;
@@ -21,17 +22,19 @@ public class Crawler4jPageFetcher {
     private static final int MAX_REDIRECTS = 5;
 
     private final CrawlFetchInfrastructure infrastructure;
+    private final RoutingUrlFilter routingUrlFilter;
     private final ConditionalHttpFetcher conditionalHttpFetcher = new ConditionalHttpFetcher();
 
-    public Crawler4jPageFetcher(CrawlFetchInfrastructure infrastructure) {
+    public Crawler4jPageFetcher(CrawlFetchInfrastructure infrastructure, RoutingUrlFilter routingUrlFilter) {
         this.infrastructure = infrastructure;
+        this.routingUrlFilter = routingUrlFilter;
     }
 
     /** Conditional GET when stored validators exist (freshness refresh). */
     public FetchedPage fetchConditional(String url, CorpusEntity corpus, String etag, java.time.Instant lastModified)
             throws IOException, InterruptedException, RobotsBlockedException, PolicyBlockedException,
                     PageNotModifiedException {
-        if (!CorpusPolicy.isUrlAllowed(corpus, url)) {
+        if (!routingUrlFilter.shouldEnqueue(url, corpus)) {
             throw new PolicyBlockedException(url);
         }
         if ((etag == null || etag.isBlank()) && lastModified == null) {
@@ -42,7 +45,7 @@ public class Crawler4jPageFetcher {
 
     public FetchedPage fetch(String url, CorpusEntity corpus)
             throws IOException, InterruptedException, RobotsBlockedException, PolicyBlockedException {
-        if (!CorpusPolicy.isUrlAllowed(corpus, url)) {
+        if (!routingUrlFilter.shouldEnqueue(url, corpus)) {
             throw new PolicyBlockedException(url);
         }
 

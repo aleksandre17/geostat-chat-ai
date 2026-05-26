@@ -1,15 +1,15 @@
 package com.geostat.chat.application.chat;
 
+import com.geostat.chat.domain.catalog.CatalogTopicLabelResolver;
 import com.geostat.chat.domain.catalog.LinkCard;
 import com.geostat.chat.domain.catalog.LinkedExplanation;
 import com.geostat.chat.domain.catalog.Topic;
 import com.geostat.chat.domain.catalog.TopicCatalog;
 import com.geostat.chat.domain.catalog.TopicDefinition;
-import com.geostat.chat.domain.catalog.TopicStyleCatalog;
+import com.geostat.chat.domain.catalog.PresentationStyleCatalog;
 import com.geostat.platform.contracts.retrieval.RetrievedChunk;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 /** Assembles {@link ChatResult} from domain data (R-03…R-05). */
@@ -17,15 +17,18 @@ import org.springframework.stereotype.Component;
 public class ChatResultFactory {
 
     private final TopicCatalog topicCatalog;
+    private final PresentationStyleCatalog presentationStyles;
 
-    public ChatResultFactory(TopicCatalog topicCatalog) {
+    public ChatResultFactory(TopicCatalog topicCatalog, PresentationStyleCatalog presentationStyles) {
         this.topicCatalog = topicCatalog;
+        this.presentationStyles = presentationStyles;
     }
 
     public ChatResult build(
             String intro,
             List<LinkedExplanation> items,
             List<Topic> topics,
+            CatalogTopicLabelResolver.Labels topicLabels,
             boolean isGeorgian,
             String sessionId,
             String turnId,
@@ -36,12 +39,14 @@ public class ChatResultFactory {
         TopicDefinition.TopicStyle style = topicCatalog.get(primary).style();
         boolean grounded = ExplanationGroundingVerifier.isGrounded(safeItems, ragChunks, intro);
         int sourceCount = countSources(safeItems);
+        CatalogTopicLabelResolver.Labels labels =
+                topicLabels != null ? topicLabels : fallbackLabels(topics);
         return new ChatResult(
                 intro,
                 safeItems,
                 isGeorgian ? "ka" : "en",
-                primary.name(),
-                topics.stream().map(Topic::name).collect(Collectors.toList()),
+                labels.primary(),
+                labels.all(),
                 style.icon(),
                 style.bgColor(),
                 sessionId,
@@ -58,7 +63,7 @@ public class ChatResultFactory {
                 ? "ტექნიკური ხარვეზი დაფიქსირდა. გთხოვთ, სცადოთ ხელახლა."
                 : "A technical error occurred. Please try again.";
         TopicDefinition.TopicStyle style = topicCatalog.get(Topic.GENERAL).style();
-        TopicStyleCatalog.LinkTypeStyle gs = TopicStyleCatalog.getLinkTypeStyle("general");
+        var gs = presentationStyles.linkTypeStyle("general");
         LinkCard fallback = LinkCard.fromCatalog(
                 "https://www.geostat.ge/ka/site-map",
                 "საიტის რუკა",
@@ -81,6 +86,12 @@ public class ChatResultFactory {
                 1,
                 "TECHNICAL_ERROR",
                 intro);
+    }
+
+    private static CatalogTopicLabelResolver.Labels fallbackLabels(List<Topic> topics) {
+        List<Topic> safe = topics == null || topics.isEmpty() ? List.of(Topic.GENERAL) : topics;
+        List<String> names = safe.stream().map(Topic::name).toList();
+        return new CatalogTopicLabelResolver.Labels(names.get(0), names);
     }
 
     private static int countSources(List<LinkedExplanation> items) {

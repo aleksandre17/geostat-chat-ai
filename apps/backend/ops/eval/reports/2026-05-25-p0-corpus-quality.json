@@ -1,0 +1,75 @@
+{
+  "reportId": "p0-l1-corpus-quality",
+  "corpus": "geostat-portal",
+  "executedAt": "2026-05-25T18:55:00Z",
+  "phase": "B-complete",
+  "baseline": {
+    "boilerplate_ratio": 0.863,
+    "empty_body_rate": 0.1074,
+    "chunk_coverage": 0.8926,
+    "summary_coverage": 0.8889,
+    "parsed_docs": 270
+  },
+  "afterReparse": {
+    "boilerplate_ratio": 0.0,
+    "empty_body_rate": 0.0,
+    "chunk_coverage": 1.0169,
+    "summary_coverage": 1.0,
+    "parsed_docs": 237,
+    "skipped_docs": 33
+  },
+  "gatesPassed": [
+    "boilerplate_ratio",
+    "empty_body_rate",
+    "chunk_coverage",
+    "summary_coverage"
+  ],
+  "layer2": {
+    "topicsRemine": {
+      "clustersCreated": 5,
+      "documentsAssigned": 208,
+      "documentsSkipped": 0,
+      "status": "accepted",
+      "clustersApproved": 5
+    },
+    "catalogRefresh": {
+      "viewsRefreshed": [
+        "ingestion.mv_portal_link",
+        "ingestion.mv_specific_link",
+        "ingestion.mv_topic_keywords"
+      ],
+      "mv_portal_link_rows": 10
+    },
+    "enrichmentBackfill": {
+      "documentsQueued": 0,
+      "status": "nothing_to_do"
+    },
+    "lifecycleSyncQdrant": {
+      "status": "ok",
+      "documentsProcessed": 237,
+      "metadataUpdated": 237,
+      "droppedRemoved": 0,
+      "fix": "LazyInitializationException — syncDocumentEntity() + @Transactional on CorpusLifecycleSyncService"
+    },
+    "derivedCatalogFlip": {
+      "GEOSTAT_CHAT_CATALOG_SOURCE": "derived",
+      "derivedReaderActive": true
+    },
+    "evalGate": {
+      "status": "passed",
+      "hit_at_5": 1.0,
+      "mrr": 1.0,
+      "queries": 150,
+      "derivedCatalogSmoke": true
+    }
+  },
+  "notExecutedByPolicy": [
+    "delete topics.yaml (owner explicit OK required after eval gate — handoff §5 step 9)"
+  ],
+  "artifacts": {
+    "fixtures": 11,
+    "parseYamlUpdated": true,
+    "policyYamlUpdated": true,
+    "DefaultParseProfileSynced": true
+  }
+}

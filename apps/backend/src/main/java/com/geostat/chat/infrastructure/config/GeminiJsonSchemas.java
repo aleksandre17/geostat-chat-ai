@@ -46,5 +46,53 @@ final class GeminiJsonSchemas {
             }
             """;
 
+    static final String INTENT_CLASSIFICATION = """
+            {
+              "type": "object",
+              "properties": {
+                "intent": {
+                  "type": "string",
+                  "enum": ["factual", "lookup", "compare", "definition", "latest", "navigation", "smalltalk"]
+                }
+              },
+              "required": ["intent"]
+            }
+            """;
+
+    static final String ENTITY_EXTRACTION = """
+            {
+              "type": "object",
+              "properties": {
+                "entities": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type": {"type": "string"},
+                      "value": {"type": "string"},
+                      "normalizedForm": {"type": "string"},
+                      "confidence": {"type": "number"}
+                    },
+                    "required": ["type", "value"]
+                  }
+                }
+              },
+              "required": ["entities"]
+            }
+            """;
+
+    static final String QUERY_EXPANSION = """
+            {
+              "type": "object",
+              "properties": {
+                "paraphrases": {
+                  "type": "array",
+                  "items": {"type": "string"}
+                }
+              },
+              "required": ["paraphrases"]
+            }
+            """;
+
     private GeminiJsonSchemas() {}
 }

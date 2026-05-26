@@ -114,6 +114,24 @@
 
       },
 
+      "catalog": {
+
+        "sourceEnv": "GEOSTAT_CHAT_CATALOG_SOURCE",
+
+        "defaultSource": "yaml",
+
+        "cutoverSource": "derived",
+
+        "jdbcUrlEnv": "GEOSTAT_CHAT_CATALOG_JDBC_URL",
+
+        "jdbcUserEnv": "GEOSTAT_CHAT_CATALOG_JDBC_USER",
+
+        "jdbcPasswordEnv": "GEOSTAT_CHAT_CATALOG_JDBC_PASSWORD",
+
+        "presentationResources": ["topic-style.yaml", "terminology-overlay.yaml"]
+
+      },
+
       "credentials": [
 
         {
@@ -181,6 +199,8 @@
         "bootJar": "apps/retrieval-service/build/libs/retrieval-service-0.1.0-SNAPSHOT.jar"
 
       },
+
+      "spring": {
 
         "portEnv": "RETRIEVAL_PORT"
 
@@ -254,6 +274,52 @@
 
         }
 
+      },
+
+      "derivation": {
+
+        "phase": "P1",
+
+        "planDoc": "docs/plan/PHASE-8-ARCHITECTURE-PLAN.md",
+
+        "defaultCorpus": "geostat-portal",
+
+        "flywayRange": "V9-V16",
+
+        "enrichment": {
+
+          "enabledEnv": "INGESTION_ENRICHMENT_ENABLED",
+
+          "chatModelEnv": "INGESTION_ENRICHMENT_CHAT_MODEL",
+
+          "modelVersionEnv": "INGESTION_ENRICHMENT_MODEL_VERSION",
+
+          "defaultChatModel": "gemini-2.5-flash-lite"
+
+        },
+
+        "aggregation": {
+
+          "enabledEnv": "INGESTION_AGGREGATION_ENABLED"
+
+        },
+
+        "cutover": {
+
+          "orchestrator": "ci.ragP1Cutover",
+
+          "prep": "ci.ragDerivationCutoverPrep",
+
+          "evalGate": "ci.ragEvalGate",
+
+          "freezeBaseline": "ci.ragEvalFreezeYamlBaseline",
+
+          "frozenBaselinePath": "ops/eval/baseline.yaml-frozen.json",
+
+          "derivedSmoke": "ci.chatDerivedCatalogSmoke"
+
+        }
+
       }
 
     }
@@ -304,6 +370,8 @@
 
     "chatCatalogRagSmoke": "ops/ci/chat-catalog-rag-smoke.ps1",
 
+    "chatDerivedCatalogSmoke": "ops/ci/chat-derived-catalog-smoke.ps1",
+
     "chatRagE2eSmoke": "ops/ci/chat-rag-e2e-smoke.sh",
 
     "verifyServicesProd": "ops/ci/verify-services-prod.sh",
@@ -311,6 +379,18 @@
     "corpusQualityAudit": "ops/ci/corpus-quality-audit.sh",
 
     "ragEvalSmoke": "ops/ci/rag-eval-smoke.ps1",
+
+    "ragEvalHarness": "ops/ci/rag-eval-harness.ps1",
+
+    "ragEvalGate": "ops/ci/rag-eval-gate.ps1",
+
+    "ragEvalFreezeYamlBaseline": "ops/ci/rag-eval-freeze-yaml-baseline.ps1",
+
+    "ragDerivationCutoverPrep": "ops/ci/rag-derivation-cutover-prep.ps1",
+
+    "ragP1Cutover": "ops/ci/rag-p1-cutover.ps1",
+
+    "ragP0CorpusQuality": "ops/ci/rag-p0-corpus-quality.ps1",
 
     "ragLocalePipeline": "ops/ci/rag-locale-pipeline.ps1",
 

@@ -1,8 +1,8 @@
 package com.geostat.chat.application.chat;
 
-import com.geostat.chat.domain.catalog.TopicStyleCatalog;
+import com.geostat.chat.domain.catalog.CatalogTopicLabelResolver;
+import com.geostat.chat.domain.catalog.PresentationStyleCatalog;
 import com.geostat.chat.domain.catalog.LinkCard;
-import com.geostat.chat.domain.catalog.Topic;
 import com.geostat.chat.domain.prompt.PromptCatalog;
 import org.springframework.stereotype.Component;
 
@@ -23,40 +23,47 @@ public class PromptBuilder {
 
     private final PromptCatalog promptCatalog;
     private final AiChatProperties aiChatProperties;
+    private final PresentationStyleCatalog presentationStyles;
 
-    public PromptBuilder(PromptCatalog promptCatalog, AiChatProperties aiChatProperties) {
+    public PromptBuilder(
+            PromptCatalog promptCatalog,
+            AiChatProperties aiChatProperties,
+            PresentationStyleCatalog presentationStyles) {
         this.promptCatalog = promptCatalog;
         this.aiChatProperties = aiChatProperties;
+        this.presentationStyles = presentationStyles;
     }
 
-    public String build(List<Topic> topics, List<LinkCard> links, boolean isGeorgian) {
-        return build(topics, links, isGeorgian, List.of());
-    }
-
-    public String build(List<Topic> topics, List<LinkCard> links, boolean isGeorgian,
-                        List<RetrievedChunk> ragChunks) {
+    public String build(
+            CatalogTopicLabelResolver.Labels topicLabels,
+            List<LinkCard> links,
+            boolean isGeorgian,
+            List<RetrievedChunk> ragChunks) {
         int ragBudget = aiChatProperties.maxRagContextChars();
         List<RetrievedChunk> trimmed = PromptBudgetTrimmer.trimChunks(ragChunks, ragBudget);
-        String prompt = assemble(topics, links, isGeorgian, trimmed);
+        String prompt = assemble(topicLabels, links, isGeorgian, trimmed);
         int adjusted = PromptBudgetTrimmer.effectiveRagBudget(
                 ragBudget, prompt.length(), aiChatProperties.maxSystemPromptChars());
         if (adjusted < ragBudget) {
             trimmed = PromptBudgetTrimmer.trimChunks(ragChunks, adjusted);
-            prompt = assemble(topics, links, isGeorgian, trimmed);
+            prompt = assemble(topicLabels, links, isGeorgian, trimmed);
         }
         return prompt;
     }
 
     private String assemble(
-            List<Topic> topics, List<LinkCard> links, boolean isGeorgian, List<RetrievedChunk> ragChunks) {
+            CatalogTopicLabelResolver.Labels topicLabels,
+            List<LinkCard> links,
+            boolean isGeorgian,
+            List<RetrievedChunk> ragChunks) {
         String resourcesContext = links.stream()
                 .map(l -> {
                     String title = isGeorgian ? l.titleKa() : l.titleEn();
-                    String typeLabel = TopicStyleCatalog.getLinkTypeLabel(l.type(), isGeorgian);
+                    String typeLabel = presentationStyles.linkTypeLabel(l.type(), isGeorgian);
                     return "- [" + typeLabel + "] " + title + " | " + l.url();
                 })
                 .collect(Collectors.joining("\n"));
-        String topicNames = topics.stream().map(Topic::name).collect(Collectors.joining(", "));
+        String topicNames = String.join(", ", topicLabels.all());
         return promptCatalog.mainPrompt(isGeorgian)
                 .replace("{TOPICS}", topicNames)
                 .replace("{RESOURCES}", resourcesContext)

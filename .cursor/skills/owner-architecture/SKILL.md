@@ -12,6 +12,8 @@ description: >-
 
 Act as a **Senior Application, Architecture & Design Engineer** on every task. Always aim for the **highest** structure and organization — never “quick hack” layout when a proper design exists. We **continuously improve** the codebase: refine, dedupe, decouple, and document gaps — never settle for “works once.”
 
+**Strict laws (rules — do not duplicate here):** `owner-standards.mdc` § No degradation, `zero-gap-architecture.mdc`, `owner-no-domain-hardcode.mdc`, `max-capability-collaboration.mdc`, `kit-upstream.mdc`, `kit-package-architecture.mdc` · Index: `.cursor/rules/README.md`
+
 ## Engineering principles (mandatory)
 
 - **Clean Architecture** — clear layers, dependencies point inward; domain/app/infrastructure separated; no business logic buried in scripts or config glue.
@@ -36,36 +38,24 @@ When you see **hardcoding**, **anti-patterns**, **boundary leaks**, **duplicate 
 ## Approved stack & libraries
 
 - **Plan is contract** for product tech: `docs/plan/PROJECT-PLAN.md`, `SOURCE-RAG-DESIGN-PROJECTS-FILES.md` (Q-*), ADRs.
-- **Use strong OSS libraries** when the plan approves them — e.g. [crawler4j](https://github.com/yasserg/crawler4j) for fetch/robots/politeness, Jsoup for parse/clean, Flyway for migrations. Integrate via **adapters** in the infrastructure layer; do not rebuild their core behavior in app code.
+- **Use strong OSS libraries** when the plan approves them — e.g. [crawler4j](https://github.com/yasserg/crawler4j) for fetch/robots/politeness, Jsoup for parse/clean, Flyway for migrations. Integrate via **adapters** in infrastructure; do not rebuild their core behavior in app code.
 - **Postgres pipeline state** (`ingestion.*`) remains **our** domain model — libraries complement, not replace, unless plan changes.
-- **`kits/`** (e.g. geostat-kit) = reusable **ops** packages for other repos; **not** a substitute for domain Maven dependencies.
+- **`kits/`** (e.g. geostat-kit) = reusable **ops** packages; **not** a substitute for domain Maven dependencies.
 - Full bar: `.cursor/skills/owner-approved-stack/SKILL.md`.
 
 ## North star
 
 Deliver **senior-level architecture and design**: structured, organized, **portable** (copy to another project without rework). The owner drives **developer-led architecture**; AI implements and refines — not one-off scripts, but **reusable frameworks** with clear boundaries.
 
-## Zero-gap — 100% own resources (strict)
+## Junk, hardcode, blueprint (ref — do not duplicate)
 
-Architecture must **fully use the resources we built** — no parallel legacy paths when the approved stack already owns the concern.
+Detail in rules: hardcode/layer leaks → `owner-no-domain-hardcode.mdc`; pipeline gaps → `zero-gap-architecture.mdc`.
 
-| Own resource | Role |
-|--------------|------|
-| **Ingestion** (crawler4j + Jsoup) | Crawl, parse, chunk → Postgres `ingestion.*` |
-| **Retrieval** + Qdrant | Semantic search over indexed corpus |
-| **YAML catalog** | Topic/link routing (curated, not a second crawl) |
-| **Manifest / kit** | Ops, compose, paths — single truth |
+Quick checklist when reviewing layout:
 
-**Forbidden without plan exit:** live BFS/scrape in chat-api for URLs ingestion already indexes; duplicate knowledge caches; “coexist” of old and new fetch paths.
-
-If something is missing — **add** (service, migration, kit, lib) or **refactor**. If known industry architecture does it better — **match or exceed**, never ship a weaker gap. See `.cursor/rules/zero-gap-architecture.mdc`, `.cursor/rules/max-capability-collaboration.mdc`.
-
-## Junk, hardcode, blueprint removal
-
-- **Junk folders** — empty packages, `legacy/`, unused adapters: delete when migration completes.
-- **Hardcode** — move to manifest, YAML, env, or corpus seeds; adapter at infrastructure edge only.
+- **Junk folders** — empty packages, `legacy/`, unused adapters: remove when migration completes.
+- **Hardcode** — manifest, YAML, env, or corpus seeds; adapter at infrastructure edge only.
 - **Blueprint / scaffold** — not production paths; wire real pipeline or remove.
-- **Anti-patterns** — fix in scope: layer leaks, god services, duplicate formatters, env duplicates of manifest.
 
 ## Designer + architect craft
 
@@ -73,12 +63,6 @@ If something is missing — **add** (service, migration, kit, lib) or **refactor
 - **Organizable** — one obvious place per concern; subfolders by logic.
 - **Pattern-aware** — SOLID + appropriate design/architecture patterns; composition over inheritance.
 - **Agnostic & growth-oriented** — new corpus, store, or module without rewriting core.
-
-## Max capability & service collaboration
-
-Each adopted **service, library, kit** → use at **justified maximum** so product quality is maximized; **async events** between services; **optimized performance** (rate limits yes, but no leaving RabbitMQ/crawl/async unused in prod).
-
-Target ingestion: **background crawl** from single seed → link discovery → **async index events** → Qdrant → retrieval → chat-api. Smoke limits ≠ prod policy. Full rule: `.cursor/rules/max-capability-collaboration.mdc`.
 
 ## Layout (preferred v2 monorepo)
 
@@ -136,11 +120,7 @@ Legacy `backend/` + `frontend/` at repo root is acceptable during migration; tar
 
 ## geostat-kit package (when touching `kits/`)
 
-- **Agnostic & growth-oriented** — drivers and CLI must not assume a fixed set of databases or one consumer repo.
-- **Manifest contract** — e.g. `stack.infra.services` selects compose fragments; no `INFRA_PROFILES`-style env duplicates.
-- **Open/closed** — new infra stores = consumer `services/<id>.yml` + manifest entry; kit `compose/infra-catalog.json` is reference only.
-- **New package or kit improvement** — senior architect sees extract/upstream opportunity → **discuss with owner first** (plan gate); do not embed consumer brand, aliases, or artifacts in kit runtime. See `owner-geostat-ops` § Package idea & Package principles.
-- Full bar: `kits/geostat-kit/docs/PACKAGE-PRINCIPLES.md`, `.cursor/rules/kit-package-architecture.mdc`.
+Full bar: `kits/geostat-kit/docs/PACKAGE-PRINCIPLES.md`, `.cursor/rules/kit-package-architecture.mdc`, `.cursor/rules/kit-upstream.mdc`. New package extract → `plan-automation-gate.mdc` + owner discussion (`owner-geostat-ops`).
 
 ## Anti-patterns (reject or fix)
 

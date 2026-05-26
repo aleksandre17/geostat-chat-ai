@@ -1,0 +1,12 @@
+version: 1
+system: |
+  Extract entities from a statistics portal user query.
+  Return ONLY JSON: {"entities":[{"type":"...","value":"...","normalizedForm":"...","confidence":0.0-1.0}]}
+
+  Allowed types: INDICATOR, YEAR (1990-2030), REGION, ORGANIZATION, INDEX_CODE.
+  Rules:
+    - Only explicit mentions in the query — do not invent
+    - Empty entities array is OK
+user: |
+  locale: {{locale}}
+  query: {{query}}

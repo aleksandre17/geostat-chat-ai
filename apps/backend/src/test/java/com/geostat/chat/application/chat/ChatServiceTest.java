@@ -4,11 +4,17 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import com.geostat.chat.application.query.QueryIntentMapper;
+import com.geostat.chat.application.query.QueryUnderstandingPipeline;
+import com.geostat.chat.application.query.QueryUnderstandingProperties;
 import com.geostat.chat.application.retrieval.CatalogRagLinkMerger;
 import com.geostat.chat.application.retrieval.RetrievalContextService;
 import com.geostat.chat.application.telemetry.ChatTelemetryService;
+import com.geostat.chat.domain.catalog.CatalogResponseAssembler;
+import com.geostat.chat.domain.catalog.CatalogTopicLabelResolver;
 import com.geostat.chat.domain.catalog.Topic;
 import com.geostat.chat.domain.chat.QueryIntent;
+import com.geostat.chat.domain.query.SpellFixer;
 import com.geostat.chat.domain.prompt.PromptCatalog;
 import com.geostat.chat.domain.session.ConversationHistory;
 import com.geostat.chat.infrastructure.config.AiChatOptionsFactory;
@@ -27,7 +33,7 @@ class ChatServiceTest {
 
     @Mock ChatClient chatClient;
     @Mock TopicDetector topicDetector;
-    @Mock ResponseBuilder responseBuilder;
+    @Mock CatalogResponseAssembler catalogResponseAssembler;
     @Mock ConversationHistory conversationHistory;
     @Mock PromptBuilder promptBuilder;
     @Mock SmallTalkHandler smallTalkHandler;
@@ -44,16 +50,30 @@ class ChatServiceTest {
     @Mock ResponseGroundingEnforcer responseGroundingEnforcer;
     @Mock QueryRouter queryRouter;
     @Mock PromptCatalog promptCatalog;
+    @Mock QueryUnderstandingProperties queryUnderstandingProperties;
+    @Mock QueryUnderstandingPipeline queryUnderstandingPipeline;
+    @Mock QueryIntentMapper queryIntentMapper;
+    @Mock SpellFixer spellFixer;
 
     private ChatService chatService;
 
     @BeforeEach
     void setUp() {
         AiChatProperties props = new AiChatProperties(0.6, 0.3, 0.0, 10, 12000, 28000, 2048, 30, true);
+        when(queryUnderstandingProperties.isEnabled()).thenReturn(false);
+        when(spellFixer.fix(anyString(), anyString())).thenAnswer(inv -> inv.getArgument(0));
+        when(catalogResponseAssembler.assemble(anyList(), anyString(), anyString(), anyBoolean()))
+                .thenAnswer(inv -> {
+                    List<Topic> topics = inv.getArgument(0);
+                    List<String> names = topics.stream().map(Topic::name).toList();
+                    CatalogTopicLabelResolver.Labels labels =
+                            new CatalogTopicLabelResolver.Labels(names.get(0), names);
+                    return new CatalogResponseAssembler.Bundle(labels, List.of());
+                });
         chatService = new ChatService(
                 chatClient,
                 topicDetector,
-                responseBuilder,
+                catalogResponseAssembler,
                 conversationHistory,
                 promptBuilder,
                 smallTalkHandler,
@@ -70,7 +90,11 @@ class ChatServiceTest {
                 props,
                 responseGroundingEnforcer,
                 queryRouter,
-                promptCatalog);
+                promptCatalog,
+                queryUnderstandingProperties,
+                queryUnderstandingPipeline,
+                queryIntentMapper,
+                spellFixer);
     }
 
     @Test
@@ -83,7 +107,7 @@ class ChatServiceTest {
         when(responseGroundingEnforcer.enforce(anyList(), anyList())).thenAnswer(inv -> inv.getArgument(0));
         when(promptCatalog.promptVersion()).thenReturn(1);
         when(promptCatalog.promptContentHash()).thenReturn("abc123");
-        when(chatResultFactory.build(any(), anyList(), anyList(), eq(true), anyString(), anyString(), any(), anyList()))
+        when(chatResultFactory.build(any(), anyList(), anyList(), any(), eq(true), anyString(), anyString(), any(), anyList()))
                 .thenReturn(new ChatResult(
                         "გამარჯობა!",
                         List.of(),

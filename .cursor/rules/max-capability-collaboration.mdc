@@ -1,9 +1,12 @@
 ---
-description: Max capability of every stack component; async event collaboration; optimized performance
-alwaysApply: true
+description: Max capability per stack component; async/events; ingestion prod model — no smoke caps in prod
+globs: apps/**,ops/**
+alwaysApply: false
 ---
 
 # Max capability & service collaboration (strict)
+
+**Hub:** `owner-standards.mdc` · **Pipeline:** `zero-gap-architecture.mdc` · **Index:** `README.md`
 
 ## Core law
 
@@ -59,6 +62,6 @@ Flag and fix or plan:
 
 - Prod/stack: `INGESTION_EVENTS_ENABLED=true`, RabbitMQ in infra compose.
 - Corpus prod policy: explicit full-site or continuation strategy documented — not default 50-page cap.
-- Rules cross-ref: `zero-gap-architecture.mdc`, `owner-approved-stack` skill.
+- Lib choices: `owner-approved-stack` skill · Pipeline gaps: `zero-gap-architecture.mdc`
 
 Owner writes in Georgian → proposals in Georgian.

@@ -1,9 +1,12 @@
 ---
-description: geostat-kit must stay agnostic, extensible, SOLID — never a narrowed fixed stack
-alwaysApply: true
+description: Kit SOLID, agnostic bar, infra pattern — no consumer brand in kit runtime
+globs: kits/**
+alwaysApply: false
 ---
 
 # Kit package architecture (geostat-kit)
+
+**Upstream split:** `kit-upstream.mdc` · **Plan gate:** `plan-automation-gate.mdc` · **Index:** `README.md`
 
 When changing `kits/geostat-kit/` or consumer wiring, enforce these package laws.
 

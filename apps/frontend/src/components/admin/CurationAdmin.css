@@ -1,0 +1,253 @@
+.admin-layout {
+    min-height: 100vh;
+    background: #f3f4f6;
+}
+
+.admin-header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 16px 24px;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.back-link {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+.curation-admin {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.curation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.curation-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #1f2937;
+}
+
+.budget-gauge {
+    position: relative;
+    width: 200px;
+    height: 24px;
+    background: #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.budget-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.budget-gauge span {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.error-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    color: #dc2626;
+}
+
+.error-banner button {
+    margin-left: auto;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #dc2626;
+}
+
+.actions-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.btn-primary, .btn-secondary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: #2563eb;
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+}
+
+.btn-secondary {
+    background: white;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+.btn-secondary:hover {
+    background: #f9fafb;
+}
+
+.btn-icon {
+    padding: 6px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-danger {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.btn-danger:hover {
+    background: #fee2e2;
+}
+
+.override-form {
+    background: #f9fafb;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    border: 1px solid #e5e7eb;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.form-group textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.overrides-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.overrides-table th,
+.overrides-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.overrides-table th {
+    background: #f9fafb;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #6b7280;
+}
+
+.overrides-table td {
+    font-size: 14px;
+    color: #374151;
+}
+
+.url-cell {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.reason-cell {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.empty {
+    text-align: center;
+    color: #9ca3af;
+    padding: 40px !important;
+}
+
+.action-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.action-boost { background: #dcfce7; color: #166534; }
+.action-demote { background: #fee2e2; color: #991b1b; }
+.action-exclude { background: #fef3c7; color: #92400e; }
+.action-pin_as_portal { background: #dbeafe; color: #1e40af; }
+.action-rename_topic { background: #f3e8ff; color: #7c3aed; }
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #6b7280;
+}

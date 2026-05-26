@@ -16,11 +16,17 @@ java {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://repo.spring.io/milestone") }
 }
+
+extra["spring-ai.version"] = "2.0.0-M2"
 
 dependencies {
     implementation("com.geostat.platform:platform-contracts")
     implementation("com.geostat.embedding:embedding-adapters")
+    implementation(platform("org.springframework.ai:spring-ai-bom:${property("spring-ai.version")}"))
+    implementation("org.springframework.ai:spring-ai-starter-model-google-genai")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -28,6 +34,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("org.jsoup:jsoup:1.18.3")
+    implementation("org.jgrapht:jgrapht-core:1.5.2")
+    implementation("com.github.haifengl:smile-core:3.1.1")
     implementation("edu.uci.ics:crawler4j:4.4.0") {
         exclude(group = "com.sleepycat", module = "je")
     }

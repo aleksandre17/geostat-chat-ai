@@ -1,0 +1,50 @@
+---
+description: No domain hardcode or wrong coupling — ports + manifest only; port degradation gate
+globs: apps/**
+alwaysApply: false
+---
+
+# No domain hardcode / wrong coupling (strict)
+
+**Parent:** `zero-gap-architecture.mdc` · **Degradation bar:** `owner-standards.mdc` § No degradation · **Index:** `README.md`
+
+## Core law
+
+Never patch a product bug by embedding **consumer-specific knowledge** in runtime Java/Kotlin when the approved stack already owns the concern via **manifest, corpus, or catalog**.
+
+**Wrong coupling (forbidden):** any change that **even slightly** weakens layering — concrete infrastructure in application, domain logic in retrieval/ingestion, unnecessary bindings between concerns, or a second truth next to manifest/corpus. **Correct coupling:** domain **ports** + infrastructure **adapters** only; generic layers stay vocabulary-free.
+
+```text
+YAML catalog / terminology / typo-corrections / corpus policy
+        ↓
+ingestion.* → Qdrant → retrieval (generic) → chat-api (ports)
+```
+
+## Forbidden in `apps/*` runtime (production paths)
+
+| Anti-pattern | Example (reject) | Approved alternative |
+|--------------|------------------|----------------------|
+| URL slugs / page paths in Java | `aghmasrulebeli-direqtori`, `/page/...` in retrieval SQL | `specific-links.yaml`, derived `mv_specific_link`, corpus seeds |
+| Person / role names in Java | `"Gogita Todradze"`, `"Executive Director"` literals | Indexed corpus + RAG; catalog keywords in YAML |
+| Domain `if (query.contains(...))` routing | Leadership slug boosters in retrieval | `terminology-overlay.yaml`, `query-typo-corrections.yaml`, query pipeline |
+| Application → infrastructure concrete type | `ChatService` importing `YamlQueryTypoCorrector` | Domain port: `SpellFixer`, `DerivedCatalogReader`, `RetrievalPort` |
+| Parallel shortcut path | Hardcoded SQL seeds, hand-rolled crawl in chat-api | Single pipeline per `zero-gap-architecture.mdc` |
+| Diagnostic hardcode as source of truth | URL arrays in `tools/*` instead of YAML sync | `ops/config/corpus/*.yaml` → sync service → DB |
+
+Generic algorithms (tokenization, ILIKE on title+url+text, `sequence_no = 0` rank, locale rerank) are **OK** — no product vocabulary.
+
+## Layering (Clean Architecture)
+
+- **Application** (`application/*`): orchestration only; **domain ports**, never `infrastructure/*` concrete classes.
+- **Infrastructure**: adapters load **manifest** (`resources/catalog/*.yaml`, `ops/config/**`).
+- **Retrieval / ingestion**: corpus-agnostic; product routing in **catalog + curation**.
+
+## Port degradation gate (before merge)
+
+If the fix would **any way** pierce, bypass, or dilute a port or layer — **stop**. Alternatives only:
+
+1. Extend **manifest / catalog / corpus** (single pipeline).
+2. Add or use an existing **domain port** + infrastructure adapter.
+3. **Plan item** with owner approval — never silent regression.
+
+Georgian: **არასდროს Java-ში „დირექტორი/URL/slug“; არასდროს ფენების/პორტის მინიმალური დაქვეითება — manifest + pipeline + ports.**

@@ -1,6 +1,11 @@
 # Hand-maintained domain config — not touched by geostat config-gen (P0-kit-10)
 geostat:
   ingestion:
+    aggregation:
+      enabled: ${INGESTION_AGGREGATION_ENABLED:false}
+      scheduler-enabled: ${INGESTION_AGGREGATION_SCHEDULER_ENABLED:false}
+      catalog-cron: ${INGESTION_AGGREGATION_CATALOG_CRON:0 0 3 * * *}
+      refresh-after-enrichment-batch: ${INGESTION_AGGREGATION_REFRESH_AFTER_BATCH:true}
     indexing:
       enabled: ${INGESTION_INDEXING_ENABLED:true}
       index-version: ${INGESTION_INDEX_VERSION:v1}
@@ -9,6 +14,22 @@ geostat:
       exchange: geostat.ingestion
       index-queue: geostat.ingestion.document-index
       routing-key: document.index
+      enrichment-queue: geostat.ingestion.document-parsed
+      enrichment-routing-key: document.parsed
+    enrichment:
+      enabled: ${INGESTION_ENRICHMENT_ENABLED:false}
+      model-version: ${INGESTION_ENRICHMENT_MODEL_VERSION:gemini-2.5-flash-lite@2026-05-25}
+      chat-model: ${INGESTION_ENRICHMENT_CHAT_MODEL:gemini-2.5-flash-lite}
+      max-retries: ${INGESTION_ENRICHMENT_MAX_RETRIES:2}
+      named-vectors-enabled: ${INGESTION_NAMED_VECTORS_ENABLED:false}
+      authority-scheduler-enabled: ${INGESTION_AUTHORITY_SCHEDULER_ENABLED:false}
+      authority-cron: ${INGESTION_AUTHORITY_CRON:0 0 3 * * *}
+      pagerank-damping: ${INGESTION_PAGERANK_DAMPING:0.85}
+      topic-min-documents: ${INGESTION_TOPIC_MIN_DOCUMENTS:50}
+      topic-scheduler-enabled: ${INGESTION_TOPIC_SCHEDULER_ENABLED:false}
+      topic-cron: ${INGESTION_TOPIC_CRON:0 0 4 * * *}
+      topic-assign-model-version: ${INGESTION_TOPIC_ASSIGN_MODEL_VERSION:smile-kmeans-v1@2026-05-25}
+      topic-mining-model-version: ${INGESTION_TOPIC_MINING_MODEL_VERSION:smile-kmeans-v1@2026-05-25}
     qdrant:
       url: ${QDRANT_URL:http://127.0.0.1:6333}
       grpc-port: ${QDRANT_GRPC_PORT:6334}
@@ -47,3 +68,8 @@ geostat:
       enabled: ${INGESTION_FRESHNESS_ENABLED:true}
       stale-after-ms: ${INGESTION_FRESHNESS_STALE_MS:86400000}
       batch-size: ${INGESTION_FRESHNESS_BATCH:50}
+    parse:
+      profile:
+        enabled: ${INGESTION_PARSE_PROFILE_ENABLED:false}
+      config-dir: ${GEOSTAT_CORPUS_CONFIG_DIR:ops/config/corpus}
+      eval-gate-path: ${GEOSTAT_CORPUS_EVAL_GATE:ops/eval/corpus-quality-gate.yaml}
