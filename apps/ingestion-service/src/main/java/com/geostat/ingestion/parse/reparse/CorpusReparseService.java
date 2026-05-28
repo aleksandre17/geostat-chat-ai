@@ -1,7 +1,6 @@
 package com.geostat.ingestion.parse.reparse;
 
 import com.geostat.ingestion.persistence.entity.CorpusEntity;
-import com.geostat.ingestion.persistence.entity.DocumentEntity;
 import com.geostat.ingestion.persistence.model.DocumentFetchStatus;
 import com.geostat.ingestion.persistence.repository.CorpusRepository;
 import com.geostat.ingestion.persistence.repository.DocumentRepository;
@@ -10,7 +9,10 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,7 @@ public class CorpusReparseService {
     private final DocumentRepository documentRepository;
     private final CorpusReparseWorker reparseWorker;
     private final ParseProperties parseProperties;
+    private final ReparseProperties reparseProperties;
     private final AtomicBoolean reparseRunning = new AtomicBoolean(false);
     private final AtomicReference<CorpusReparseProgress> progress =
             new AtomicReference<>(CorpusReparseProgress.idle());
@@ -35,11 +38,13 @@ public class CorpusReparseService {
             CorpusRepository corpusRepository,
             DocumentRepository documentRepository,
             CorpusReparseWorker reparseWorker,
-            ParseProperties parseProperties) {
+            ParseProperties parseProperties,
+            ReparseProperties reparseProperties) {
         this.corpusRepository = corpusRepository;
         this.documentRepository = documentRepository;
         this.reparseWorker = reparseWorker;
         this.parseProperties = parseProperties;
+        this.reparseProperties = reparseProperties;
     }
 
     public CorpusReparseProgress progress() {
@@ -65,11 +70,8 @@ public class CorpusReparseService {
             throw e;
         }
 
-        List<UUID> documentIds = documentRepository.findByCorpus_IdAndFetchStatus(
-                        corpus.getId(), DocumentFetchStatus.parsed)
-                .stream()
-                .map(DocumentEntity::getId)
-                .toList();
+        List<UUID> documentIds =
+                documentRepository.findIdsByCorpusIdAndFetchStatus(corpus.getId(), DocumentFetchStatus.parsed);
         if (limit > 0 && documentIds.size() > limit) {
             documentIds = documentIds.subList(0, limit);
         }
@@ -89,35 +91,60 @@ public class CorpusReparseService {
     }
 
     void runReparse(CorpusEntity corpus, List<UUID> documentIds, Instant startedAt) {
-        int processed = 0;
-        int accepted = 0;
-        int skipped = 0;
-        int failed = 0;
+        AtomicInteger processed = new AtomicInteger(0);
+        AtomicInteger accepted = new AtomicInteger(0);
+        AtomicInteger skipped = new AtomicInteger(0);
+        AtomicInteger failed = new AtomicInteger(0);
         try {
-            for (UUID documentId : documentIds) {
-                try {
-                    CorpusReparseWorker.ReparseOutcome outcome = reparseWorker.reparseDocument(corpus, documentId);
-                    processed++;
-                    if (outcome == CorpusReparseWorker.ReparseOutcome.ACCEPTED) {
-                        accepted++;
-                    } else {
-                        skipped++;
-                    }
-                } catch (Exception e) {
-                    log.warn("Reparse failed document {}: {}", documentId, e.getMessage());
-                    processed++;
-                    failed++;
-                }
-                progress.set(CorpusReparseProgress.running(
-                        corpus.getName(), documentIds.size(), processed, accepted, skipped, startedAt));
+            int threads = reparseProperties.reparseWorkerThreads();
+            ExecutorService pool = Executors.newFixedThreadPool(
+                    threads, r -> new Thread(r, "reparse-" + corpus.getName()));
+            try {
+                List<CompletableFuture<Void>> futures = documentIds.stream()
+                        .map(documentId -> CompletableFuture.runAsync(
+                                () -> {
+                                    try {
+                                        CorpusReparseWorker.ReparseOutcome outcome =
+                                                reparseWorker.reparseDocument(corpus, documentId);
+                                        int done = processed.incrementAndGet();
+                                        if (outcome == CorpusReparseWorker.ReparseOutcome.ACCEPTED) {
+                                            accepted.incrementAndGet();
+                                        } else {
+                                            skipped.incrementAndGet();
+                                        }
+                                        progress.set(CorpusReparseProgress.running(
+                                                corpus.getName(),
+                                                documentIds.size(),
+                                                done,
+                                                accepted.get(),
+                                                skipped.get(),
+                                                startedAt));
+                                    } catch (Exception e) {
+                                        log.warn("Reparse failed document {}: {}", documentId, e.getMessage());
+                                        int done = processed.incrementAndGet();
+                                        failed.incrementAndGet();
+                                        progress.set(CorpusReparseProgress.running(
+                                                corpus.getName(),
+                                                documentIds.size(),
+                                                done,
+                                                accepted.get(),
+                                                skipped.get(),
+                                                startedAt));
+                                    }
+                                },
+                                pool))
+                        .toList();
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+            } finally {
+                pool.shutdown();
             }
             progress.set(CorpusReparseProgress.finished(
                     corpus.getName(),
                     documentIds.size(),
-                    processed,
-                    accepted,
-                    skipped,
-                    failed,
+                    processed.get(),
+                    accepted.get(),
+                    skipped.get(),
+                    failed.get(),
                     startedAt,
                     Instant.now()));
         } finally {

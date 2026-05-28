@@ -12,13 +12,7 @@ version = "2.0.0-SNAPSHOT"
 
 java {
     toolchain {
-        // Spring Boot 4 + Spring AI 2.0 prefers Java 21, but IDE/Gradle can fail when the machine
-        // doesn't have Java 21 and toolchain downloads aren't configured. Use a safe fallback:
-        // If the system JDK is already >= 21 we'll request 21, otherwise use the system major version
-        // so Gradle uses the local JDK instead of attempting a download.
-        val systemJavaVersion = System.getProperty("java.version").split(".")[0].toIntOrNull() ?: 17
-        val targetVersion = if (systemJavaVersion >= 21) 21 else systemJavaVersion
-        languageVersion.set(JavaLanguageVersion.of(targetVersion))
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -98,6 +92,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.3.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 tasks.withType<Test> {

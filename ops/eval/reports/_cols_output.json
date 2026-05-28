@@ -1,0 +1,999 @@
+{
+  "business_sector": {
+    "url": "https://www.geostat.ge/ka/modules/categories/195",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "ბიზნეს სექტორი",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/ka/relationsOfCategory/195/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "monetary_statistics": {
+    "url": "https://www.geostat.ge/ka/modules/categories/92",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "მონეტარული სტატისტიკა",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "crime_statistics": {
+    "url": "https://www.geostat.ge/ka/modules/categories/131",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "სამართალდარღვევების სტატისტიკა",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/ka/relationsOfCategory/131/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "business_register": {
+    "url": "https://www.geostat.ge/ka/modules/categories/64",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "ბიზნეს რეგისტრი",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/ka/relationsOfCategory/64/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "population_demography": {
+    "url": "https://www.geostat.ge/ka/modules/categories/316",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "მოსახლეობა და დემოგრაფია",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/ka/relationsOfCategory/316/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "state_finance": {
+    "url": "https://www.geostat.ge/ka/modules/categories/91",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "სახელმწიფო ფინანსების სტატისტიკა",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "education_science": {
+    "url": "https://www.geostat.ge/ka/modules/categories/56",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "განათლება, მეცნიერება, კულტურა,  სპორტი",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/ka/relationsOfCategory/56/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "industry_construction": {
+    "url": "https://www.geostat.ge/ka/modules/categories/74",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "მრეწველობა, მშენებლობა და ენერგეტიკა",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/ka/relationsOfCategory/74/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "agriculture_food": {
+    "url": "https://www.geostat.ge/ka/modules/categories/70",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "სოფლის მეურნეობა და სასურსათო უსაფრთხოება",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/ka/relationsOfCategory/70/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "environment": {
+    "url": "https://www.geostat.ge/ka/modules/categories/73",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "გარემოს სტატისტიკა",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/ka/relationsOfCategory/73/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "fdi": {
+    "url": "https://www.geostat.ge/ka/modules/categories/191",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "პირდაპირი უცხოური ინვესტიციები",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/ka/relationsOfCategory/191/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "tourism": {
+    "url": "https://www.geostat.ge/ka/modules/categories/100",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "ტურიზმის სტატისტიკა",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/ka/relationsOfCategory/100/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "employment_wages": {
+    "url": "https://www.geostat.ge/ka/modules/categories/37",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "დასაქმება, ხელფასები",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/ka/relationsOfCategory/37/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "regional_statistics": {
+    "url": "https://www.geostat.ge/ka/modules/categories/93",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "რეგიონული სტატისტიკა",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "prices": {
+    "url": "https://www.geostat.ge/ka/modules/categories/25",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "ფასების სტატისტიკა",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/ka/relationsOfCategory/25/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "national_accounts": {
+    "url": "https://www.geostat.ge/ka/modules/categories/22",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "ეროვნული ანგარიშები",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/ka/relationsOfCategory/22/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "ict": {
+    "url": "https://www.geostat.ge/ka/modules/categories/103",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "საინფორმაციო-საკომუნიკაციო ტექნოლოგიები",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/ka/relationsOfCategory/103/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "living_standards": {
+    "url": "https://www.geostat.ge/ka/modules/categories/48",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "ცხოვრების დონე",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/ka/relationsOfCategory/48/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "services": {
+    "url": "https://www.geostat.ge/ka/modules/categories/387",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "მომსახურების სტატისტიკა",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/ka/relationsOfCategory/387/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "external_trade": {
+    "url": "https://www.geostat.ge/ka/modules/categories/35",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "საგარეო ვაჭრობა",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [
+      {
+        "url": "https://ex-trade.geostat.ge/ka",
+        "label": "საქონლით საგარეო ვაჭრობის პორტალი"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/relationsOfCategory/35/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "health_social": {
+    "url": "https://www.geostat.ge/ka/modules/categories/53",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "ჯანდაცვა და სოციალური უზრუნველყოფა",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/ka/relationsOfCategory/53/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "mics": {
+    "url": "https://www.geostat.ge/ka/modules/categories/692",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "მრავალინდიკატორული კლასტერული გამოკვლევა",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "publications_quarterly": {
+    "url": "https://www.geostat.ge/ka/single-categories/121",
+    "status": 200,
+    "section_classes": [
+      "archive-section"
+    ],
+    "headings": [
+      "კვარტალური",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "publications_annual": {
+    "url": "https://www.geostat.ge/ka/single-categories/122",
+    "status": 200,
+    "section_classes": [
+      "archive-section"
+    ],
+    "headings": [
+      "წლიური",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "about_geostat": {
+    "url": "https://www.geostat.ge/ka/modules/categories/189",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "საქსტატის შესახებ",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "governance": {
+    "url": "https://www.geostat.ge/ka/modules/categories/303",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "მმართველობა",
+      "CSV Download",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "calendar": {
+    "url": "https://www.geostat.ge/ka/calendar",
+    "status": 200,
+    "section_classes": [
+      "calendar-section"
+    ],
+    "headings": [
+      "კალენდარი",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [],
+    "date_samples": []
+  },
+  "projects": {
+    "url": "https://www.geostat.ge/ka/projects",
+    "status": 200,
+    "section_classes": [
+      "projects-section"
+    ],
+    "headings": [
+      "პროექტები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/ka/project/57/qalta-reproduqciuli-janmrtelobisa-da-adreuli-qortsinebis-kvleva-2024",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/55/saqartvelos-statistikuri-sistemis-shemdgomi-gadzliereba",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/56/statistikis-erovnuli-samsakhuris-mkhardatchera-genderuli-statistikis-tsarmoebis-da-gamoyenebis-gaumjobeseba",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/58/akhali-statistikuri-resursebis-ganvitareba-da-shesadzleblobebis-gazrda-monacemta-akhal-tsyaroebsa-da-teqnologiebshi-ta-6926-dziritadi-indikatorebi-aziisa-da-tsynari-okeanis-samushaostan-dakavshirebuli-unarebis-shesakheb-gamokvleva",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/53/monacemta-shegrovebis-procesis-gaumjobeseba-da-oficialuri-statistikis-mimart-ndobis-amaghleba",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/52/saqartveloshi-adgilobriv-doneze-decentralizaciisa-da-kargi-mmartvelobis-khelshetsyoba-da-eu4itd-decentralizebuli-efeqturi-da-inkluziuri-mmartvelobis-tsinsvla-saqartveloshi",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/51/saqartveloshi-qalta-mimart-dzaladobis-gamokvleva-evawgg",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/50/saqstatis-it-infrastruqturis-modernizacia-da-shesadzleblobebis-ganvitareba",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/49/akhali-statistikuri-resursebis-ganvitareba-da-shesadzleblobebis-gazrda-monacemta-akhal-tsyaroebsa-da-teqnologiebshi",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/40/saertashoriso-savaluto-fondis-imf-teqnikuri-dakhmareba-fasebis-statistikis-sferoshi",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/54/50x2030-iniciativa-monacemta-kharvezebis-aghmofkhvra-soflis-meurneobashi-fmmglo125mul",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/41/teqnikuri-dakhmareba-mosakhleobis-prognozirebis-sferoshi",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/42/mmartvelobis-reformebis-fondi-saqartvelos-statistikis-erovnuli-samsakhuris-shesadzleblobebis-ganvitareba-da-infrastruqturis-gadzliereba",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/45/mravalindikatoruli-klasteruli-kvleva-saqartvelo-mics6-2017-2018",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/43/regionuli-proeqtis-farglebi-oficialuri-statistikis-shesadzleblobebis-ganvitareba-aghmosavlet-partniorobis-qveynebshi-saertashoriso-shedarebebis-programa-icp",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/35/miznobrivi-socialuri-dakhmarebis-programis-gavlenis-shefaseba-bavshvebisa-da-mati-ojakhebis-ketildgheobaze",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/44/making-every-women-and-girl-count-kheli-sheutsyos-sdg-is-monitoringis-genderuli-statistikis-uketesi-tsarmoebisa-da-gamoyenebistvis-kargi-mmartveloba-genderuli-tanastsorobistvis-saqartveloshi-genderuli-tanastsorobistvis-mmartvelobis-sistemebis-gadzliereba",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/46/saqartvelos-statitikis-erovnuli-sistemis-shesadzleblobebis-ganvitareba",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/47/regionuli-proeqtis-farglebi-oficialuri-statistikis-shesadzleblobebis-ganvitareba-aghmosavlet-partniorobis-qveynebshi",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/27/saqartveloshi-mosakhleobis-registris-danergva",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/28/genderuli-statistikis-tsarmoeba",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/31/erovnuli-angarishebisa-da-fasebis-statistikis-gaumjobeseba-aghmosavlet-da-samkhret-aghmosavlet-evropashi",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/32/sasoflo-meurneobata-integrirebuli-gamokvlevis-gankhorcieleba",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/22/gamokvleva-energiis-mokhmareba",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/5/qalta-mimart-dzaladobis-erovnu",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/9/saqartvelosa-da-ukrainashi-msy",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/7/monacemta-shegroveba-da-analiz",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/8/mravalindikatoruli-klasteruli",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/10/eni-seis-ii-east-project-2016",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/6/statistikuri-shesadzleblobebis",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/3/saqartvelos-statistikis-erovnu",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/24/saqartvelos-statistikis-sistem",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/17/polonetis-dakhmareba-2014-saqa",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/23/saqartvelos-statistikuri-siste",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/19/bavshvta-dasaqmebis-shefasebis",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/25/saqartvelos-soflis-meurneobis",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/26/soflis-meurneobis-da-soflad-ga",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/18/kvlevebis-monacemta-gamoyenebi",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/11/saqartvelos-statistikis-erovnu-1",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/14/ormkhrivi-tanamshromlobis-proe",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/20/erovnuli-institutebis-mier-mon",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/16/saertashoriso-shedarebebis-pro",
+        "label": "სრულად"
+      },
+      {
+        "url": "https://www.geostat.ge/ka/project/12/monacemta-shegroveba-da-analiz-1",
+        "label": "სრულად"
+      }
+    ],
+    "date_samples": []
+  },
+  "news_list": {
+    "url": "https://www.geostat.ge/ka/news",
+    "status": 200,
+    "section_classes": [
+      "news-section"
+    ],
+    "headings": [
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [],
+    "date_samples": [
+      "1 მაისი 2026",
+      "18 მაისი 2026",
+      "25 მაისი 2026",
+      "4 მაისი 2026",
+      "14 მაისი 2026"
+    ]
+  },
+  "infographic": {
+    "url": "https://www.geostat.ge/ka/infographic",
+    "status": 200,
+    "section_classes": [
+      "news-items-section"
+    ],
+    "headings": [
+      "ინფოგრაფიკა",
+      "სამუშაო ძალის მაჩვენებლები (დასაქმება და უმუშევრობა), (2025 წელი)",
+      "ტრანსპორტის სტატისტიკის ძირითადი მაჩვენებლები (2025 წელი)",
+      "სასაკლაოების, ელევატორებისა და სამაცივრე მეურნეობების გამოკვლევის ძირითადი შედეგები - (2025 წლის IV ",
+      "ტრანსპორტის სტატისტიკის ძირითადი მაჩვენებლები (2025 წლის III კვარტალი)",
+      "საფოსტო და საკურიერო საქმიანობით დაკავებული საწარმოების გამოკვლევის შედეგები (2024 წელი)",
+      "საფინანსო საქმიანობით დაკავებული საწარმოების სტატისტიკური გამოკვლევის შედეგები",
+      "დაქირავებით დასაქმებულთა საშუალო თვიური ნომინალური ხელფასი (2024 წელი)",
+      "შინამეურნეობებში საინფორმაციო და საკომუნიკაციო ტექნოლოგიების გამოყენების მაჩვენებლები - (2025 წელი)",
+      "საგარეო ვაჭრობა (2025 წლის ივლისი)",
+      "სასაკლაოების, ელევატორებისა და სამაცივრე მეურნეობების გამოკვლევის ძირითადი შედეგები",
+      "სიახლეები",
+      "საკონტაქტო ინფორმაცია",
+      "ჩვენ შესახებ",
+      "სერვისები",
+      "სიახლეები"
+    ],
+    "sub_links": [],
+    "date_samples": [
+      "25 მაისი 2026"
+    ]
+  },
+  "business_sector_en": {
+    "url": "https://www.geostat.ge/en/modules/categories/195",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "Business Statistics",
+      "CSV Download",
+      "News",
+      "CONTACT INFORMATION",
+      "About Us",
+      "Services",
+      "News"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/en/relationsOfCategory/195/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 May 2026"
+    ]
+  },
+  "population_en": {
+    "url": "https://www.geostat.ge/en/modules/categories/316",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "Population and Demography",
+      "CSV Download",
+      "News",
+      "CONTACT INFORMATION",
+      "About Us",
+      "Services",
+      "News"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/en/relationsOfCategory/316/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 May 2026"
+    ]
+  },
+  "national_accounts_en": {
+    "url": "https://www.geostat.ge/en/modules/categories/22",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "National Accounts",
+      "CSV Download",
+      "News",
+      "CONTACT INFORMATION",
+      "About Us",
+      "Services",
+      "News"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/en/relationsOfCategory/22/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 May 2026"
+    ]
+  },
+  "prices_en": {
+    "url": "https://www.geostat.ge/en/modules/categories/25",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "Price Statistics",
+      "CSV Download",
+      "News",
+      "CONTACT INFORMATION",
+      "About Us",
+      "Services",
+      "News"
+    ],
+    "sub_links": [
+      {
+        "url": "https://www.geostat.ge/en/relationsOfCategory/25/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 May 2026"
+    ]
+  },
+  "external_trade_en": {
+    "url": "https://www.geostat.ge/en/modules/categories/35",
+    "status": 200,
+    "section_classes": [
+      "value-databases-section"
+    ],
+    "headings": [
+      "External Trade",
+      "CSV Download",
+      "News",
+      "CONTACT INFORMATION",
+      "About Us",
+      "Services",
+      "News"
+    ],
+    "sub_links": [
+      {
+        "url": "https://ex-trade.geostat.ge/en",
+        "label": "External Merchandise Trade Portal"
+      },
+      {
+        "url": "https://www.geostat.ge/en/relationsOfCategory/35/method",
+        "label": "Facebook"
+      }
+    ],
+    "date_samples": [
+      "25 May 2026"
+    ]
+  }
+}

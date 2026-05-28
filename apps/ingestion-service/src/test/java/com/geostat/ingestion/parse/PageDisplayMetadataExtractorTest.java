@@ -56,4 +56,19 @@ class PageDisplayMetadataExtractorTest {
         assertThat(meta.displayDescription()).doesNotContain("ადაპტ");
         assertThat(meta.displayDescription()).doesNotContain("UNDP");
     }
+
+    @Test
+    void leadText_doesNotPickRelatedArticleTitle() {
+        String html = """
+            <html><body><main>
+              <article><p>მთავარი სტატიის ტექსტი, რომელიც საკმარისად გრძელია.</p></article>
+              <aside class="related-articles">
+                <p>ცხოვრების დონის მაჩვენებლები (სიღარიბის მაჩვენებლები) - 2025</p>
+              </aside>
+            </main></body></html>""";
+        PageDisplayMetadataExtractor.DisplayMetadata meta = extractor.extract(
+                Jsoup.parse(html), "მთავარი სტატიის", List.of());
+        assertThat(meta.leadText()).contains("მთავარი სტატიის ტექსტი");
+        assertThat(meta.leadText()).doesNotContain("სიღარიბის მაჩვენებლები");
+    }
 }

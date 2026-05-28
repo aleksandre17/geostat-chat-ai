@@ -7,20 +7,22 @@ import java.util.regex.Pattern;
 /**
  * Numeric acceptance contract loaded from {@code ops/eval/corpus-quality-gate.yaml}.
  *
- * <p>Single source of truth for both the SQL formula and the pass/fail threshold —
- * editing the YAML changes the live {@code /parse-quality} endpoint without code changes.
+ * <p>Thresholds and blocking phases are declarative in YAML; metric computation is
+ * performed by {@link com.geostat.platform.quality.QualityMetric} beans keyed by gate id.
  */
-public record CorpusQualityGateConfig(String corpus, List<GateDefinition> gates) {
+public record CorpusQualityGateConfig(
+        String corpus, List<GateDefinition> gates, ThresholdsConfig thresholds) {
 
     public CorpusQualityGateConfig {
         corpus = corpus == null ? "" : corpus;
         gates = gates == null ? List.of() : List.copyOf(gates);
     }
 
+    public record ThresholdsConfig(Integer minContentLength, Double maxBoilerplateRatio) {}
+
     public record GateDefinition(
             String id,
             String description,
-            String sql,
             GateTarget target,
             List<String> blocks,
             Double currentBaseline) {

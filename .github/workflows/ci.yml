@@ -202,6 +202,94 @@ jobs:
 
 
 
+  java-tests:
+
+    runs-on: ubuntu-latest
+
+    continue-on-error: false
+
+    strategy:
+
+      fail-fast: false
+
+      matrix:
+
+        include:
+
+          - module: apps/backend
+
+            gradlew: apps/backend/gradlew
+
+            projectDir: apps/backend
+
+          - module: apps/ingestion-service
+
+            gradlew: apps/ingestion-service/gradlew
+
+            projectDir: apps/ingestion-service
+
+          - module: apps/retrieval-service
+
+            gradlew: apps/retrieval-service/gradlew
+
+            projectDir: apps/retrieval-service
+
+          - module: libs/platform-contracts
+
+            gradlew: apps/backend/gradlew
+
+            projectDir: libs/platform-contracts
+
+          - module: libs/embedding-adapters
+
+            gradlew: apps/backend/gradlew
+
+            projectDir: libs/embedding-adapters
+
+          - module: libs/qdrant-client
+
+            gradlew: apps/backend/gradlew
+
+            projectDir: libs/qdrant-client
+
+    steps:
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-java@v4
+
+        with:
+
+          distribution: temurin
+
+          java-version: "21"
+
+      - name: Run tests (${{ matrix.module }})
+
+        run: chmod +x "${{ matrix.gradlew }}" && "${{ matrix.gradlew }}" -p "${{ matrix.projectDir }}" test
+
+      - name: Upload test reports (${{ matrix.module }})
+
+        if: always()
+
+        uses: actions/upload-artifact@v4
+
+        with:
+
+          name: test-reports-${{ matrix.module }}
+
+          path: |
+
+            ${{ matrix.projectDir }}/build/reports/tests/
+
+            ${{ matrix.projectDir }}/build/test-results/
+
+          if-no-files-found: warn
+
+
+
   integration-compose:
 
     runs-on: ubuntu-latest

@@ -16,12 +16,15 @@ import com.geostat.ingestion.persistence.repository.ChunkRepository;
 import com.geostat.ingestion.persistence.repository.CorpusRepository;
 import com.geostat.ingestion.persistence.repository.DocumentRepository;
 import com.geostat.ingestion.persistence.repository.VectorIndexRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
@@ -39,6 +42,7 @@ public class ChunkVectorIndexer {
     private final QdrantCollectionManager collectionManager;
     private final QdrantVectorStore vectorStore;
     private final DocumentServeStateResolver serveStateResolver;
+    private final JdbcTemplate jdbcTemplate;
 
     public ChunkVectorIndexer(
             IngestionProperties properties,
@@ -49,7 +53,8 @@ public class ChunkVectorIndexer {
             VectorIndexRepository vectorIndexRepository,
             QdrantCollectionManager collectionManager,
             QdrantVectorStore vectorStore,
-            DocumentServeStateResolver serveStateResolver) {
+            DocumentServeStateResolver serveStateResolver,
+            JdbcTemplate jdbcTemplate) {
         this.properties = properties;
         this.embedding = embedding;
         this.documentRepository = documentRepository;
@@ -59,8 +64,10 @@ public class ChunkVectorIndexer {
         this.collectionManager = collectionManager;
         this.vectorStore = vectorStore;
         this.serveStateResolver = serveStateResolver;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public int indexDocument(UUID documentId, UUID corpusId) {
         if (!properties.indexing().enabled()) {
             return 0;
@@ -76,7 +83,6 @@ public class ChunkVectorIndexer {
         }
     }
 
-    @Transactional
     int indexDocumentInternal(UUID documentId, UUID corpusId) {
         DocumentEntity document = documentRepository.findById(documentId).orElseThrow();
         CorpusEntity corpus = corpusRepository.findById(corpusId).orElseThrow();
@@ -99,24 +105,35 @@ public class ChunkVectorIndexer {
 
         vectorStore.deleteByDocumentId(collectionName, documentId);
 
-        float[][] vectors = new float[chunks.size()][];
-        for (int i = 0; i < chunks.size(); i++) {
-            ChunkEntity chunk = chunks.get(i);
-            vectors[i] = embedding.embed(chunk.getText());
-            chunk.setEmbeddingModel(embedding.modelId());
-        }
+        List<String> texts = chunks.stream().map(ChunkEntity::getText).toList();
+        float[][] vectors = embedding.embedBatch(texts);
+        String modelId = properties.embedding().modelId();
 
         vectorStore.upsert(collectionName, chunks, document, corpus, vectors, indexVersion, serveState);
 
+        vectorIndexRepository.deleteByDocumentId(documentId);
+
+        List<VectorIndexEntity> vectorIndexEntities = new ArrayList<>(chunks.size());
         for (ChunkEntity chunk : chunks) {
-            chunkRepository.save(chunk);
             VectorIndexEntity index = new VectorIndexEntity();
             index.setChunk(chunk);
             index.setCollectionName(collectionName);
             index.setPointId(chunk.getId().toString());
             index.setIndexVersion(indexVersion);
-            vectorIndexRepository.save(index);
+            index.setEmbeddingModel(modelId);
+            vectorIndexEntities.add(index);
         }
+        vectorIndexRepository.saveAll(vectorIndexEntities);
+
+        jdbcTemplate.update(
+                """
+                UPDATE ingestion.chunk
+                SET embedding_status = 'embedded',
+                    embedding_model  = ?
+                WHERE document_id = ?
+                """,
+                modelId,
+                documentId);
 
         log.debug(
                 "indexed {} chunks for document {} into collection {}",

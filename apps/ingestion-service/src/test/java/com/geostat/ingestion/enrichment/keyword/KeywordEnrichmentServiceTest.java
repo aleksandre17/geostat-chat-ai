@@ -41,6 +41,9 @@ class KeywordEnrichmentServiceTest {
     @Mock
     private KeywordDeriver keywordDeriver;
 
+    @Mock
+    private GeorgianStopwordLoader stopwordLoader;
+
     private KeywordEnrichmentService service;
 
     @BeforeEach
@@ -50,7 +53,9 @@ class KeywordEnrichmentServiceTest {
         properties.setKeywordTopN(15);
         EnrichmentRunExecutor executor =
                 new EnrichmentRunExecutor(documentRepository, enrichmentRunRepository);
-        service = new KeywordEnrichmentService(executor, keywordDeriver, properties);
+        when(stopwordLoader.stopwords()).thenReturn(java.util.Set.of());
+        service = new KeywordEnrichmentService(
+                executor, keywordDeriver, documentRepository, properties, stopwordLoader);
     }
 
     @Test
@@ -70,7 +75,7 @@ class KeywordEnrichmentServiceTest {
         service.enrichDocument(documentId);
 
         assertThat(document.getKeywords()).containsExactly("CPI", "inflation", "2024");
-        verify(documentRepository).save(document);
+        verify(documentRepository).updateKeywords(documentId, new String[] {"CPI", "inflation", "2024"});
 
         ArgumentCaptor<EnrichmentRunEntity> runCaptor = ArgumentCaptor.forClass(EnrichmentRunEntity.class);
         verify(enrichmentRunRepository, org.mockito.Mockito.atLeastOnce()).save(runCaptor.capture());

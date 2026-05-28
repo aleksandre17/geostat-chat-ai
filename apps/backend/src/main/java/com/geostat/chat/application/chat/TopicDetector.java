@@ -9,11 +9,11 @@ import com.geostat.chat.infrastructure.config.AiChatOptionsFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -29,13 +29,13 @@ import java.util.stream.Collectors;
 public class TopicDetector {
 
     private static final Logger log = LoggerFactory.getLogger(TopicDetector.class);
-    private static final int MAX_TOPICS = 3;
-    private static final int MAX_CONTEXT_USER_TURNS = 2;
 
     private final ChatClient chatClient;
     private final TopicCatalog topicCatalog;
     private final PromptCatalog promptCatalog;
     private final AiChatOptionsFactory chatOptionsFactory;
+    private final int maxTopics;
+    private final int maxContextTurns;
 
     private record RuleEntry(Topic topic, TopicRule rule) {}
 
@@ -45,11 +45,15 @@ public class TopicDetector {
             ChatClient chatClient,
             TopicCatalog topicCatalog,
             PromptCatalog promptCatalog,
-            AiChatOptionsFactory chatOptionsFactory) {
+            AiChatOptionsFactory chatOptionsFactory,
+            @Value("${geostat.chat.topic-detector.max-topics:3}") int maxTopics,
+            @Value("${geostat.chat.topic-detector.max-context-turns:2}") int maxContextTurns) {
         this.chatClient = chatClient;
         this.topicCatalog = topicCatalog;
         this.promptCatalog = promptCatalog;
         this.chatOptionsFactory = chatOptionsFactory;
+        this.maxTopics       = maxTopics;
+        this.maxContextTurns = maxContextTurns;
         this.sortedRules = buildSortedRules();
     }
 
@@ -93,7 +97,7 @@ public class TopicDetector {
         if (detected.isEmpty()) return List.of(Topic.GENERAL);
 
         List<Topic> result = new ArrayList<>(detected);
-        return result.size() > MAX_TOPICS ? result.subList(0, MAX_TOPICS) : result;
+        return result.size() > maxTopics ? result.subList(0, maxTopics) : result;
     }
 
     private Topic classifyWithAi(String query, Deque<Message> history) {
@@ -109,28 +113,24 @@ public class TopicDetector {
             String raw = chatClient.prompt(prompt).call().content();
             if (raw == null) return Topic.GENERAL;
             String cleaned = raw.strip().toUpperCase().replaceAll("[^A-Z_]", "");
-            return Topic.valueOf(cleaned);
+            return Arrays.stream(Topic.values())
+                    .filter(t -> t.name().equals(cleaned))
+                    .findFirst()
+                    .orElse(Topic.GENERAL);
         } catch (Exception e) {
             log.debug("AI topic classification failed: {}", e.getMessage());
             return Topic.GENERAL;
         }
     }
 
-    private static List<Message> recentUserContext(Deque<Message> history) {
-        if (history == null || history.isEmpty()) {
-            return List.of();
+    private List<Message> recentUserContext(Deque<Message> history) {
+        if (history == null || history.isEmpty()) return List.of();
+        int limit = maxContextTurns * 2;
+        ArrayDeque<Message> collected = new ArrayDeque<>(limit);
+        Iterator<Message> it = history.descendingIterator();
+        while (it.hasNext() && collected.size() < limit) {
+            collected.addFirst(it.next());
         }
-        List<Message> recent = new ArrayList<>();
-        for (Message message : history) {
-            if (message instanceof UserMessage um) {
-                recent.add(um);
-            } else if (message instanceof AssistantMessage am) {
-                recent.add(am);
-            }
-        }
-        if (recent.size() <= MAX_CONTEXT_USER_TURNS * 2) {
-            return recent;
-        }
-        return recent.subList(recent.size() - MAX_CONTEXT_USER_TURNS * 2, recent.size());
+        return new ArrayList<>(collected);
     }
 }

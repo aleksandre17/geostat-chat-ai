@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,11 +48,19 @@ public class CorpusQualityGateConfigLoader {
         return cache.get();
     }
 
+    public Optional<CorpusQualityGateConfig.ThresholdsConfig> thresholdsForCorpus(String corpusName) {
+        CorpusQualityGateConfig config = load();
+        if (config.corpus() == null || !config.corpus().equals(corpusName)) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(config.thresholds());
+    }
+
     private CorpusQualityGateConfig readFromYaml() {
         Path file = resolveGateFile(properties.evalGatePath());
         if (file == null || !Files.isRegularFile(file)) {
             log.warn("Corpus quality gate YAML not found at {} — falling back to empty config", properties.evalGatePath());
-            return new CorpusQualityGateConfig("", List.of());
+            return new CorpusQualityGateConfig("", List.of(), null);
         }
         try (InputStream in = Files.newInputStream(file)) {
             GateConfigYaml yaml = yamlMapper.readValue(in, GateConfigYaml.class);
@@ -60,7 +69,7 @@ public class CorpusQualityGateConfigLoader {
             return config;
         } catch (IOException e) {
             log.warn("Failed to read corpus quality gate YAML at {} — falling back: {}", file, e.getMessage());
-            return new CorpusQualityGateConfig("", List.of());
+            return new CorpusQualityGateConfig("", List.of(), null);
         }
     }
 
@@ -100,18 +109,20 @@ public class CorpusQualityGateConfigLoader {
     static final class GateConfigYaml {
         public String corpus;
         public List<GateYaml> gates;
+        public ThresholdsYaml thresholds;
 
         CorpusQualityGateConfig toModel() {
+            CorpusQualityGateConfig.ThresholdsConfig thresholdsConfig = null;
+            if (thresholds != null) {
+                thresholdsConfig = new CorpusQualityGateConfig.ThresholdsConfig(
+                        thresholds.minContentLength, thresholds.maxBoilerplateRatio);
+            }
             if (gates == null || gates.isEmpty()) {
-                return new CorpusQualityGateConfig(corpus, List.of());
+                return new CorpusQualityGateConfig(corpus, List.of(), thresholdsConfig);
             }
             List<GateDefinition> defs = new ArrayList<>(gates.size());
             for (GateYaml gate : gates) {
                 if (gate == null || gate.id == null || gate.id.isBlank()) {
-                    continue;
-                }
-                String sql = gate.metric == null ? null : gate.metric.get("sql");
-                if (sql == null || sql.isBlank()) {
                     continue;
                 }
                 GateTarget target;
@@ -123,13 +134,18 @@ public class CorpusQualityGateConfigLoader {
                 defs.add(new GateDefinition(
                         gate.id,
                         gate.description,
-                        sql.trim(),
                         target,
                         gate.blocks,
                         gate.currentBaseline));
             }
-            return new CorpusQualityGateConfig(corpus, defs);
+            return new CorpusQualityGateConfig(corpus, defs, thresholdsConfig);
         }
+    }
+
+    @SuppressWarnings("unused")
+    static final class ThresholdsYaml {
+        public Integer minContentLength;
+        public Double maxBoilerplateRatio;
     }
 
     @SuppressWarnings("unused")

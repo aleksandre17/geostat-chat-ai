@@ -14,6 +14,7 @@ import com.geostat.platform.enrichment.DocumentContext;
 
 import com.geostat.platform.enrichment.SummaryDeriver;
 
+import com.geostat.ingestion.persistence.repository.DocumentRepository;
 import com.geostat.platform.enrichment.SummaryResult;
 
 import java.util.List;
@@ -30,10 +31,6 @@ import org.springframework.context.annotation.Profile;
 
 import org.springframework.stereotype.Service;
 
-import org.springframework.transaction.annotation.Transactional;
-
-
-
 @Service
 
 @Profile("db")
@@ -45,32 +42,22 @@ public class SummaryEnrichmentService {
 
 
     private final EnrichmentRunExecutor enrichmentRunExecutor;
-
     private final SummaryDeriver summaryDeriver;
-
+    private final DocumentRepository documentRepository;
     private final EnrichmentProperties properties;
 
-
-
     public SummaryEnrichmentService(
-
             EnrichmentRunExecutor enrichmentRunExecutor,
-
             SummaryDeriver summaryDeriver,
-
+            DocumentRepository documentRepository,
             EnrichmentProperties properties) {
-
         this.enrichmentRunExecutor = enrichmentRunExecutor;
-
         this.summaryDeriver = summaryDeriver;
-
+        this.documentRepository = documentRepository;
         this.properties = properties;
-
     }
 
 
-
-    @Transactional
 
     public void enrichDocument(UUID documentId) {
 
@@ -107,11 +94,9 @@ public class SummaryEnrichmentService {
 
 
     private void persistSummary(DocumentEntity document, SummaryResult result) {
-
         document.setSummaryKa(result.summaryKa());
-
         document.setSummaryEn(result.summaryEn());
-
+        documentRepository.updateSummary(document.getId(), result.summaryKa(), result.summaryEn());
     }
 
 

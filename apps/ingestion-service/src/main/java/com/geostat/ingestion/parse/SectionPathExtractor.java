@@ -2,6 +2,7 @@ package com.geostat.ingestion.parse;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -29,6 +30,30 @@ public final class SectionPathExtractor {
             }
         }
         return List.copyOf(path);
+    }
+
+    /**
+     * Extracts navigation breadcrumb path from the original document (before removeSelectors).
+     *
+     * @return joined breadcrumb segments, or {@code null} if no breadcrumb nav found
+     */
+    public static String extractNavBreadcrumb(Document html) {
+        Elements links = html.select(
+                ".breadcrumb-wrapper a, "
+                        + ".breadcrumb a, "
+                        + "nav[aria-label*=breadcrumb] a, "
+                        + "ol.breadcrumb li a");
+        if (links.isEmpty()) {
+            return null;
+        }
+
+        String path = links.stream()
+                .map(e -> e.text().strip())
+                .filter(t -> !t.isBlank() && t.length() > 1)
+                .distinct()
+                .collect(Collectors.joining(" > "));
+
+        return path.isBlank() ? null : path;
     }
 
     public static String joinPath(List<String> path) {

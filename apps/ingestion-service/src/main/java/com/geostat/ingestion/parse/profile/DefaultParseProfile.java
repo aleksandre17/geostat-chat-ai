@@ -40,6 +40,14 @@ public final class DefaultParseProfile {
             "nav",
             "footer",
             "header",
+            "aside",
+            ".related",
+            ".related-articles",
+            "[class*='related']",
+            ".sidebar",
+            "[class*='sidebar']",
+            ".recommended",
+            "[class*='recommended']",
             "#fin_info",
             ".breadcrumb-wrapper",
             ".rightbar-wrapper",
@@ -52,7 +60,9 @@ public final class DefaultParseProfile {
             ".cookie-banner",
             ".social-share",
             ".breadcrumb",
-            "#skip-to-content");
+            "#skip-to-content",
+            "template",
+            "[x-template]");
 
     private static final List<String> STARTS_WITH_KA = List.of(
             "უკან დაბრუნება",
@@ -90,6 +100,7 @@ public final class DefaultParseProfile {
             "geostat-portal",
             ROOT_SELECTORS,
             REMOVE_SELECTORS,
+            List.of(),
             new BoilerplateMarkers(
                     STARTS_WITH_KA,
                     STARTS_WITH_EN,
@@ -101,7 +112,13 @@ public final class DefaultParseProfile {
             true,
             true,
             true,
-            List.of("htmlLang", "urlSegment", "metaContentLanguage"));
+            new ParseProfile.LanguageConfig(
+                    List.of("htmlLang", "urlSegment", "metaContentLanguage"), "ka"),
+            null,
+            null,
+            List.of(),
+            "unknown",
+            "firstMatch");
 
     private DefaultParseProfile() {}
 }

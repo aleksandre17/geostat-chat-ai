@@ -1,0 +1,168 @@
+========================================================================
+PostgreSQL Data Quality Audit — schema: ingestion
+Generated: 2026-05-26T13:19:52.855239+00:00
+========================================================================
+
+Table: ingestion.document
+Check: NULL / empty checks
+------------------------------------------------------------------------
+  total_rows: 4216
+  title: 30 (0.71%)
+  canonical_url: 0 (0.00%)
+  summary_ka: 3975 (94.28%)
+  summary_en: 3975 (94.28%)
+  keywords: 142 (3.37%)
+  content_text: 65 (1.54%)
+  lead_text: 65 (1.54%)
+  meta_description: 2402 (56.97%)
+  page_kind: 0 (0.00%)
+
+Table: ingestion.chunk
+Check: NULL / empty checks
+------------------------------------------------------------------------
+  total_rows: 4972
+  text: 0 (0.00%)
+
+Table: ingestion.topic_cluster
+Check: NULL / empty checks
+------------------------------------------------------------------------
+  total_rows: 5
+  label_ka: 0 (0.00%)
+  label_en: 0 (0.00%)
+
+Table: ingestion.mv_topic_keywords
+Check: NULL / empty checks
+------------------------------------------------------------------------
+  total_rows: 3049
+  note: mv_topic_keywords has keyword (no title/summary/canonical_url columns)
+  keyword: 0 (0.00%)
+
+Table: ingestion.mv_portal_link
+Check: NULL / empty checks
+------------------------------------------------------------------------
+  total_rows: 10
+  title: 1 (10.00%)
+  summary: 0 (0.00%)
+  canonical_url: 0 (0.00%)
+
+Table: ingestion.mv_specific_link
+Check: NULL / empty checks
+------------------------------------------------------------------------
+  total_rows: 98
+  title: 0 (0.00%)
+  summary: 0 (0.00%)
+  canonical_url: 0 (0.00%)
+
+Table: ingestion.document
+Check: Truncation check (200 random rows)
+------------------------------------------------------------------------
+  sample_size: 200
+  title_rows_with_truncation_signals: 187
+  summary_ka_rows_with_truncation_signals: 10
+  summary_en_rows_with_truncation_signals: 5
+  content_text_rows_with_truncation_signals: 184
+  lead_text_rows_with_truncation_signals: 195
+  meta_description_rows_with_truncation_signals: 0
+  examples:
+    [content_text] flags=ends_without_sentence_punctuation url='https://www.geostat.ge/en/single-news/599' snippet='Agriculture in Georgia II Quarter, 2014 (Preliminary Data) Date: 19 August 2014 Download'
+    [lead_text] flags=ends_without_sentence_punctuation url='https://www.geostat.ge/en/single-news/599' snippet='Indicators of Living Conditions (Indicators of Poverty and Gini Coefficients) - 2025'
+    [title] flags=ends_without_sentence_punctuation url='https://www.geostat.ge/en/single-news/3108' snippet='Summary Vital Statistics - Births, Deaths, Marriages, Divorces, 2023'
+    [content_text] flags=ends_without_sentence_punctuation url='https://www.geostat.ge/en/single-news/3108' snippet='Summary Vital Statistics - Births, Deaths, Marriages, Divorces, 2023 Date: 28 March 2024 Download'
+    [lead_text] flags=ends_without_sentence_punctuation url='https://www.geostat.ge/en/single-news/3108' snippet='Indicators of Living Conditions (Indicators of Poverty and Gini Coefficients) - 2025'
+    [title] flags=ends_without_sentence_punctuation url='https://www.geostat.ge/en/modules/categories/61/umaghlesi-ganatleba' snippet='Higher Education - National Statistics Office of Georgia'
+    [content_text] flags=ends_without_sentence_punctuation url='https://www.geostat.ge/en/modules/categories/61/umaghlesi-ganatleba' snippet='CSV Download'
+    [lead_text] flags=ends_without_sentence_punctuation url='https://www.geostat.ge/en/modules/categories/61/umaghlesi-ganatleba' snippet='Indicators of Living Conditions (Indicators of Poverty and Gini Coefficients) - 2025'
+    [title] flags=ends_without_sentence_punctuation,starts_mid_sentence_lowercase url='https://www.geostat.ge/ka/public-info' snippet='საჯარო ინფორმაცია - საქართველოს სტატისტიკის ეროვნული სამსახური'
+    [summary_ka] flags=ends_without_sentence_punctuation,starts_mid_sentence_lowercase url='https://www.geostat.ge/ka/public-info' snippet='საქართველოს სტატისტიკის ეროვნული სამსახური (საქსტატი) წარმოადგენს საჯარო ინფორმაციის წყაროს, რომელიც მოიცავს ზოგად ინ...'
+    [summary_en] flags=ends_without_sentence_punctuation url='https://www.geostat.ge/ka/public-info' snippet='The National Statistics Office of Georgia (Geostat) serves as a source of public information, covering general detail...'
+    [content_text] flags=ends_without_sentence_punctuation,starts_mid_sentence_lowercase url='https://www.geostat.ge/ka/public-info' snippet='საჯარო ინფორმაცია 1. ზოგადი ინფორმაცია საქსტატის შესახებ 2. საჯარო ინფორმაციის გვერდი 3. ინფორმაცია საქსტატის საკადრო...'
+    [lead_text] flags=ends_without_sentence_punctuation url='https://www.geostat.ge/ka/public-info' snippet='3. ინფორმაცია საქსტატის საკადრო უზრუნველყოფის შესახებ'
+    [title] flags=ends_without_sentence_punctuation url='https://www.geostat.ge/en/modules/categories/32/msheneblobistvis-shedzenili-masalebis-fasebis-indeksi' snippet='Price Index for Material Inputs to Construction Industries - National Statistics Office of Georgia'
+    [content_text] flags=ends_without_sentence_punctuation url='https://www.geostat.ge/en/modules/categories/32/msheneblobistvis-shedzenili-masalebis-fasebis-indeksi' snippet='CSV Download 2016 2017 2018 2019 2020 2021 2022 2023 2024 2025 Annual Average to the Annual Average 100.3 107.8 106.8...'
+
+Table: ingestion.chunk
+Check: Truncation check (200 random rows)
+------------------------------------------------------------------------
+  sample_size: 200
+  text_rows_with_truncation_signals: 184
+  examples:
+    [text] flags=ends_without_sentence_punctuation,starts_mid_sentence_lowercase url='https://www.geostat.ge/ka/single-news/3097' snippet='დაქირავებით დასაქმებულთა საშუალო თვიური ნომინალური ხელფასი - (2023 წლის IV კვარტალი) თარიღი: 18 მარტი 2024 გადმოწერა'
+    [text] flags=ends_without_sentence_punctuation url='https://www.geostat.ge/en/video-gallery' snippet='! ✅ საქსტატის აღმასრულებელი დირექტორი გოგიტა თოდრაძე რადიო იმედის ეთერში ეკონომიკური ზრდის წინასწარი შეფასება, 2023 წ...'
+    [text] flags=ends_without_sentence_punctuation url='https://www.geostat.ge/en/modules/categories/20' snippet='CSV Download January February March April May June July August September October November December'
+    [text] flags=ends_without_sentence_punctuation url='https://www.geostat.ge/ka/modules/categories/683/dasakmeba-umushevroba' snippet='CSV სამუშაო ძალის მაჩვენებლები ქალაქ-სოფლის მიხედვით (კვარტალური) მონაცემების გადმოწერა XLS CSV Facebook Linkedin ბეჭ...'
+    [text] flags=ends_without_sentence_punctuation url='https://www.geostat.ge/en/single-news/3229/sasaklaoebis-elevatorebisa-da-samatsivre-meurneobebis-gamokvlevis-dziritadi-shedegebi-2024-tslis-ii-kvartali' snippet='Survey Results for Livestock Slaughterhouses, Elevators and Cold Storage Facilities - (II Quarter, 2024) Date: 16 Aug...'
+    [text] flags=ends_without_sentence_punctuation url='https://www.geostat.ge/en/relationsOfCategory/316/post?page=7' snippet='4 March 2014 In Samtskhe-Javakheti Region the Preparatory Activities for the General Populati... 20 February 2014 Pre...'
+    [text] flags=ends_without_sentence_punctuation url='https://www.geostat.ge/en/calendar' snippet='Quarter, 2026) 19 Main Indicators of Transport Statistics (III Quarter, 2026) 19 Labour Force Indicators (Employment ...'
+    [text] flags=ends_without_sentence_punctuation url='https://www.geostat.ge/en/modules/categories/122/methodologia-fasebis-statistika/method' snippet='CSV Download Video about the methodology of the Consumer Price Index calculation Practical Guide to Producing Consume...'
+    [text] flags=ends_without_sentence_punctuation,starts_mid_sentence_lowercase url='https://www.geostat.ge/ka/video-gallery' snippet='პორტალის პრეზენტაცია - ტვ. იმედი ბავშვებისა და მოზარდების სტატისტიკის პორტალის პრეზენტაცია - ტვ. რუსთავი 2 ბავშვებისა...'
+    [text] flags=ends_without_sentence_punctuation url='https://www.geostat.ge/en/relationsOfCategory/22/infographic#' snippet='REGIONAL GROSS DOMESTIC PRODUCT, 2019 GROSS DOMESTIC PRODUCT OF GEORGIA IN 2019 Gross Domestic Product and Other Indi...'
+    [text] flags=ends_without_sentence_punctuation,starts_mid_sentence_lowercase url='https://www.geostat.ge/en/page/customer-service' snippet='web site has been visited by 131 847 people January-March 2015 20 publications have been prepared 32 press releases h...'
+    [text] flags=ends_without_sentence_punctuation,starts_mid_sentence_lowercase url='https://www.geostat.ge/ka/project/45/mravalindikatoruli-klasteruli-kvleva-saqartvelo-mics6-2017-2018#' snippet='პროექტის დასახელება მრავალინდიკატორული კლასტერული კვლევა - საქართველო MICS6 +2017-2018 დონორი გაეროს ბავშვთა ფონდი (U...'
+    [text] flags=ends_without_sentence_punctuation,starts_mid_sentence_lowercase url='https://www.geostat.ge/ka/single-news/2882#' snippet='ალკეული მნიშვნელოვანი პროდუქტების შესახებ, როგორიცაა: ხორბალი, სიმინდი, კარტოფილი, ბოსტნეული და სხვა. სასურსათო ბალან...'
+    [text] flags=ends_without_sentence_punctuation,starts_mid_sentence_lowercase url='https://www.geostat.ge/ka/project/50/saqstatis-it-infrastruqturis-modernizacia-da-shesadzleblobebis-ganvitareba' snippet='პროექტის დასახელება საქსტატის IT ინფრასტრუქტურის მოდერნიზაცია და შესაძლებლობების განვითარება. დონორი შვედეთის საერთაშ...'
+    [text] flags=ends_without_sentence_punctuation url='https://www.geostat.ge/ka/relationsOfCategory/25/post?page=54' snippet='3 აგვისტო 2011 ყოველთვიური ინფლაცია, 2011 წლის ივლისი 4 ივლისი 2011 ყოველთვიური ინფლაცია, 2011 წლის ივნისი 3 ივნისი 2...'
+
+Table: ingestion.document
+Check: Duplicate check
+------------------------------------------------------------------------
+  duplicate_canonical_url_groups: 0
+  duplicate_canonical_url_extra_rows: 0
+  duplicate_title_language_groups: 1091
+  duplicate_title_language_extra_rows: 2467
+
+Table: ingestion.chunk
+Check: Duplicate check
+------------------------------------------------------------------------
+  duplicate_document_id_text_groups: 0
+  duplicate_document_id_text_extra_rows: 0
+
+Table: ingestion.mv_portal_link
+Check: Duplicate check (canonical_url within language)
+------------------------------------------------------------------------
+  duplicate_canonical_url_language_groups: 0
+  duplicate_canonical_url_language_extra_rows: 0
+
+Table: ingestion.mv_specific_link
+Check: Duplicate check (canonical_url within language)
+------------------------------------------------------------------------
+  duplicate_canonical_url_language_groups: 0
+  duplicate_canonical_url_language_extra_rows: 0
+
+Table: ingestion.document
+Check: Redundancy check (50 random rows)
+------------------------------------------------------------------------
+  sample_size: 50
+  summary_ka_repeats_content_text_prefix: 0 (0.00%)
+  lead_text_equals_meta_description: 0 (0.00%)
+  title_in_content_text_first_100_chars: 16 (32.00%)
+
+Table: ingestion.document
+Check: Content quality
+------------------------------------------------------------------------
+  count_by_page_kind:
+    unknown: 3931
+    portal: 136
+    dataset: 68
+    navigation: 29
+    news: 27
+    report: 27
+  authority_score_zero: 3977
+  empty_keywords_array: 142
+  count_by_fetch_status:
+    parsed: 3707
+    skipped: 511
+
+Table: ingestion.chunk
+Check: Content quality
+------------------------------------------------------------------------
+  very_short_chunks_lt_50_chars: 113 (2.27%)
+  very_long_chunks_gt_3000_chars: 0 (0.00%)
+
+Table: ingestion.document
+Check: Language consistency (language=ka, Latin-dominant title)
+------------------------------------------------------------------------
+  language_ka_rows: 2360
+  latin_dominant_title_among_ka: 2 (0.08%)
+  examples:
+    url='https://br.geostat.ge' latin=16 georgian=14 title='ბიზნეს რეგისტრი | Business Register'
+    url='https://sna.geostat.ge/ka' latin=9 georgian=0 title='Geostat.ge'

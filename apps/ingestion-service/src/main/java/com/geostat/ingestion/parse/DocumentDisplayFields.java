@@ -11,5 +11,6 @@ public final class DocumentDisplayFields {
         document.setLeadText(cleaned.leadText());
         document.setMetaDescription(cleaned.metaDescription());
         document.setDisplayDescription(cleaned.displayDescription());
+        document.setNavBreadcrumb(cleaned.navBreadcrumb());
     }
 }

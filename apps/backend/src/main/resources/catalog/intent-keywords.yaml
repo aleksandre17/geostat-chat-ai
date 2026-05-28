@@ -1,0 +1,73 @@
+# Intent classification keywords for HeuristicIntentClassifier.
+# Add keywords here — no Java code change needed.
+intents:
+  SMALLTALK:
+    - "hello"
+    - "hi"
+    - "thanks"
+    - "thank you"
+    - "გამარჯობა"
+    - "მადლობა"
+    - "როგორ ხარ"
+
+  COMPARE:
+    - "compare"
+    - "versus"
+    - "vs."
+    - "შედარ"
+    - "განსხვავება"
+    - "difference between"
+    - "მეტია თუ ნაკლები"
+
+  DEFINITION:
+    - "definition"
+    - "განმარტება"
+    - "meaning"
+
+  FACTUAL:
+    - "what is"
+    - "what does"
+    - "define"
+    - "explain"
+    - "meaning of"
+    - "რა არის"
+    - "რას ნიშნავს"
+
+  LATEST:
+    - "latest"
+    - "recent"
+    - "ბოლო"
+    - "ახალი მონაცემ"
+    - "მიმდინარე"
+    - "current"
+
+  STATISTICAL:
+    - "მონაცემ"
+    - "სტატისტიკ"
+    - "ინდიკატ"
+    - "მაჩვენებ"
+    - "data"
+    - "statistics"
+    - "indicator"
+    - "figure"
+    - "number"
+    - "table"
+    - "chart"
+
+  NAVIGATION:
+    - "show me"
+    - "where can i find"
+    - "where to find"
+    - "give me"
+    - "download"
+    - "go to"
+    - "navigate"
+    - "portal"
+    - "open portal"
+    - "open page"
+    - "მაჩვენე"
+    - "სად ვნახო"
+    - "სად არის"
+    - "პორტალი"
+    - "გადავიდე"
+    - "გახსენი"

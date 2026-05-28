@@ -2,6 +2,7 @@ package com.geostat.ingestion.crawl.frontier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.geostat.platform.url.UrlHasher;
 import org.junit.jupiter.api.Test;
 
 class UrlHasherTest {

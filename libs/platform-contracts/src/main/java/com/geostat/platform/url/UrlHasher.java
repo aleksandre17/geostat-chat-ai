@@ -1,9 +1,10 @@
-package com.geostat.ingestion.crawl.frontier;
+package com.geostat.platform.url;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/** SHA-256 hash of normalized URL or content text for deduplication keys. */
 public final class UrlHasher {
 
     private UrlHasher() {}

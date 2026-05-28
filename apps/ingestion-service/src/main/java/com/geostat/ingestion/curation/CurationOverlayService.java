@@ -1,7 +1,7 @@
 package com.geostat.ingestion.curation;
 
 import com.geostat.ingestion.catalog.refresh.CatalogRefreshAfterBatch;
-import com.geostat.ingestion.crawl.frontier.UrlHasher;
+import com.geostat.platform.url.UrlHasher;
 import com.geostat.ingestion.index.lifecycle.DocumentQdrantLifecycleSync;
 import com.geostat.ingestion.persistence.entity.CurationOverrideEntity;
 import com.geostat.ingestion.persistence.entity.DocumentEntity;

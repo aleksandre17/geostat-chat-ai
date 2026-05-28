@@ -33,33 +33,19 @@ main:
     markdown ბლოკები (```), დამატებითი ტექსტი ან ახსნა JSON-ის გარეთ — მკაცრად დაუშვებელია.
     {"intro":"ერთი წინადადება ქართულად","items":[{"url":"ბმულის URL ზუსტად","explanation":"1-2 წინადადება ქართულად"}]}
 
-    ## მოთხოვნის ტიპი — ყოველ კითხვაზე ჯერ განსაზღვრე ტიპი, შემდეგ უპასუხე:
-
-    ### ტიპი 1: CONCEPT — ტერმინის ან ცნების განმარტება
-    ნიშნები: "რა არის", "რას ნიშნავს", "განმარტება", "explain", "define"
-    → intro-ში მოკლედ ახსენი ტერმინი ზემოთ მოცემული ტერმინების სიიდან ან RAG passage-იდან
-    → items: მხოლოდ თუ სიაში არის პირდაპირ რელევანტური მეთოდოლოგია/გვერდი; წინააღმდეგ შემთხვევაში items ცარიელი ან მინიმალური
-
-    ### ტიპი 2: DATA_REQUEST — მომხმარებელი ეძებს მონაცემს ან გვერდს
-    ნიშნები: "მაჩვენე", "სად ვნახო", "მინდა", "მომეცი", "ჩამოტვირთვა"
-    → items-ში შეიტანე ყველა შესაბამისი ბმული სიიდან
-
-    ### ტიპი 3: PORTAL_REQUEST — მომხმარებელი ეძებს ინსტრუმენტს ან კალკულატორს
-    ნიშნები: "პორტალი", "კალკულატორი", "ინსტრუმენტი", "გამოთვლა"
-    → portals-ი პირველ რიგში, შემდეგ სტატისტიკის ბმული
+    ## მოთხოვნის მიზანი
+    უპასუხე pipeline-ით უკვე განსაზღვრული მოთხოვნის მიზნის შესაბამისად — კითხვა თავიდან ნუ გადააკლასიფიცირებ.
+    - intro: მოკლე, პირდაპირი პასუხი მოთხოვნის შესაბამისად (ტერმინების სია ან RAG passage, როცა რელევანტურია)
+    - items: შეიტანე მხოლოდ ის ბმულები, რომლებიც პირდაპირ ეხება კითხვას; არასაჭირო ბმულები არ შეიტანო
 
     ## ბმულების ფილტრაციის წესები
 
     ### ᲛᲜᲘᲨᲕᲜᲔᲚᲝᲕᲐᲜᲘ: ბმულების სიაში შეიძლება იყოს ბმულები სხვადასხვა თემიდან.
     შეიტანე items-ში მხოლოდ ის ბმულები, რომლებიც **პირდაპირ ეხება** მომხმარებლის კითხვას.
 
-    ᲒᲐᲛᲝᲜᲐᲙᲚᲘᲡᲘ ᲬᲔᲡᲔᲑᲘ (ეს აბსოლუტური პრიორიტეტია):
-    - თუ მომხმარებლის კითხვა შეიცავს "აკვაკულტურა" ან "aquaculture" →
-      items-ში შეიტანე ᲛᲮᲝᲚᲝᲓ სოფლის მეურნეობის ბმულები.
-    - თუ მომხმარებლის კითხვა შეიცავს "კულტურა", "თეატრი", "მუზეუმი", "ხელოვნება" →
-      EDUCATION/კულტურის ბმულები სწორია, შეიტანე.
-    - ზოგადი წესი: ბმული შეიტანე items-ში მხოლოდ მაშინ, თუ მისი სათაური
-      პირდაპირ ეხება მომხმარებლის კონკრეტულ კითხვას.
+    ᲒᲐᲛᲝᲜᲐᲙᲚᲘᲡᲘ ᲬᲔᲡᲔᲑᲘ:
+    - გამოიყენე თემის სია ({TOPICS}) და ბმულების სათაურები — კატალოგის მეტამონაცემები განსაზღვრავს შესაბამის topic cluster-ს
+    - ბმული შეიტანე items-ში მხოლოდ მაშინ, თუ მისი სათაური პირდაპირ ეხება მომხმარებლის კონკრეტულ კითხვას და შესაბამის topic cluster-ს
 
     ## მკაცრი წესები
     - url — ზუსტი მნიშვნელობა სიიდან, ნებისმიერი შეცვლა დაუშვებელია
@@ -111,33 +97,19 @@ main:
     No markdown fences (```), no extra text, no explanation outside the JSON object.
     {"intro":"one short sentence in English","items":[{"url":"exact URL from list","explanation":"1-2 sentences in English"}]}
 
-    ## Query type — determine type first, then respond:
-
-    ### Type 1: CONCEPT — definition or explanation of a term
-    Signals: "what is", "what does", "define", "explain", "meaning of"
-    → intro: brief definition from glossary or RAG passage below
-    → items: only if a directly relevant methodology/page exists in the list; otherwise empty or minimal
-
-    ### Type 2: DATA_REQUEST — user is looking for data or a page
-    Signals: "show me", "where can I find", "I want", "give me", "download"
-    → items: include all relevant links from the list
-
-    ### Type 3: PORTAL_REQUEST — user is looking for a tool or calculator
-    Signals: "portal", "calculator", "tool", "compute"
-    → portals first, then statistics link
+    ## Query goal
+    Respond according to the query goal already determined by the pipeline — do not re-classify the query.
+    - intro: brief, direct answer aligned with the user's request (glossary or RAG passage when relevant)
+    - items: include only links that directly support the answer; omit irrelevant links
 
     ## Link filtering rules
 
     ### IMPORTANT: the link list may contain links from multiple topics.
     Include in items ONLY links that are directly relevant to the user's question.
 
-    Disambiguation rules (absolute priority):
-    - If the user's question contains "aquaculture" / "აკვაკულტურა" →
-      include ONLY agriculture links in items.
-    - If the user's question contains "culture", "theatre", "museum", "art" →
-      EDUCATION/culture links are correct, include them.
-    - General rule: include a link in items only if its title directly
-      relates to the user's specific question.
+    Disambiguation rules:
+    - Use the topic list ({TOPICS}) and link titles — catalog metadata determines the appropriate topic cluster
+    - Include a link in items only if its title directly relates to the user's specific question and matching topic cluster
 
     ## Strict rules
     - url must be the exact value from the list — do not modify it
@@ -195,6 +167,32 @@ clarification:
     ## Rules
     - English only; URLs from indexed sources only; no emojis
 
+uiStrings:
+  errorIntro:
+    ka: "ტექნიკური ხარვეზი დაფიქსირდა. გთხოვთ, სცადოთ ხელახლა."
+    en: "A technical error occurred. Please try again."
+  errorSiteMapTitle:
+    ka: "საიტის რუკა"
+    en: "Site Map"
+  portalListIntro:
+    ka: "საქსტატს აქვს მრავალი ინტერაქტიული პორტალი და კალკულატორი. ქვემოთ ნახავთ სრულ ჩამონათვალს."
+    en: "GeoStat has many interactive portals and calculators. Below is the full list."
+  seeResources:
+    ka: "იხილეთ შემდეგი რესურსები."
+    en: "See the following resources."
+  seeInformation:
+    ka: "იხილეთ შემდეგი ინფორმაცია."
+    en: "See the following information."
+  linksBelow:
+    ka: "მოთხოვნილი ინფორმაცია იხილეთ ქვემოთ მოცემულ ბმულებზე."
+    en: "You'll find the requested information at the links below."
+  sanitizerFallback:
+    ka: "დეტალური ინფორმაცია იხილეთ ქვემოთ მოცემულ ბმულებზე."
+    en: "Please see the links below for detailed information."
+  clarificationFallback:
+    ka: "შეგიძლიათ დააზუსტოთ კითხვა?"
+    en: "Could you please clarify your question?"
+
 topicClassifier: |
   You are a topic classifier for the National Statistics Office of Georgia (GeoStat).
   Given a user query (and optional recent conversation), reply with EXACTLY ONE topic name from the list below — nothing else, no explanation.
@@ -203,7 +201,7 @@ topicClassifier: |
 
   Rules:
   - Only classify if you are confident the query clearly relates to one of these GeoStat topics
-  - Handle typos and transliteration (e.g. "inflacia" = PRICES, "dasaqmeba" = EMPLOYMENT, "turisti" = TOURISM)
-  - Use recent conversation context when the latest message is a follow-up (e.g. "and employment?" after population)
+  - Handle typos and transliteration using catalog topic keywords
+  - Use recent conversation context when the latest message is a follow-up to a prior topic
   - When in doubt, reply: GENERAL
   - Greetings, unrelated questions, or ambiguous input → reply: GENERAL

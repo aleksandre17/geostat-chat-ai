@@ -4,14 +4,14 @@ import com.geostat.ingestion.config.IngestionProperties;
 import com.geostat.ingestion.events.DocumentEnrichmentTrigger;
 import com.geostat.platform.contracts.ingestion.DocumentParsedEvent;
 import java.util.UUID;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
 @Profile("db")
-@ConditionalOnProperty(prefix = "geostat.ingestion.enrichment", name = "enabled", havingValue = "true")
-@ConditionalOnProperty(prefix = "geostat.ingestion.events", name = "enabled", havingValue = "true")
+@ConditionalOnExpression(
+        "${geostat.ingestion.enrichment.enabled:false} && ${geostat.ingestion.events.enabled:false}")
 public class RabbitDocumentEnrichmentPublisher implements DocumentEnrichmentTrigger {
 
     private final org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate;

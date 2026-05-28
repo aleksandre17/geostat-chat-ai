@@ -1,6 +1,57 @@
 # Hand-maintained domain config — not touched by geostat config-gen (P0-kit-10)
+ingestion:
+  embedding:
+    retry-interval-ms: ${INGESTION_EMBEDDING_RETRY_INTERVAL_MS:900000}
+  recovery:
+    interval-ms: ${INGESTION_RECOVERY_INTERVAL_MS:1800000}
+
+spring:
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+          order_inserts: true
+          order_updates: true
+  datasource:
+    hikari:
+      pool-name: GeostatIngestionPool
+
+      # Sizing rationale:
+      # 2 corpora × 10 crawl threads = 20 (document inserts)
+      # + 5 embedding/retry workers
+      # + 3 background jobs (reparse, recovery, mv-refresh)
+      # + 2 Spring Boot API threads overhead
+      # = ~30 peak. 40 gives 25% headroom.
+      maximum-pool-size: 40
+      minimum-idle: 5
+
+      # Fail fast on pool exhaustion — don't silently hang crawl workers
+      connection-timeout: 10000   # 10s
+
+      # Connection lifecycle
+      idle-timeout: 300000        # 5min
+      max-lifetime: 1800000       # 30min
+      keepalive-time: 60000       # 1min
+
+      # Validation
+      connection-test-query: "SELECT 1"
+      validation-timeout: 5000
+
+management:
+  metrics:
+    enable:
+      hikaricp: true    # exposes hikaricp.connections.active, .pending, .timeout
+
 geostat:
   ingestion:
+    default-corpus: ${INGESTION_DEFAULT_CORPUS:geostat-portal}
+    crawl:
+      concurrentCorpora: ${CRAWL_CONCURRENT_CORPORA:2}
+      crawlTimeoutHours: ${CRAWL_TIMEOUT_HOURS:6}
+      statusPollIntervalMs: ${CRAWL_STATUS_POLL_INTERVAL_MS:10000}
+    curation:
+      cleanup-enabled: false   # enable after verifying no dependencies on expired rows
     aggregation:
       enabled: ${INGESTION_AGGREGATION_ENABLED:false}
       scheduler-enabled: ${INGESTION_AGGREGATION_SCHEDULER_ENABLED:false}
@@ -16,8 +67,12 @@ geostat:
       routing-key: document.index
       enrichment-queue: geostat.ingestion.document-parsed
       enrichment-routing-key: document.parsed
+      # DLQ names: queue-name + ".dlq" (auto-derived)
+      # Monitor: rabbitmqctl list_queues name messages | grep dlq
+      # If DLQ count > 0: investigate cause, fix, replay via main exchange
     enrichment:
       enabled: ${INGESTION_ENRICHMENT_ENABLED:false}
+      backfill-worker-threads: ${INGESTION_ENRICHMENT_BACKFILL_WORKER_THREADS:5}
       model-version: ${INGESTION_ENRICHMENT_MODEL_VERSION:gemini-2.5-flash-lite@2026-05-25}
       chat-model: ${INGESTION_ENRICHMENT_CHAT_MODEL:gemini-2.5-flash-lite}
       max-retries: ${INGESTION_ENRICHMENT_MAX_RETRIES:2}
@@ -35,10 +90,29 @@ geostat:
       grpc-port: ${QDRANT_GRPC_PORT:6334}
       use-tls: false
       api-key: ${QDRANT_API_KEY:}
+      # Qdrant RAM budget for geostat-portal corpus:
+      #
+      # Collection: geostat-portal-chunks
+      #   Dimensions:    768 (text-embedding-004)
+      #   Distance:      Cosine
+      #   Quantization:  int8 scalar (always_ram=true)
+      #   HNSW:          m=16, ef_construction=128
+      #
+      # Estimated vector count (full crawl): ~150,000–225,000 chunks
+      # RAM usage breakdown:
+      #   Quantized vectors:  225,000 × 768 × 1 byte  = 173 MB  (RAM, always)
+      #   Original vectors:   225,000 × 768 × 4 bytes = 692 MB  (disk, loaded for re-scoring)
+      #   HNSW graph:         ~50 MB                            (RAM)
+      #   Payload (indexed):  ~135 MB                           (RAM)
+      #   ─────────────────────────────────────────────────────
+      #   Total RAM:          ~360 MB
+      #   Total disk:         ~760 MB
+      #
+      # Server recommendation: 1GB RAM for Qdrant (headroom for multiple queries)
     embedding:
       provider: ${EMBEDDING_PROVIDER:hash-v1}
-      model-id: ${EMBEDDING_MODEL_ID:hash-v1}
-      vector-size: ${EMBEDDING_VECTOR_SIZE:384}
+      model-id: ${EMBEDDING_MODEL_ID:gemini/text-embedding-004}
+      vector-size: ${EMBEDDING_VECTOR_SIZE:768}  # must match the embedding model's output dimensions
       gemini-api-key: ${GEMINI_API_KEY:}
       gemini-model: ${GEMINI_EMBED_MODEL:gemini-embedding-001}
       ollama-base-url: ${OLLAMA_BASE_URL:http://127.0.0.1:11434}
@@ -53,7 +127,18 @@ geostat:
     scheduler:
       enabled: ${INGESTION_SCHEDULER_ENABLED:false}
       fixed-delay-ms: ${INGESTION_SCHEDULER_DELAY_MS:3600000}
+      orchestrator-enabled: ${INGESTION_SCHEDULER_ORCHESTRATOR_ENABLED:false}
     playwright:
+      # ┌─ Fetcher map ──────────────────────────────────────────────────────────────┐
+      # │  renderMode: static   → Crawler4jStaticPageFetcher  (crawler4j HTTP loop) │
+      # │                          always active; default for geostat-portal corpus  │
+      # │                                                                            │
+      # │  renderMode: headless → HeadlessBrowserPageFetcher  (Playwright adapter)  │
+      # │                          active only when playwright.enabled=true          │
+      # │                          required for SPAs: agriculture-ge corpus          │
+      # │                                                                            │
+      # │  renderMode set per-corpus in ops/config/corpus/{name}-parse.yaml         │
+      # └────────────────────────────────────────────────────────────────────────────┘
       enabled: ${INGESTION_PLAYWRIGHT_ENABLED:false}
       timeout-ms: ${INGESTION_PLAYWRIGHT_TIMEOUT_MS:30000}
     archive:
@@ -68,8 +153,17 @@ geostat:
       enabled: ${INGESTION_FRESHNESS_ENABLED:true}
       stale-after-ms: ${INGESTION_FRESHNESS_STALE_MS:86400000}
       batch-size: ${INGESTION_FRESHNESS_BATCH:50}
+    reparse:
+      reparse-worker-threads: ${INGESTION_REPARSE_WORKER_THREADS:8}
     parse:
       profile:
-        enabled: ${INGESTION_PARSE_PROFILE_ENABLED:false}
-      config-dir: ${GEOSTAT_CORPUS_CONFIG_DIR:ops/config/corpus}
+        enabled: ${INGESTION_PARSE_PROFILE_ENABLED:true}
+      config-dir: ${INGESTION_PARSE_CONFIG_DIR:ops/config/corpus}
       eval-gate-path: ${GEOSTAT_CORPUS_EVAL_GATE:ops/eval/corpus-quality-gate.yaml}
+    validation:
+      min-content-reject: ${INGESTION_VALIDATION_MIN_REJECT:30}
+      min-content-degrade: ${INGESTION_VALIDATION_MIN_DEGRADE:100}
+      truncation-min-length: ${INGESTION_VALIDATION_TRUNCATION_MIN:200}
+      truncation-look-back: ${INGESTION_VALIDATION_TRUNCATION_LOOKBACK:40}
+      min-para-len: ${INGESTION_VALIDATION_MIN_PARA_LEN:25}
+      language-fallback: ${INGESTION_VALIDATION_LANGUAGE_FALLBACK:ka}

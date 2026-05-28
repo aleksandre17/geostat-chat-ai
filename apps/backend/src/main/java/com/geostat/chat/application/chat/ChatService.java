@@ -3,122 +3,115 @@ package com.geostat.chat.application.chat;
 import com.geostat.chat.application.query.QueryIntentMapper;
 import com.geostat.chat.application.query.QueryUnderstandingPipeline;
 import com.geostat.chat.application.query.QueryUnderstandingProperties;
-import com.geostat.chat.application.retrieval.CatalogRagLinkMerger;
+import com.geostat.chat.application.retrieval.ResponseRouter;
 import com.geostat.chat.application.retrieval.RetrievalContextService;
-import com.geostat.chat.domain.query.AnalyzedQuery;
-import com.geostat.chat.domain.query.SpellFixer;
-import com.geostat.chat.application.telemetry.ChatTelemetryService;
 import com.geostat.chat.domain.catalog.CatalogResponseAssembler;
+import com.geostat.chat.domain.retrieval.ResponseRoute;
+import com.geostat.chat.domain.retrieval.RetrievalConfidenceAssessor;
+import com.geostat.platform.retrieval.RetrievalConfidence;
 import com.geostat.chat.domain.catalog.CatalogTopicLabelResolver;
 import com.geostat.chat.domain.catalog.LinkCard;
 import com.geostat.chat.domain.catalog.LinkedExplanation;
 import com.geostat.chat.domain.catalog.Topic;
+import com.geostat.chat.domain.chat.AiChatResult;
 import com.geostat.chat.domain.chat.ChatContext;
+import com.geostat.chat.domain.chat.PipelineResult;
 import com.geostat.chat.domain.chat.QueryIntent;
 import com.geostat.chat.domain.prompt.PromptCatalog;
+import com.geostat.chat.domain.prompt.UiStringKey;
+import com.geostat.chat.domain.query.AnalyzedQuery;
+import com.geostat.chat.domain.query.SpellFixer;
 import com.geostat.chat.domain.session.ConversationHistory;
-import com.geostat.chat.infrastructure.config.AiChatOptionsFactory;
 import com.geostat.chat.infrastructure.config.AiChatProperties;
 import com.geostat.platform.contracts.retrieval.RetrievedChunk;
+import java.util.Deque;
+import java.util.List;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
-import org.springframework.ai.chat.messages.SystemMessage;
-import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class ChatService {
 
     private static final Logger log = LoggerFactory.getLogger(ChatService.class);
 
+    private final ChatPipelineCoordinator pipeline;
+    private final ChatResponseComposer composer;
     private final ChatClient chatClient;
-    private final TopicDetector topicDetector;
-    private final CatalogResponseAssembler catalogResponseAssembler;
-    private final ConversationHistory conversationHistory;
     private final PromptBuilder promptBuilder;
-    private final SmallTalkHandler smallTalkHandler;
-    private final ResponseSanitizer responseSanitizer;
-    private final ChatResultFactory chatResultFactory;
     private final ChatCompleteEncoder chatCompleteEncoder;
-    private final RetrievalContextService retrievalContextService;
-    private final CatalogRagLinkMerger catalogRagLinkMerger;
-    private final ChatTelemetryService chatTelemetryService;
-    private final AiResponseParser aiResponseParser;
-    private final ClarificationService clarificationService;
-    private final ChatLanguageDetector languageDetector;
-    private final AiChatOptionsFactory chatOptionsFactory;
-    private final AiChatProperties aiChatProperties;
-    private final ResponseGroundingEnforcer responseGroundingEnforcer;
-    private final QueryRouter queryRouter;
+    private final ChatResultFactory chatResultFactory;
+    private final CatalogResponseAssembler catalogResponseAssembler;
     private final PromptCatalog promptCatalog;
+    private final ChatLanguageDetector languageDetector;
+    /** Used only when query-understanding.enabled=false (legacy fallback). */
+    private final QueryRouter queryRouter;
     private final QueryUnderstandingProperties queryUnderstandingProperties;
     private final QueryUnderstandingPipeline queryUnderstandingPipeline;
     private final QueryIntentMapper queryIntentMapper;
     private final SpellFixer spellFixer;
+    private final ConversationHistory conversationHistory;
+    private final AiChatProperties aiChatProperties;
+    private final AiResponseParser aiResponseParser;
+    private final RetrievalConfidenceAssessor confidenceAssessor;
+    private final ResponseRouter responseRouter;
+    private final ClarificationService clarificationService;
+    private final RetrievalContextService retrievalContextService;
 
     public ChatService(
+            ChatPipelineCoordinator pipeline,
+            ChatResponseComposer composer,
             ChatClient chatClient,
-            TopicDetector topicDetector,
-            CatalogResponseAssembler catalogResponseAssembler,
-            ConversationHistory conversationHistory,
             PromptBuilder promptBuilder,
-            SmallTalkHandler smallTalkHandler,
-            ResponseSanitizer responseSanitizer,
-            ChatResultFactory chatResultFactory,
             ChatCompleteEncoder chatCompleteEncoder,
-            RetrievalContextService retrievalContextService,
-            CatalogRagLinkMerger catalogRagLinkMerger,
-            ChatTelemetryService chatTelemetryService,
-            AiResponseParser aiResponseParser,
-            ClarificationService clarificationService,
-            ChatLanguageDetector languageDetector,
-            AiChatOptionsFactory chatOptionsFactory,
-            AiChatProperties aiChatProperties,
-            ResponseGroundingEnforcer responseGroundingEnforcer,
-            QueryRouter queryRouter,
+            ChatResultFactory chatResultFactory,
+            CatalogResponseAssembler catalogResponseAssembler,
             PromptCatalog promptCatalog,
+            ChatLanguageDetector languageDetector,
+            @Lazy QueryRouter queryRouter,
             QueryUnderstandingProperties queryUnderstandingProperties,
             QueryUnderstandingPipeline queryUnderstandingPipeline,
             QueryIntentMapper queryIntentMapper,
-            SpellFixer spellFixer) {
+            SpellFixer spellFixer,
+            ConversationHistory conversationHistory,
+            AiChatProperties aiChatProperties,
+            AiResponseParser aiResponseParser,
+            RetrievalConfidenceAssessor confidenceAssessor,
+            ResponseRouter responseRouter,
+            ClarificationService clarificationService,
+            RetrievalContextService retrievalContextService) {
+        this.pipeline = pipeline;
+        this.composer = composer;
         this.chatClient = chatClient;
-        this.topicDetector = topicDetector;
-        this.catalogResponseAssembler = catalogResponseAssembler;
-        this.conversationHistory = conversationHistory;
         this.promptBuilder = promptBuilder;
-        this.smallTalkHandler = smallTalkHandler;
-        this.responseSanitizer = responseSanitizer;
-        this.chatResultFactory = chatResultFactory;
         this.chatCompleteEncoder = chatCompleteEncoder;
-        this.retrievalContextService = retrievalContextService;
-        this.catalogRagLinkMerger = catalogRagLinkMerger;
-        this.chatTelemetryService = chatTelemetryService;
-        this.aiResponseParser = aiResponseParser;
-        this.clarificationService = clarificationService;
-        this.languageDetector = languageDetector;
-        this.chatOptionsFactory = chatOptionsFactory;
-        this.aiChatProperties = aiChatProperties;
-        this.responseGroundingEnforcer = responseGroundingEnforcer;
-        this.queryRouter = queryRouter;
+        this.chatResultFactory = chatResultFactory;
+        this.catalogResponseAssembler = catalogResponseAssembler;
         this.promptCatalog = promptCatalog;
+        this.languageDetector = languageDetector;
+        this.queryRouter = queryRouter;
         this.queryUnderstandingProperties = queryUnderstandingProperties;
         this.queryUnderstandingPipeline = queryUnderstandingPipeline;
         this.queryIntentMapper = queryIntentMapper;
         this.spellFixer = spellFixer;
+        this.conversationHistory = conversationHistory;
+        this.aiChatProperties = aiChatProperties;
+        this.aiResponseParser = aiResponseParser;
+        this.confidenceAssessor = confidenceAssessor;
+        this.responseRouter = responseRouter;
+        this.clarificationService = clarificationService;
+        this.retrievalContextService = retrievalContextService;
     }
+
+    // ── Public entry points ───────────────────────────────────────────────────
 
     public ChatResult getChatResponse(String userMessage, String sessionId) {
         return getChatResponse(userMessage, sessionId, null);
@@ -127,45 +120,22 @@ public class ChatService {
     public ChatResult getChatResponse(String userMessage, String sessionId, String localeHint) {
         ChatContext ctx = buildContext(userMessage, sessionId, localeHint);
         try {
-            String smallTalk = smallTalkHandler.handle(ctx.message(), ctx.isGeorgian());
-            if (smallTalk != null) {
-                return respond(
-                        ctx,
-                        smallTalk,
-                        List.of(),
-                        List.of(Topic.GENERAL),
-                        resolveTopicLabels(List.of(Topic.GENERAL), ctx),
-                        List.of(),
-                        ChatResponseKind.smalltalk);
-            }
-            if (smallTalkHandler.isPortalListQuery(ctx.lowerQuery())) {
-                return respondWithPortals(ctx);
+            ChatResult early = resolveEarlyExit(ctx);
+            if (early != null) {
+                return early;
             }
 
-            List<Topic> topics = topicDetector.detect(ctx.lowerQuery(), ctx.message(), ctx.history());
-            CatalogResponseAssembler.Bundle catalog =
-                    catalogResponseAssembler.assemble(topics, ctx.retrievalQuery(), ctx.locale(), ctx.isGeorgian());
-            CatalogTopicLabelResolver.Labels topicLabels = catalog.topicLabels();
-            List<RetrievedChunk> ragChunks = retrievalContextService.retrieve(ctx.retrievalQuery(), ctx.locale());
-            List<LinkCard> links = mergedLinks(catalog.links(), ctx, ragChunks);
-
-            if (links.isEmpty()) {
-                List<RetrievedChunk> corpusContext = ragChunks.isEmpty()
-                        ? retrievalContextService.retrieveForClarification(ctx.retrievalQuery(), ctx.locale())
-                        : ragChunks;
-                AiChatResult clarification = clarificationService.generate(ctx, corpusContext);
-                return respond(
-                        ctx,
-                        clarification.intro(),
-                        clarification.items(),
-                        topics,
-                        topicLabels,
-                        corpusContext,
-                        ChatResponseKind.clarification);
-            }
-
-            AiChatResult result = generateAiResponse(ctx, topicLabels, links, ragChunks);
-            return respond(ctx, result.intro(), result.items(), topics, topicLabels, ragChunks, ChatResponseKind.answer);
+            PipelineResult pipe = routeAfterRetrieval(ctx, pipeline.buildRetrieval(ctx));
+            return switch (pipe) {
+                case PipelineResult.Ready r -> {
+                    AiChatResult result = composer.generateAiResponse(ctx, r.topicLabels(), r.links(), r.ragChunks());
+                    yield composer.respond(ctx, result.intro(), result.items(),
+                            r.topics(), r.topicLabels(), r.ragChunks(), ChatResponseKind.answer);
+                }
+                case PipelineResult.NeedsClarification nc ->
+                        composer.respond(ctx, nc.result().intro(), nc.result().items(),
+                                nc.topics(), nc.topicLabels(), nc.ragChunks(), ChatResponseKind.clarification);
+            };
         } catch (Exception e) {
             log.error("Error processing chat: {}", e.getMessage(), e);
             return chatResultFactory.error(ctx.isGeorgian(), ctx.sessionId());
@@ -179,78 +149,106 @@ public class ChatService {
     public Flux<ServerSentEvent<String>> streamChatResponse(String userMessage, String sessionId, String localeHint) {
         ChatContext ctx = buildContext(userMessage, sessionId, localeHint);
         try {
-            String smallTalk = smallTalkHandler.handle(ctx.message(), ctx.isGeorgian());
-            if (smallTalk != null) {
-                return Flux.just(completeEvent(respond(
-                        ctx,
-                        smallTalk,
-                        List.of(),
-                        List.of(Topic.GENERAL),
-                        resolveTopicLabels(List.of(Topic.GENERAL), ctx),
-                        List.of(),
-                        ChatResponseKind.smalltalk)));
-            }
-            if (smallTalkHandler.isPortalListQuery(ctx.lowerQuery())) {
-                return Flux.just(completeEvent(respondWithPortals(ctx)));
+            ChatResult early = resolveEarlyExit(ctx);
+            if (early != null) {
+                return Flux.just(completeEvent(early));
             }
 
-            List<Topic> topics = topicDetector.detect(ctx.lowerQuery(), ctx.message(), ctx.history());
-            CatalogResponseAssembler.Bundle catalog =
-                    catalogResponseAssembler.assemble(topics, ctx.retrievalQuery(), ctx.locale(), ctx.isGeorgian());
-            CatalogTopicLabelResolver.Labels topicLabels = catalog.topicLabels();
-            List<RetrievedChunk> ragChunks = retrievalContextService.retrieve(ctx.retrievalQuery(), ctx.locale());
-            List<LinkCard> links = mergedLinks(catalog.links(), ctx, ragChunks);
-
-            if (links.isEmpty()) {
-                List<RetrievedChunk> corpusContext = ragChunks.isEmpty()
-                        ? retrievalContextService.retrieveForClarification(ctx.retrievalQuery(), ctx.locale())
-                        : ragChunks;
-                AiChatResult clarification = clarificationService.generate(ctx, corpusContext);
-                return Flux.just(completeEvent(respond(
-                        ctx,
-                        clarification.intro(),
-                        clarification.items(),
-                        topics,
-                        topicLabels,
-                        corpusContext,
-                        ChatResponseKind.clarification)));
-            }
-
-            String systemPrompt = promptBuilder.build(topicLabels, links, ctx.isGeorgian(), ragChunks);
-            Prompt prompt = buildGeminiPrompt(systemPrompt, ctx);
-
-            StringBuilder buffer = new StringBuilder();
-            StringBuilder lastIntroSent = new StringBuilder();
-            return chatClient.prompt(prompt).stream().content()
-                    .doOnNext(chunk -> buffer.append(chunk != null ? chunk : ""))
-                    .mapNotNull(chunk -> {
-                        String intro = StreamIntroExtractor.extractIntro(buffer.toString());
-                        if (intro.isEmpty() || intro.contentEquals(lastIntroSent)) {
-                            return null;
-                        }
-                        lastIntroSent.setLength(0);
-                        lastIntroSent.append(intro);
-                        return ServerSentEvent.<String>builder().event("token").data(intro).build();
-                    })
-                    .concatWith(Mono.fromCallable(() -> {
-                        AiChatResult result = aiResponseParser.parseMainResponse(
-                                buffer.toString(), links, ctx.isGeorgian());
-                        return completeEvent(respond(
-                                ctx, result.intro(), result.items(), topics, topicLabels, ragChunks, ChatResponseKind.answer));
-                    }).flatMapMany(Flux::just));
+            PipelineResult pipe = routeAfterRetrieval(ctx, pipeline.buildRetrieval(ctx));
+            return switch (pipe) {
+                case PipelineResult.NeedsClarification nc -> Flux.just(completeEvent(
+                        composer.respond(ctx, nc.result().intro(), nc.result().items(),
+                                nc.topics(), nc.topicLabels(), nc.ragChunks(), ChatResponseKind.clarification)));
+                case PipelineResult.Ready r -> streamReadyPipeline(ctx, r);
+            };
         } catch (Exception e) {
             log.error("Stream chat error: {}", e.getMessage(), e);
             return Flux.just(completeEvent(chatResultFactory.error(ctx.isGeorgian(), ctx.sessionId())));
         }
     }
 
-    private List<LinkCard> mergedLinks(List<LinkCard> catalogLinks, ChatContext ctx, List<RetrievedChunk> ragChunks) {
-        int maxRag = switch (ctx.intent()) {
-            case CONCEPT -> CatalogRagLinkMerger.MAX_RAG;
-            case DATA_REQUEST, NAVIGATE -> 2;
-            case CLARIFY -> 1;
+    // ── Private helpers ───────────────────────────────────────────────────────
+
+    private PipelineResult routeAfterRetrieval(
+            ChatContext ctx, ChatPipelineCoordinator.RetrievalOutcome retrieval) {
+        RetrievalConfidence confidence = confidenceAssessor.assess(retrieval.ragChunks());
+        ResponseRoute route = responseRouter.route(confidence);
+        return switch (route) {
+            case ANSWER_WITH_CITATIONS, ANSWER_WITH_SUGGESTIONS ->
+                    new PipelineResult.Ready(
+                            retrieval.topics(),
+                            retrieval.topicLabels(),
+                            retrieval.links(),
+                            retrieval.ragChunks());
+            case CLARIFY -> {
+                List<RetrievedChunk> corpusContext = retrieval.ragChunks().isEmpty()
+                        ? retrievalContextService.retrieveForClarification(ctx.retrievalQuery(), ctx.locale())
+                        : retrieval.ragChunks();
+                AiChatResult clarification = clarificationService.generate(ctx, corpusContext);
+                yield new PipelineResult.NeedsClarification(
+                        retrieval.topics(), retrieval.topicLabels(), corpusContext, clarification);
+            }
+            case REFUSE_SUGGEST_TOPICS ->
+                    new PipelineResult.NeedsClarification(
+                            retrieval.topics(),
+                            retrieval.topicLabels(),
+                            List.of(),
+                            AiChatResult.emptyIntro(
+                                    promptCatalog.uiString(UiStringKey.CLARIFICATION_FALLBACK, ctx.isGeorgian())));
         };
-        return catalogRagLinkMerger.merge(catalogLinks, ragChunks, ctx.isGeorgian(), maxRag);
+    }
+
+    private ChatResult resolveEarlyExit(ChatContext ctx) {
+        ChatPipelineCoordinator.EarlyExit early = pipeline.checkEarlyExit(ctx);
+        if (early == null) {
+            return null;
+        }
+        return switch (early) {
+            case ChatPipelineCoordinator.EarlyExit.SmallTalk s ->
+                    respondSmallTalk(ctx, s.message(), generalLabels(ctx.isGeorgian()));
+            case ChatPipelineCoordinator.EarlyExit.PortalList ignored ->
+                    respondWithPortals(ctx);
+        };
+    }
+
+    private Flux<ServerSentEvent<String>> streamReadyPipeline(ChatContext ctx, PipelineResult.Ready r) {
+        String systemPrompt = promptBuilder.build(
+                r.topicLabels(), r.links(), ctx.isGeorgian(), r.ragChunks());
+        Prompt prompt = composer.buildGeminiPrompt(systemPrompt, ctx);
+
+        StringBuilder buffer = new StringBuilder();
+        StringBuilder lastIntroSent = new StringBuilder();
+        return chatClient.prompt(prompt).stream().content()
+                .doOnNext(chunk -> buffer.append(chunk != null ? chunk : ""))
+                .mapNotNull(chunk -> {
+                    String intro = StreamIntroExtractor.extractIntro(buffer.toString());
+                    if (intro.isEmpty() || intro.contentEquals(lastIntroSent)) {
+                        return null;
+                    }
+                    lastIntroSent.setLength(0);
+                    lastIntroSent.append(intro);
+                    return ServerSentEvent.<String>builder().event("token").data(intro).build();
+                })
+                .concatWith(Mono.fromCallable(() -> {
+                    AiChatResult result = aiResponseParser.parseMainResponse(
+                            buffer.toString(), r.links(), ctx.isGeorgian());
+                    return completeEvent(composer.respond(ctx, result.intro(), result.items(), r.topics(),
+                            r.topicLabels(), r.ragChunks(), ChatResponseKind.answer));
+                }).flatMapMany(Flux::just));
+    }
+
+    private CatalogTopicLabelResolver.Labels generalLabels(boolean isGeorgian) {
+        String label = isGeorgian ? "ზოგადი" : "General";
+        return new CatalogTopicLabelResolver.Labels(label, List.of());
+    }
+
+    /** Small-talk bypass: returns the result but does NOT add to AI message history. */
+    private ChatResult respondSmallTalk(
+            ChatContext ctx, String intro, CatalogTopicLabelResolver.Labels labels) {
+        return chatResultFactory.build(
+                intro, List.of(), List.of(Topic.GENERAL),
+                labels, ctx.isGeorgian(), ctx.sessionId(), UUID.randomUUID().toString(),
+                ChatResponseKind.smalltalk, List.of());
     }
 
     private ChatContext buildContext(String userMessage, String sessionId, String localeHint) {
@@ -258,42 +256,21 @@ public class ChatService {
         String sid = (sessionId != null && !sessionId.isBlank()) ? sessionId : UUID.randomUUID().toString();
         String locale = languageDetector.resolveLocale(trimmed, localeHint);
         boolean isGeorgian = "ka".equals(locale);
-        QueryIntent intent = queryRouter.route(trimmed, trimmed.toLowerCase());
-        String retrievalQuery = trimmed;
+        QueryIntent intent;
+        String retrievalQuery;
+        AnalyzedQuery analyzedQuery = null;
         if (queryUnderstandingProperties.isEnabled()) {
             AnalyzedQuery analyzed = queryUnderstandingPipeline.analyze(trimmed, locale);
             retrievalQuery = analyzed.retrievalText();
             intent = queryIntentMapper.toChatIntent(analyzed.intent());
+            analyzedQuery = analyzed;
         } else {
             retrievalQuery = spellFixer.fix(trimmed, locale);
+            intent = queryRouter.route(trimmed, trimmed.toLowerCase());
         }
         Deque<Message> history = HistoryBudgetTrimmer.trim(
                 conversationHistory.getOrCreate(sid), aiChatProperties.maxHistoryMessages());
-        return new ChatContext(trimmed, trimmed.toLowerCase(), isGeorgian, locale, intent, sid, history, retrievalQuery);
-    }
-
-    private AiChatResult generateAiResponse(
-            ChatContext ctx,
-            CatalogTopicLabelResolver.Labels topicLabels,
-            List<LinkCard> links,
-            List<RetrievedChunk> ragChunks) {
-        try {
-            String systemPrompt = promptBuilder.build(topicLabels, links, ctx.isGeorgian(), ragChunks);
-            Prompt prompt = buildGeminiPrompt(systemPrompt, ctx);
-            String raw = chatClient.prompt(prompt).call().content();
-            return aiResponseParser.parseMainResponse(raw, links, ctx.isGeorgian());
-        } catch (Exception e) {
-            log.error("AI generation failed: {}", e.getMessage());
-            return aiResponseParser.fallback(ctx.isGeorgian(), links);
-        }
-    }
-
-    private Prompt buildGeminiPrompt(String systemPrompt, ChatContext ctx) {
-        List<Message> messages = new ArrayList<>();
-        messages.add(new SystemMessage(systemPrompt));
-        messages.addAll(HistoryBudgetTrimmer.trim(ctx.history(), aiChatProperties.maxHistoryMessages()));
-        messages.add(new UserMessage(ctx.message()));
-        return new Prompt(messages, chatOptionsFactory.mainChat());
+        return new ChatContext(trimmed, trimmed.toLowerCase(), isGeorgian, locale, intent, sid, history, retrievalQuery, analyzedQuery);
     }
 
     private ServerSentEvent<String> completeEvent(ChatResult result) {
@@ -303,82 +280,14 @@ public class ChatService {
                 .build();
     }
 
-
-    private ChatResult respond(
-            ChatContext ctx,
-            String intro,
-            List<LinkedExplanation> items,
-            List<Topic> topics,
-            CatalogTopicLabelResolver.Labels topicLabels,
-            List<RetrievedChunk> ragChunks,
-            ChatResponseKind kind) {
-        List<LinkedExplanation> enforcedItems = responseGroundingEnforcer.enforce(items, ragChunks);
-        String sanitized = responseSanitizer.strip(intro, ctx.isGeorgian());
-        addToHistory(ctx, sanitized, enforcedItems, topics, ragChunks);
-        String turnId = UUID.randomUUID().toString();
-        chatTelemetryService.recordTurn(
-                turnId,
-                ctx.sessionId(),
-                ctx.message(),
-                chatTelemetryService.toHits(ragChunks),
-                promptCatalog.promptVersion(),
-                promptCatalog.promptContentHash());
-        return chatResultFactory.build(
-                sanitized,
-                enforcedItems,
-                topics,
-                topicLabels,
-                ctx.isGeorgian(),
-                ctx.sessionId(),
-                turnId,
-                kind,
-                ragChunks);
-    }
-
-    private CatalogTopicLabelResolver.Labels resolveTopicLabels(List<Topic> topics, ChatContext ctx) {
-        return catalogResponseAssembler
-                .assemble(topics, ctx.retrievalQuery(), ctx.locale(), ctx.isGeorgian())
-                .topicLabels();
-    }
-
     private ChatResult respondWithPortals(ChatContext ctx) {
         log.info("Portal list query: {}", ctx.message());
         List<LinkCard> portals = catalogResponseAssembler.buildPortalLinks(ctx.isGeorgian());
-        String intro = ctx.isGeorgian()
-                ? "საქსტატს აქვს მრავალი ინტერაქტიული პორტალი და კალკულატორი. ქვემოთ ნახავთ სრულ ჩამონათვალს."
-                : "GeoStat has many interactive portals and calculators. Below is the full list.";
-        List<LinkedExplanation> portalItems = portals.stream().map(l -> new LinkedExplanation(null, l)).toList();
-        return respond(
-                ctx,
-                intro,
-                portalItems,
-                List.of(Topic.GENERAL),
-                resolveTopicLabels(List.of(Topic.GENERAL), ctx),
-                List.of(),
-                ChatResponseKind.portal_list);
-    }
-
-    private void addToHistory(
-            ChatContext ctx,
-            String sanitizedIntro,
-            List<LinkedExplanation> items,
-            List<Topic> topics,
-            List<RetrievedChunk> ragChunks) {
-        List<String> urls = items.stream()
-                .filter(i -> i.link() != null && i.link().url() != null)
-                .map(i -> i.link().url())
-                .collect(Collectors.toList());
-        String assistantTurn = SessionTurnRecorder.formatAssistantTurn(
-                sanitizedIntro,
-                urls,
-                topics,
-                SessionTurnRecorder.excerptsFromChunks(ragChunks));
-        Deque<Message> history = ctx.history();
-        history.addLast(new UserMessage(ctx.message()));
-        history.addLast(new AssistantMessage(assistantTurn));
-        Deque<Message> trimmed = HistoryBudgetTrimmer.trim(history, aiChatProperties.maxHistoryMessages());
-        history.clear();
-        history.addAll(trimmed);
-        conversationHistory.persist(ctx.sessionId(), history);
+        String intro = promptCatalog.uiString(UiStringKey.PORTAL_LIST_INTRO, ctx.isGeorgian());
+        List<LinkedExplanation> portalItems = portals.stream()
+                .map(l -> new LinkedExplanation(null, l))
+                .toList();
+        return composer.respond(ctx, intro, portalItems, List.of(Topic.GENERAL),
+                generalLabels(ctx.isGeorgian()), List.of(), ChatResponseKind.portal_list);
     }
 }

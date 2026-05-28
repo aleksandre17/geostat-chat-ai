@@ -52,6 +52,9 @@ public class DocumentEntity {
     @Column(name = "content_hash")
     private String contentHash;
 
+    @Column(name = "raw_html_hash", length = 64)
+    private String rawHtmlHash;
+
     @Column(name = "lead_text")
     private String leadText;
 
@@ -75,14 +78,20 @@ public class DocumentEntity {
     @Column(name = "http_status")
     private Integer httpStatus;
 
-    @Column(name = "http_etag")
-    private String httpEtag;
-
     @Column(name = "last_modified")
     private Instant lastModified;
 
+    @Column(name = "last_modified_http")
+    private String lastModifiedHttp;
+
+    @Column(name = "etag_http")
+    private String etagHttp;
+
     @Column(name = "fetched_at")
     private Instant fetchedAt;
+
+    @Column(name = "last_seen_at")
+    private Instant lastSeenAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "supersedes_document_id")
@@ -120,6 +129,25 @@ public class DocumentEntity {
 
     @Column(name = "enrichment_version", nullable = false)
     private int enrichmentVersion;
+
+    @Column(name = "quality_score")
+    private String qualityScore;
+
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(name = "validation_violations", columnDefinition = "text[]")
+    private String[] validationViolations;
+
+    @Column(name = "original_url")
+    private String originalUrl;
+
+    @Column(name = "nav_breadcrumb")
+    private String navBreadcrumb;
+
+    @Column(name = "published_at")
+    private Instant publishedAt;
+
+    @Column(name = "encoding_issue", nullable = false)
+    private boolean encodingIssue;
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
@@ -214,6 +242,14 @@ public class DocumentEntity {
         this.contentHash = contentHash;
     }
 
+    public String getRawHtmlHash() {
+        return rawHtmlHash;
+    }
+
+    public void setRawHtmlHash(String rawHtmlHash) {
+        this.rawHtmlHash = rawHtmlHash;
+    }
+
     public String getLeadText() {
         return leadText;
     }
@@ -270,14 +306,6 @@ public class DocumentEntity {
         this.httpStatus = httpStatus;
     }
 
-    public String getHttpEtag() {
-        return httpEtag;
-    }
-
-    public void setHttpEtag(String httpEtag) {
-        this.httpEtag = httpEtag;
-    }
-
     public Instant getLastModified() {
         return lastModified;
     }
@@ -286,12 +314,36 @@ public class DocumentEntity {
         this.lastModified = lastModified;
     }
 
+    public String getLastModifiedHttp() {
+        return lastModifiedHttp;
+    }
+
+    public void setLastModifiedHttp(String lastModifiedHttp) {
+        this.lastModifiedHttp = lastModifiedHttp;
+    }
+
+    public String getEtagHttp() {
+        return etagHttp;
+    }
+
+    public void setEtagHttp(String etagHttp) {
+        this.etagHttp = etagHttp;
+    }
+
     public Instant getFetchedAt() {
         return fetchedAt;
     }
 
     public void setFetchedAt(Instant fetchedAt) {
         this.fetchedAt = fetchedAt;
+    }
+
+    public Instant getLastSeenAt() {
+        return lastSeenAt;
+    }
+
+    public void setLastSeenAt(Instant lastSeenAt) {
+        this.lastSeenAt = lastSeenAt;
     }
 
     public DocumentEntity getSupersedesDocument() {
@@ -380,6 +432,54 @@ public class DocumentEntity {
 
     public void setEnrichmentVersion(int enrichmentVersion) {
         this.enrichmentVersion = enrichmentVersion;
+    }
+
+    public String getQualityScore() {
+        return qualityScore;
+    }
+
+    public void setQualityScore(String qualityScore) {
+        this.qualityScore = qualityScore;
+    }
+
+    public String[] getValidationViolations() {
+        return validationViolations;
+    }
+
+    public void setValidationViolations(String[] validationViolations) {
+        this.validationViolations = validationViolations;
+    }
+
+    public String getOriginalUrl() {
+        return originalUrl;
+    }
+
+    public void setOriginalUrl(String originalUrl) {
+        this.originalUrl = originalUrl;
+    }
+
+    public String getNavBreadcrumb() {
+        return navBreadcrumb;
+    }
+
+    public void setNavBreadcrumb(String navBreadcrumb) {
+        this.navBreadcrumb = navBreadcrumb;
+    }
+
+    public Instant getPublishedAt() {
+        return publishedAt;
+    }
+
+    public void setPublishedAt(Instant publishedAt) {
+        this.publishedAt = publishedAt;
+    }
+
+    public boolean isEncodingIssue() {
+        return encodingIssue;
+    }
+
+    public void setEncodingIssue(boolean encodingIssue) {
+        this.encodingIssue = encodingIssue;
     }
 
     public Instant getCreatedAt() {

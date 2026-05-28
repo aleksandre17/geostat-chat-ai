@@ -1,4 +1,4 @@
-package com.geostat.chat.application.chat;
+package com.geostat.chat.domain.chat;
 
 import com.geostat.chat.domain.catalog.LinkCard;
 import com.geostat.chat.domain.catalog.LinkedExplanation;

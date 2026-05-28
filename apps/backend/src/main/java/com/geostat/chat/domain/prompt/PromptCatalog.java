@@ -12,4 +12,10 @@ public interface PromptCatalog {
     int promptVersion();
 
     String promptContentHash();
+
+    /**
+     * Returns a localised UI string by key from the {@code uiStrings} section
+     * of {@code chat-prompts.yaml}. Returns the key itself when the entry is missing.
+     */
+    String uiString(UiStringKey key, boolean isGeorgian);
 }

@@ -12,8 +12,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Nightly aggregator that updates document.score_boost based on chat feedback.
- * Reads from chat.feedback + chat.retrieval_hit, writes to ingestion.document.
+ * Aggregates chat feedback signals to update document score_boost.
+ * Currently DISABLED ({@code @ConditionalOnProperty matchIfMissing=false}).
+ *
+ * <p>TODO PHASE-D: Redesign with event-based architecture:
+ * <ol>
+ *   <li>chat-service publishes FeedbackScoreEvent</li>
+ *   <li>ingestion-service listens and writes to curation_override</li>
+ *   <li>Remove score_boost column (V22 migration)</li>
+ * </ol>
  */
 @Service
 @ConditionalOnProperty(
@@ -26,55 +33,39 @@ public class FeedbackScoreAggregator {
     private static final Logger log = LoggerFactory.getLogger(FeedbackScoreAggregator.class);
 
     private final JdbcTemplate jdbc;
+    private final ChatFeedbackReader chatFeedbackReader;
     private final ScoreBoostPolicy policy;
 
-    public FeedbackScoreAggregator(JdbcTemplate jdbc, ScoreBoostPolicy policy) {
+    public FeedbackScoreAggregator(
+            JdbcTemplate jdbc, ChatFeedbackReader chatFeedbackReader, ScoreBoostPolicy policy) {
         this.jdbc = jdbc;
+        this.chatFeedbackReader = chatFeedbackReader;
         this.policy = policy;
     }
 
     /**
      * Run nightly at 3 AM to aggregate feedback and update score_boost.
+     *
+     * @deprecated Replaced by {@link com.geostat.ingestion.events.rabbit.FeedbackScoreListener}
+     *     (event-driven via RabbitMQ). Remove after verifying FeedbackScoreListener processes all
+     *     feedback correctly.
      */
+    @Deprecated
     @Scheduled(cron = "0 0 3 * * *")
     public void aggregateScoreBoost() {
         log.info("Starting feedback score boost aggregation");
-        List<FeedbackAggregateRow> aggregates = fetchAggregates();
+        List<ChatFeedbackReader.FeedbackAggregateRow> aggregates = chatFeedbackReader.fetchAggregates();
         int updated = 0;
 
-        for (FeedbackAggregateRow row : aggregates) {
-            double delta = policy.calculateDelta(row.positiveCount, row.negativeCount, row.totalHits);
+        for (ChatFeedbackReader.FeedbackAggregateRow row : aggregates) {
+            double delta = policy.calculateDelta(row.positiveCount(), row.negativeCount(), row.totalHits());
             if (Math.abs(delta) > 0.001) {
-                updateScoreBoost(row.documentId, delta);
+                updateScoreBoost(row.documentId(), delta);
                 updated++;
             }
         }
 
         log.info("Feedback aggregation complete: {} documents updated", updated);
-    }
-
-    @Transactional(readOnly = true)
-    List<FeedbackAggregateRow> fetchAggregates() {
-        return jdbc.query(
-                """
-                SELECT
-                    rh.document_id,
-                    COUNT(*) as total_hits,
-                    COUNT(CASE WHEN f.rating = 'positive' THEN 1 END) as positive_count,
-                    COUNT(CASE WHEN f.rating = 'negative' THEN 1 END) as negative_count
-                FROM chat.retrieval_hit rh
-                JOIN chat.turn t ON t.id = rh.turn_id
-                LEFT JOIN chat.feedback f ON f.turn_id = t.id
-                WHERE rh.document_id IS NOT NULL
-                  AND t.created_at > NOW() - INTERVAL '7 days'
-                GROUP BY rh.document_id
-                HAVING COUNT(*) >= 10
-                """,
-                (rs, rowNum) -> new FeedbackAggregateRow(
-                        UUID.fromString(rs.getString("document_id")),
-                        rs.getInt("total_hits"),
-                        rs.getInt("positive_count"),
-                        rs.getInt("negative_count")));
     }
 
     @Transactional
@@ -89,6 +80,4 @@ public class FeedbackScoreAggregator {
                 delta,
                 documentId);
     }
-
-    record FeedbackAggregateRow(UUID documentId, int totalHits, int positiveCount, int negativeCount) {}
 }

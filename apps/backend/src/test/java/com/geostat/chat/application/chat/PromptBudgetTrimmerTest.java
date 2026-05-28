@@ -8,7 +8,7 @@ class PromptBudgetTrimmerTest {
 
     @Test
     void effectiveRagBudget_reducesWhenPromptTooLong() {
-        int adjusted = PromptBudgetTrimmer.effectiveRagBudget(12000, 30000, 28000);
+        int adjusted = PromptBudgetTrimmer.effectiveRagBudget(12000, 30000, 28000, 1500, 500);
         assertTrue(adjusted < 12000);
         assertTrue(adjusted >= 1500);
     }

@@ -10,7 +10,8 @@ import org.junit.jupiter.api.Test;
 
 class ResponseGroundingEnforcerTest {
 
-    private final ResponseGroundingEnforcer enforcer = new ResponseGroundingEnforcer();
+    private final ResponseGroundingEnforcer enforcer =
+            new ResponseGroundingEnforcer(new ExplanationGroundingVerifier(20, 180));
 
     @Test
     void stripsUngroundedRagExplanation() {

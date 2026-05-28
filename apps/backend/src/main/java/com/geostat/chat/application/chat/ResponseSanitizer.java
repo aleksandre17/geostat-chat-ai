@@ -1,11 +1,15 @@
 package com.geostat.chat.application.chat;
 
-import org.springframework.stereotype.Component;
-
+import com.geostat.chat.domain.prompt.PromptCatalog;
+import com.geostat.chat.domain.prompt.UiStringKey;
 import java.util.regex.Pattern;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 /**
  * Strips URLs and markdown link syntax that the AI accidentally includes in its response.
+ * Applies a configurable minimum-length guard and replaces short/empty results with a
+ * locale-aware fallback sourced from the prompt catalog.
  */
 @Component
 public class ResponseSanitizer {
@@ -17,8 +21,20 @@ public class ResponseSanitizer {
     private static final Pattern BULLET_LINK_PATTERN = Pattern.compile(
             "^[*•\\-]\\s*.*https?://.*$", Pattern.MULTILINE);
 
+    private final int minIntroChars;
+    private final PromptCatalog promptCatalog;
+
+    public ResponseSanitizer(
+            @Value("${geostat.chat.sanitizer.min-intro-chars:15}") int minIntroChars,
+            PromptCatalog promptCatalog) {
+        this.minIntroChars  = minIntroChars;
+        this.promptCatalog  = promptCatalog;
+    }
+
     public String strip(String response, boolean isGeorgian) {
-        if (response == null || response.isBlank()) return response;
+        if (response == null || response.isBlank()) {
+            return promptCatalog.uiString(UiStringKey.SANITIZER_FALLBACK, isGeorgian);
+        }
         String cleaned = BULLET_LINK_PATTERN.matcher(response).replaceAll("");
         cleaned = MARKDOWN_LINK_PATTERN.matcher(cleaned).replaceAll("$1");
         cleaned = URL_PATTERN.matcher(cleaned).replaceAll("");
@@ -27,10 +43,8 @@ public class ResponseSanitizer {
                 .replaceAll("\n{3,}", "\n\n")
                 .replaceAll("\\*\\s*\\n", "\n")
                 .trim();
-        if (cleaned.length() < 15) {
-            cleaned = isGeorgian
-                    ? "დეტალური ინფორმაცია იხილეთ ქვემოთ მოცემულ ბმულებზე."
-                    : "Please see the links below for detailed information.";
+        if (cleaned.length() < minIntroChars) {
+            return promptCatalog.uiString(UiStringKey.SANITIZER_FALLBACK, isGeorgian);
         }
         return cleaned;
     }

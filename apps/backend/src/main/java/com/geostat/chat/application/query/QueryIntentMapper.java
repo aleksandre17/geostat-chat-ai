@@ -14,6 +14,7 @@ public class QueryIntentMapper {
         return switch (kind) {
             case NAVIGATION -> QueryIntent.NAVIGATE;
             case SMALLTALK -> QueryIntent.CLARIFY;
+            case STATISTICAL -> QueryIntent.DATA_REQUEST;
             case COMPARE, DEFINITION, FACTUAL, LATEST, LOOKUP -> QueryIntent.CONCEPT;
         };
     }

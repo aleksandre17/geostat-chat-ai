@@ -48,6 +48,8 @@ public class EnrichmentProperties {
 
     private String topicMiningModelVersion = "smile-kmeans-v1@2026-05-25";
 
+    private int backfillWorkerThreads = 5;
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -214,5 +216,13 @@ public class EnrichmentProperties {
 
     public void setTopicMiningModelVersion(String topicMiningModelVersion) {
         this.topicMiningModelVersion = topicMiningModelVersion;
+    }
+
+    public int backfillWorkerThreads() {
+        return backfillWorkerThreads;
+    }
+
+    public void setBackfillWorkerThreads(int backfillWorkerThreads) {
+        this.backfillWorkerThreads = backfillWorkerThreads;
     }
 }

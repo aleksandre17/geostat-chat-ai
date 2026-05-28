@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Profile("db")
@@ -35,13 +36,15 @@ public class DocumentQdrantLifecycleSync {
         this.vectorStore = vectorStore;
     }
 
+    @Transactional(readOnly = true)
     public void syncDocument(UUID documentId) {
         if (!properties.indexing().enabled()) {
             return;
         }
-        documentRepository.findById(documentId).ifPresent(this::syncDocumentEntity);
+        documentRepository.findById(documentId).ifPresent(this::syncDocumentEntityInternal);
     }
 
+    @Transactional(readOnly = true)
     public void syncDocumentEntity(DocumentEntity document) {
         if (!properties.indexing().enabled()) {
             return;

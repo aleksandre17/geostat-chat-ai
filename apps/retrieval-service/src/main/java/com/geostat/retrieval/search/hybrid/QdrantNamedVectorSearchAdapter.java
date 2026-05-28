@@ -97,7 +97,9 @@ public class QdrantNamedVectorSearchAdapter implements NamedVectorSearchPort {
                 emptyToNull(stringValue(payload, "pageTitle")),
                 emptyToNull(stringValue(payload, "sectionPath")),
                 emptyToNull(stringValue(payload, "pageDescription")),
-                emptyToNull(stringValue(payload, "fetchedAt")));
+                emptyToNull(stringValue(payload, "fetchedAt")),
+                emptyToNull(stringValue(payload, "navBreadcrumb")),
+                emptyToNull(stringValue(payload, "publishedAt")));
     }
 
     private static List<Float> toFloatList(float[] arr) {

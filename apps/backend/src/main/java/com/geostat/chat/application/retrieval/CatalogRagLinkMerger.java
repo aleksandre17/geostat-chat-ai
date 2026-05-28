@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -18,28 +19,41 @@ import org.springframework.stereotype.Component;
 @Component
 public class CatalogRagLinkMerger {
 
-    static final int MAX_TOTAL = 8;
-    public static final int MAX_RAG = 4;
-    private static final int SNIPPET_MAX = 240;
-
+    private final int maxTotal;
+    private final int maxRag;
+    private final int snippetMax;
     private final PresentationStyleCatalog presentationStyles;
+    private final DisplayBoilerplate displayBoilerplate;
 
-    public CatalogRagLinkMerger(PresentationStyleCatalog presentationStyles) {
+    public CatalogRagLinkMerger(
+            PresentationStyleCatalog presentationStyles,
+            DisplayBoilerplate displayBoilerplate,
+            @Value("${geostat.chat.links.max-total:8}") int maxTotal,
+            @Value("${geostat.chat.links.max-rag:4}") int maxRag,
+            @Value("${geostat.chat.links.snippet-max:240}") int snippetMax) {
         this.presentationStyles = presentationStyles;
+        this.displayBoilerplate = displayBoilerplate;
+        this.maxTotal = maxTotal;
+        this.maxRag = maxRag;
+        this.snippetMax = snippetMax;
+    }
+
+    public int maxRag() {
+        return maxRag;
     }
 
     public List<LinkCard> merge(List<LinkCard> catalogLinks, List<RetrievedChunk> ragChunks, boolean isGeorgian) {
-        return merge(catalogLinks, ragChunks, isGeorgian, MAX_RAG);
+        return merge(catalogLinks, ragChunks, isGeorgian, maxRag);
     }
 
     public List<LinkCard> merge(
-            List<LinkCard> catalogLinks, List<RetrievedChunk> ragChunks, boolean isGeorgian, int maxRag) {
+            List<LinkCard> catalogLinks, List<RetrievedChunk> ragChunks, boolean isGeorgian, int maxRagLimit) {
         Set<String> seen = new LinkedHashSet<>();
         List<LinkCard> merged = new ArrayList<>();
 
         if (catalogLinks != null) {
             for (LinkCard card : catalogLinks) {
-                if (merged.size() >= MAX_TOTAL) {
+                if (merged.size() >= maxTotal) {
                     break;
                 }
                 String key = SourceUrlNormalizer.normalize(card.url());
@@ -53,7 +67,7 @@ public class CatalogRagLinkMerger {
         int ragAdded = 0;
         if (ragChunks != null) {
             for (RetrievedChunk chunk : ragChunks) {
-                if (merged.size() >= MAX_TOTAL || ragAdded >= maxRag) {
+                if (merged.size() >= maxTotal || ragAdded >= maxRagLimit) {
                     break;
                 }
                 LinkCard ragCard = toLinkCard(chunk, isGeorgian);
@@ -90,12 +104,11 @@ public class CatalogRagLinkMerger {
                 style.bgColor());
     }
 
-    static String resolveDescription(RetrievedChunk chunk, boolean isGeorgian) {
+    String resolveDescription(RetrievedChunk chunk, boolean isGeorgian) {
         String userLocale = isGeorgian ? "ka" : "en";
         String title = chunk.pageTitle();
 
-        if (isUsablePageDescription(chunk, userLocale)
-                && !duplicatesTitle(chunk.pageDescription(), title)) {
+        if (isUsablePageDescription(chunk, userLocale) && !duplicatesTitle(chunk.pageDescription(), title)) {
             return trimDescription(chunk.pageDescription());
         }
         String contentExcerpt = contentExcerpt(chunk.text(), title);
@@ -128,12 +141,12 @@ public class CatalogRagLinkMerger {
         return t.startsWith(h) || h.startsWith(t);
     }
 
-    static String contentExcerpt(String text, String title) {
+    String contentExcerpt(String text, String title) {
         if (text == null || text.isBlank()) {
             return null;
         }
         String normalized = text.strip().replaceAll("\\s+", " ");
-        if (DisplayBoilerplate.isBoilerplate(normalized)) {
+        if (displayBoilerplate.isBoilerplate(normalized)) {
             return null;
         }
         if (!looksLikeProse(normalized)) {
@@ -154,6 +167,13 @@ public class CatalogRagLinkMerger {
         if (firstSpace < 0) {
             return text;
         }
+
+        String firstWord = text.substring(0, firstSpace);
+        boolean looksPartial = firstWord.length() <= 3
+                || !firstWord.chars().anyMatch(c -> "აეიოუ".indexOf(c) >= 0 || "aeiouAEIOU".indexOf(c) >= 0);
+        if (!looksPartial) {
+            return text;
+        }
         int rest = text.length() - (firstSpace + 1);
         if (rest < 24) {
             return text;
@@ -161,11 +181,11 @@ public class CatalogRagLinkMerger {
         return text.substring(firstSpace + 1);
     }
 
-    private static boolean isUsablePageDescription(RetrievedChunk chunk, String userLocale) {
+    private boolean isUsablePageDescription(RetrievedChunk chunk, String userLocale) {
         if (chunk.pageDescription() == null || chunk.pageDescription().isBlank()) {
             return false;
         }
-        if (DisplayBoilerplate.isBoilerplate(chunk.pageDescription())) {
+        if (displayBoilerplate.isBoilerplate(chunk.pageDescription())) {
             return false;
         }
         if (localeMatches(chunk.language(), userLocale)) {
@@ -181,23 +201,23 @@ public class CatalogRagLinkMerger {
         return documentLocale.equalsIgnoreCase(userLocale);
     }
 
-    static String trimDescription(String text) {
+    String trimDescription(String text) {
         if (text == null || text.isBlank()) {
             return null;
         }
         String normalized = text.strip().replace('\n', ' ');
-        if (normalized.length() <= SNIPPET_MAX) {
+        if (normalized.length() <= snippetMax) {
             return normalized;
         }
-        int cut = SNIPPET_MAX - 3;
+        int cut = snippetMax - 3;
         int lastSpace = normalized.lastIndexOf(' ', cut);
-        if (lastSpace > SNIPPET_MAX / 2) {
+        if (lastSpace > snippetMax / 2) {
             cut = lastSpace;
         }
         return normalized.substring(0, cut).strip() + "...";
     }
 
-    static String smartExcerpt(String text, boolean isGeorgian) {
+    String smartExcerpt(String text, boolean isGeorgian) {
         if (text == null || text.isBlank()) {
             return null;
         }
@@ -209,11 +229,15 @@ public class CatalogRagLinkMerger {
     }
 
     static boolean looksLikeProse(String text) {
-        if (text == null || text.length() < 20) {
+        if (text == null || text.length() < 10) {
             return false;
         }
         long letters = text.chars().filter(Character::isLetter).count();
-        return letters >= 20;
+        if (letters >= 20) {
+            return true;
+        }
+        long digits = text.chars().filter(Character::isDigit).count();
+        return digits >= 4 && letters >= 4;
     }
 
     private static String resolveTitleKa(RetrievedChunk chunk) {

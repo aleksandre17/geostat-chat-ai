@@ -9,9 +9,11 @@ import org.junit.jupiter.api.Test;
 
 class SessionTurnRecorderTest {
 
+    private final SessionTurnRecorder recorder = new SessionTurnRecorder(3, 100);
+
     @Test
     void formatAssistantTurn_includesTopicsLinksAndRag() {
-        String turn = SessionTurnRecorder.formatAssistantTurn(
+        String turn = recorder.formatAssistantTurn(
                 "იხილეთ მონაცემები.",
                 List.of("https://www.geostat.ge/ka/population"),
                 List.of(Topic.POPULATION),
@@ -28,7 +30,7 @@ class SessionTurnRecorderTest {
                 new RetrievedChunk("2", "https://b", "y", 0.2),
                 new RetrievedChunk("3", "https://c", "z", 0.3),
                 new RetrievedChunk("4", "https://d", "w", 0.4));
-        List<SessionTurnRecorder.RagExcerpt> excerpts = SessionTurnRecorder.excerptsFromChunks(chunks);
+        List<SessionTurnRecorder.RagExcerpt> excerpts = recorder.excerptsFromChunks(chunks);
         assertEquals(3, excerpts.size());
         assertTrue(excerpts.get(0).excerpt().endsWith("…"));
     }

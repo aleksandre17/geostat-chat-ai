@@ -1,8 +1,10 @@
 package com.geostat.chat.application.chat;
 
 import com.geostat.chat.application.retrieval.CorpusContextFormatter;
+import com.geostat.chat.domain.chat.AiChatResult;
 import com.geostat.chat.domain.chat.ChatContext;
 import com.geostat.chat.domain.prompt.PromptCatalog;
+import com.geostat.chat.domain.prompt.UiStringKey;
 import com.geostat.chat.infrastructure.config.AiChatOptionsFactory;
 import com.geostat.chat.infrastructure.config.AiChatProperties;
 import com.geostat.platform.contracts.retrieval.RetrievedChunk;
@@ -30,7 +32,6 @@ public class ClarificationService {
 
     private final ChatClient chatClient;
     private final AiResponseParser aiResponseParser;
-    private final SmallTalkHandler smallTalkHandler;
     private final PromptCatalog promptCatalog;
     private final AiChatOptionsFactory chatOptionsFactory;
     private final AiChatProperties aiChatProperties;
@@ -38,13 +39,11 @@ public class ClarificationService {
     public ClarificationService(
             ChatClient chatClient,
             AiResponseParser aiResponseParser,
-            SmallTalkHandler smallTalkHandler,
             PromptCatalog promptCatalog,
             AiChatOptionsFactory chatOptionsFactory,
             AiChatProperties aiChatProperties) {
         this.chatClient = chatClient;
         this.aiResponseParser = aiResponseParser;
-        this.smallTalkHandler = smallTalkHandler;
         this.promptCatalog = promptCatalog;
         this.chatOptionsFactory = chatOptionsFactory;
         this.aiChatProperties = aiChatProperties;
@@ -60,7 +59,7 @@ public class ClarificationService {
 
             List<Message> messages = new ArrayList<>();
             messages.add(new SystemMessage(systemPrompt));
-            messages.addAll(HistoryBudgetTrimmer.trim(ctx.history(), aiChatProperties.maxHistoryMessages()));
+            messages.addAll(ctx.history());
             messages.add(new UserMessage(ctx.message()));
             Prompt prompt = new Prompt(messages, chatOptionsFactory.clarification());
             String raw = chatClient.prompt(prompt).call().content();
@@ -73,6 +72,7 @@ public class ClarificationService {
         } catch (Exception e) {
             log.warn("Clarification generation failed: {}", e.getMessage());
         }
-        return AiChatResult.emptyIntro(smallTalkHandler.clarificationRequest(ctx.isGeorgian()));
+        return AiChatResult.emptyIntro(
+                promptCatalog.uiString(UiStringKey.CLARIFICATION_FALLBACK, ctx.isGeorgian()));
     }
 }

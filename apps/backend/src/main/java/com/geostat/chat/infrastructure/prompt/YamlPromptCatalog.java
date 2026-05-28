@@ -1,6 +1,7 @@
 package com.geostat.chat.infrastructure.prompt;
 
 import com.geostat.chat.domain.prompt.PromptCatalog;
+import com.geostat.chat.domain.prompt.UiStringKey;
 import org.springframework.stereotype.Component;
 
 /** YAML-backed prompt catalog (B-27). */
@@ -36,5 +37,10 @@ public class YamlPromptCatalog implements PromptCatalog {
     @Override
     public String promptContentHash() {
         return loader.contentHash();
+    }
+
+    @Override
+    public String uiString(UiStringKey key, boolean isGeorgian) {
+        return loader.uiString(key, isGeorgian);
     }
 }

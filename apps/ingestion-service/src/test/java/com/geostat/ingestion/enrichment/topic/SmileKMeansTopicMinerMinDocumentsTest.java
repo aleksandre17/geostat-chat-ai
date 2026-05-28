@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 @ExtendWith(MockitoExtension.class)
 class SmileKMeansTopicMinerMinDocumentsTest {
@@ -39,6 +40,9 @@ class SmileKMeansTopicMinerMinDocumentsTest {
     @Mock
     private CatalogRefreshAfterBatch catalogRefreshAfterBatch;
 
+    @Mock
+    private JdbcTemplate jdbcTemplate;
+
     private EnrichmentProperties properties;
     private SmileKMeansTopicMiner miner;
 
@@ -52,7 +56,8 @@ class SmileKMeansTopicMinerMinDocumentsTest {
                 corpusRepository,
                 embeddingSource,
                 clusterLabeler,
-                properties);
+                properties,
+                jdbcTemplate);
     }
 
     @Test

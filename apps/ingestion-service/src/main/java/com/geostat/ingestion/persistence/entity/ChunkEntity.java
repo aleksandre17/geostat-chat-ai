@@ -48,6 +48,15 @@ public class ChunkEntity {
     @Column(name = "embedding_model")
     private String embeddingModel;
 
+    @Column(name = "content_hash", length = 64)
+    private String contentHash;
+
+    @Column(name = "embedding_status", nullable = false)
+    private String embeddingStatus = "pending";
+
+    @Column(name = "nav_breadcrumb")
+    private String navBreadcrumb;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(nullable = false, columnDefinition = "jsonb")
     private Map<String, Object> metadata = new HashMap<>();
@@ -133,6 +142,30 @@ public class ChunkEntity {
 
     public void setEmbeddingModel(String embeddingModel) {
         this.embeddingModel = embeddingModel;
+    }
+
+    public String getContentHash() {
+        return contentHash;
+    }
+
+    public void setContentHash(String contentHash) {
+        this.contentHash = contentHash;
+    }
+
+    public String getEmbeddingStatus() {
+        return embeddingStatus;
+    }
+
+    public void setEmbeddingStatus(String embeddingStatus) {
+        this.embeddingStatus = embeddingStatus;
+    }
+
+    public String getNavBreadcrumb() {
+        return navBreadcrumb;
+    }
+
+    public void setNavBreadcrumb(String navBreadcrumb) {
+        this.navBreadcrumb = navBreadcrumb;
     }
 
     public Map<String, Object> getMetadata() {

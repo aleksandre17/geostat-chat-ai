@@ -1,7 +1,10 @@
 # Hand-maintained domain config — not touched by geostat config-gen (P0-kit-10)
+# Env contract: ops/config/.env.example
 geostat:
   retrieval:
-    default-collection: ${RETRIEVAL_DEFAULT_COLLECTION:geostat-portal}
+    default-collection: ${RETRIEVAL_DEFAULT_CORPUS:geostat-portal}
+    hybrid:
+      enabled: false  # Set true to enable RRF fusion of dense + sparse retrieval
     qdrant:
       url: ${QDRANT_URL:http://127.0.0.1:6333}
       grpc-port: ${QDRANT_GRPC_PORT:6334}
@@ -10,7 +13,7 @@ geostat:
     embedding:
       provider: ${EMBEDDING_PROVIDER:hash-v1}
       model-id: ${EMBEDDING_MODEL_ID:hash-v1}
-      vector-size: ${EMBEDDING_VECTOR_SIZE:384}
+      vector-size: ${EMBEDDING_VECTOR_SIZE:768}  # must match the embedding model's output dimensions
       gemini-api-key: ${GEMINI_API_KEY:}
       gemini-model: ${GEMINI_EMBED_MODEL:gemini-embedding-001}
       ollama-base-url: ${OLLAMA_BASE_URL:http://127.0.0.1:11434}

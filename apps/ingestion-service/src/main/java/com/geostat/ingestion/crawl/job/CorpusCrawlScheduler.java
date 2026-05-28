@@ -12,6 +12,8 @@ import com.geostat.ingestion.persistence.repository.CorpusRepository;
 import com.geostat.ingestion.persistence.repository.CrawlRunRepository;
 import com.geostat.platform.contracts.ingestion.IngestionJobRequest;
 import com.geostat.platform.contracts.ingestion.IngestionJobStatus;
+import com.geostat.platform.crawl.CrawlJob;
+import com.geostat.platform.crawl.CrawlOrchestrator;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.EnumSet;
@@ -43,6 +45,7 @@ public class CorpusCrawlScheduler {
     private final FrontierResumeService frontierResumeService;
     private final DocumentFreshnessRefreshService freshnessRefreshService;
     private final IngestionProperties properties;
+    private final CrawlOrchestrator orchestrator;
 
     public CorpusCrawlScheduler(
             CorpusRepository corpusRepository,
@@ -51,7 +54,8 @@ public class CorpusCrawlScheduler {
             CrawlContinuationService crawlContinuationService,
             FrontierResumeService frontierResumeService,
             DocumentFreshnessRefreshService freshnessRefreshService,
-            IngestionProperties properties) {
+            IngestionProperties properties,
+            CrawlOrchestrator orchestrator) {
         this.corpusRepository = corpusRepository;
         this.crawlRunRepository = crawlRunRepository;
         this.crawlJobService = crawlJobService;
@@ -59,10 +63,15 @@ public class CorpusCrawlScheduler {
         this.frontierResumeService = frontierResumeService;
         this.freshnessRefreshService = freshnessRefreshService;
         this.properties = properties;
+        this.orchestrator = orchestrator;
     }
 
     @Scheduled(fixedDelayString = "${geostat.ingestion.scheduler.fixed-delay-ms:3600000}")
     void tick() {
+        if (properties.scheduler().orchestratorEnabled()) {
+            runOrchestratorTick();
+            return;
+        }
         List<CorpusEntity> corpora = corpusRepository.findAll().stream()
                 .filter(c -> c.getStatus() == CorpusStatus.active)
                 .toList();
@@ -72,6 +81,16 @@ public class CorpusCrawlScheduler {
             } catch (Exception e) {
                 log.warn("scheduler tick failed for corpus {}: {}", corpus.getName(), e.getMessage());
             }
+        }
+    }
+
+    private void runOrchestratorTick() {
+        try {
+            List<CrawlJob> jobs = orchestrator.discoverJobs();
+            log.info("scheduler orchestrator discovered {} corpus jobs", jobs.size());
+            orchestrator.executeAll(jobs);
+        } catch (Exception e) {
+            log.warn("scheduler orchestrator tick failed: {}", e.getMessage());
         }
     }
 

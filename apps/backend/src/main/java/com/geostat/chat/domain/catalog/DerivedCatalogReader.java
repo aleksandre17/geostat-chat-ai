@@ -21,4 +21,6 @@ public interface DerivedCatalogReader {
     List<DerivedCatalogLink> findSpecificLinks(List<UUID> topicClusterIds, String language, int maxRank);
 
     List<DerivedCatalogLink> findTopPortalLinks(String language, int limit);
+
+    List<DerivedTopicCluster> loadClusterLabels(List<UUID> clusterIds);
 }

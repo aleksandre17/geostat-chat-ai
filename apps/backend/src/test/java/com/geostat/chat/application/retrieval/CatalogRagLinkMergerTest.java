@@ -4,6 +4,7 @@ import com.geostat.chat.domain.catalog.LinkCard;
 import com.geostat.chat.infrastructure.catalog.YamlPresentationStyleCatalog;
 import com.geostat.platform.contracts.retrieval.RetrievedChunk;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,8 +14,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CatalogRagLinkMergerTest {
 
-    private final CatalogRagLinkMerger merger =
-            new CatalogRagLinkMerger(YamlPresentationStyleCatalog.fromClasspath());
+    private CatalogRagLinkMerger merger;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        DisplayBoilerplate displayBoilerplate = new DisplayBoilerplate();
+        displayBoilerplate.load();
+        merger = new CatalogRagLinkMerger(YamlPresentationStyleCatalog.fromClasspath(), displayBoilerplate, 8, 4, 240);
+    }
 
     @Test
     void merge_deduplicatesCatalogUrlAgainstRag() {
@@ -132,8 +139,8 @@ class CatalogRagLinkMergerTest {
 
     @Test
     void contentExcerpt_trimsLeadingPartialWord() {
-        String snippet = CatalogRagLinkMerger.contentExcerpt(
-                "დექსი წინა თვესთან შედარებით მონაცემების გადმოწერა XLS CSV "
+        String snippet = merger.contentExcerpt(
+                "xyz წინა თვესთან შედარებით მონაცემების გადმოწერა XLS CSV "
                         + "სამომხმარებლო ფასების ინდექსი 2010 წლის საშუალოსთან",
                 "სამომხმარებლო ფასების ინდექსი (ინფლაცია)");
 

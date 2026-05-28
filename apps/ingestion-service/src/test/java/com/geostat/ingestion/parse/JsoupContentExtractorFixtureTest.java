@@ -27,7 +27,7 @@ class JsoupContentExtractorFixtureTest {
 
     @BeforeAll
     static void setUp() {
-        extractor = new JsoupContentExtractor(new MarkerBoilerplateStripper(), new PageDisplayMetadataExtractor());
+        extractor = JsoupContentExtractorTestSupport.yamlFallbackExtractor();
         qualityGate = new ThresholdsCorpusQualityGate();
         thresholds = QualityThresholds.p0Defaults();
     }

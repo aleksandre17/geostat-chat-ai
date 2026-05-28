@@ -1,5 +1,6 @@
 package com.geostat.ingestion.parse.profile;
 
+import com.geostat.ingestion.crawl.UrlNormalizer;
 import com.geostat.platform.parse.CorpusPolicyV2;
 import com.geostat.platform.parse.SubdomainMode;
 import com.geostat.platform.parse.UrlFilter;
@@ -15,12 +16,13 @@ public class PolicyUrlFilter implements UrlFilter {
         if (url == null || url.isBlank()) {
             return false;
         }
-        if (policy.curatedUrls().stream().anyMatch(curated -> curated.equalsIgnoreCase(url.trim()))) {
+        String normalized = UrlNormalizer.normalize(url.trim());
+        if (policy.curatedUrls().stream().anyMatch(curated -> curated.equalsIgnoreCase(normalized))) {
             return true;
         }
         URI uri;
         try {
-            uri = URI.create(url.trim());
+            uri = URI.create(normalized);
         } catch (IllegalArgumentException e) {
             return false;
         }
@@ -30,7 +32,22 @@ public class PolicyUrlFilter implements UrlFilter {
         if (!hostAllowed(uri.getHost(), policy)) {
             return false;
         }
-        return pathAllowed(uri.getPath(), policy);
+        String fullPath = uri.getRawPath()
+                + (uri.getRawQuery() != null ? "?" + uri.getRawQuery() : "");
+        for (String pattern : policy.excludePatterns()) {
+            if (pattern != null && !pattern.isBlank() && fullPath.contains(pattern)) {
+                return false;
+            }
+        }
+        if (policy.includePatterns().isEmpty()) {
+            return true;
+        }
+        for (String pattern : policy.includePatterns()) {
+            if (pattern != null && !pattern.isBlank() && fullPath.contains(pattern)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     static boolean hostAllowed(String host, CorpusPolicyV2 policy) {

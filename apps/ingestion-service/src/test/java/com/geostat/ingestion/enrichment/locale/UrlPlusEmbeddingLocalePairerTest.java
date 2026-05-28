@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.geostat.embedding.EmbeddingPort;
-import com.geostat.ingestion.crawl.frontier.UrlHasher;
+import com.geostat.platform.url.UrlHasher;
 import com.geostat.ingestion.enrichment.runner.EnrichmentProperties;
 import com.geostat.ingestion.persistence.entity.CorpusEntity;
 import com.geostat.ingestion.persistence.entity.DocumentEntity;

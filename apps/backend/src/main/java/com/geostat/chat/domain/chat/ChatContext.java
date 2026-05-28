@@ -1,5 +1,6 @@
 package com.geostat.chat.domain.chat;
 
+import com.geostat.chat.domain.query.AnalyzedQuery;
 import org.springframework.ai.chat.messages.Message;
 import java.util.Deque;
 
@@ -14,7 +15,8 @@ public record ChatContext(
         QueryIntent intent,
         String sessionId,
         Deque<Message> history,
-        String retrievalQuery
+        String retrievalQuery,
+        AnalyzedQuery analyzedQuery
 ) {
     public ChatContext {
         if (locale == null || locale.isBlank()) {
@@ -26,5 +28,6 @@ public record ChatContext(
         if (retrievalQuery == null || retrievalQuery.isBlank()) {
             retrievalQuery = message;
         }
+        // analyzedQuery may be null when query understanding pipeline is disabled
     }
 }

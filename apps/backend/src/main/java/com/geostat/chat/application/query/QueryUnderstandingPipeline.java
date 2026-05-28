@@ -42,7 +42,7 @@ public class QueryUnderstandingPipeline {
         String original = message == null ? "" : message.strip();
         String spellFixed = spellFixer.fix(original, resolvedLocale);
         String normalized = queryNormalizer.normalize(spellFixed, resolvedLocale);
-        QueryIntentKind intent = intentClassifier.classify(original, normalized, resolvedLocale);
+        QueryIntentKind intent = intentClassifier.classify(spellFixed, normalized, resolvedLocale);
         List<Entity> entities = queryEntityExtractor.extract(original, normalized, resolvedLocale);
         List<String> expansions = queryExpander.expand(normalized, resolvedLocale);
         String retrievalText = composeRetrievalText(normalized, entities, expansions);

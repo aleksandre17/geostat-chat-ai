@@ -47,6 +47,10 @@ class ThresholdsCorpusQualityGateTest {
                 null,
                 null,
                 totalParagraphs,
-                boilerplateParagraphs);
+                boilerplateParagraphs,
+                "",
+                null,
+                null,
+                null);
     }
 }

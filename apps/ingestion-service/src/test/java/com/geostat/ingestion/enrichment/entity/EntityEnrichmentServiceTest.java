@@ -2,6 +2,7 @@ package com.geostat.ingestion.enrichment.entity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,7 +50,7 @@ class EntityEnrichmentServiceTest {
         properties.setEntityModelVersion("gemini-2.0-flash-lite-entities@2026-05-25");
         EnrichmentRunExecutor executor =
                 new EnrichmentRunExecutor(documentRepository, enrichmentRunRepository);
-        service = new EntityEnrichmentService(executor, entityDeriver, properties);
+        service = new EntityEnrichmentService(executor, entityDeriver, documentRepository, properties);
     }
 
     @Test
@@ -78,7 +79,7 @@ class EntityEnrichmentServiceTest {
         assertThat(document.getEntities()).hasSize(2);
         assertThat(document.getEntities().get(0)).containsEntry("type", "INDICATOR");
         assertThat(document.getEntities().get(1)).containsEntry("value", "2024");
-        verify(documentRepository).save(document);
+        verify(documentRepository).updateEntities(eq(documentId), org.mockito.ArgumentMatchers.anyList());
 
         ArgumentCaptor<EnrichmentRunEntity> runCaptor = ArgumentCaptor.forClass(EnrichmentRunEntity.class);
         verify(enrichmentRunRepository, org.mockito.Mockito.atLeastOnce()).save(runCaptor.capture());

@@ -1,0 +1,148 @@
+# Statistical entity indicators for HeuristicQueryEntityExtractor.
+# Each entry: triggers (matched in query) → normalized form.
+indicators:
+  - triggers: ["gdp", "მშპ", "mshp"]
+    normalized: "GDP"
+    type: "INDICATOR"
+
+  - triggers: ["cpi", "ინფლაცია", "inflation"]
+    normalized: "CPI"
+    type: "INDICATOR"
+
+  - triggers: ["unemployment", "უმუშევრობა", "უმუშეველ"]
+    normalized: "UNEMPLOYMENT"
+    type: "INDICATOR"
+
+  - triggers: ["export", "ექსპორტი"]
+    normalized: "EXPORT"
+    type: "INDICATOR"
+
+  - triggers: ["import", "იმპორტი"]
+    normalized: "IMPORT"
+    type: "INDICATOR"
+
+  - triggers: ["fdi", "პირდაპირი ინვესტ"]
+    normalized: "FDI"
+    type: "INDICATOR"
+
+  - triggers: ["population", "მოსახლეობ"]
+    normalized: "POPULATION"
+    type: "INDICATOR"
+
+  - triggers: ["wages", "ხელფასი", "salary"]
+    normalized: "WAGES"
+    type: "INDICATOR"
+
+  - triggers: ["poverty", "სიღარიბ"]
+    normalized: "POVERTY"
+    type: "INDICATOR"
+
+  - triggers: ["tourism", "ტურიზ"]
+    normalized: "TOURISM"
+    type: "INDICATOR"
+
+  - triggers: ["სოფლ", "agriculture", "harvest", "მოსავლ"]
+    normalized: "AGRICULTURE"
+    type: "INDICATOR"
+
+  - triggers: ["ენერგეტ", "energy", "electricity", "ელექტრ"]
+    normalized: "ENERGY"
+    type: "INDICATOR"
+
+  - triggers: ["მშენებ", "construction", "housing"]
+    normalized: "CONSTRUCTION"
+    type: "INDICATOR"
+
+  # Georgian administrative units (regions / cities)
+  - triggers: ["თბილისი", "tbilisi"]
+    normalized: "Tbilisi"
+    type: "REGION"
+
+  - triggers: ["ქუთაისი", "kutaisi"]
+    normalized: "Kutaisi"
+    type: "REGION"
+
+  - triggers: ["ბათუმი", "batumi"]
+    normalized: "Batumi"
+    type: "REGION"
+
+  - triggers: ["რუსთავი", "rustavi"]
+    normalized: "Rustavi"
+    type: "REGION"
+
+  - triggers: ["გორი", "gori"]
+    normalized: "Gori"
+    type: "REGION"
+
+  - triggers: ["ზუგდიდი", "zugdidi"]
+    normalized: "Zugdidi"
+    type: "REGION"
+
+  - triggers: ["ფოთი", "poti"]
+    normalized: "Poti"
+    type: "REGION"
+
+  - triggers: ["კახეთი", "kakheti"]
+    normalized: "Kakheti"
+    type: "REGION"
+
+  - triggers: ["სამეგრელო", "samegrelo"]
+    normalized: "Samegrelo"
+    type: "REGION"
+
+  - triggers: ["გურია", "guria"]
+    normalized: "Guria"
+    type: "REGION"
+
+  - triggers: ["ადჯარა", "adjara"]
+    normalized: "Adjara"
+    type: "REGION"
+
+  - triggers: ["სამცხე-ჯავახეთი", "samtskhe-javakheti"]
+    normalized: "Samtskhe-Javakheti"
+    type: "REGION"
+
+  - triggers: ["შიდა ქართლი", "shida kartli"]
+    normalized: "Shida Kartli"
+    type: "REGION"
+
+  - triggers: ["ქვემო ქართლი", "kvemo kartli"]
+    normalized: "Kvemo Kartli"
+    type: "REGION"
+
+  - triggers: ["მცხეთა-მთიანეთი", "mtskheta-mtianeti"]
+    normalized: "Mtskheta-Mtianeti"
+    type: "REGION"
+
+  - triggers: ["რაჭა-ლეჩხუმი", "racha-lechkhumi"]
+    normalized: "Racha-Lechkhumi"
+    type: "REGION"
+
+  # Government organizations (Georgian)
+  - triggers: ["საქსტატი", "saxstat"]
+    normalized: "Saxstat"
+    type: "ORGANIZATION"
+
+  - triggers: ["გეოსტატი", "geostat"]
+    normalized: "Geostat"
+    type: "ORGANIZATION"
+
+  - triggers: ["სახელმწიფო სტატისტიკის სამსახური"]
+    normalized: "Geostat"
+    type: "ORGANIZATION"
+
+  - triggers: ["ეროვნული ბანკი", "nbg"]
+    normalized: "NBG"
+    type: "ORGANIZATION"
+
+  - triggers: ["საქართველოს მთავრობა"]
+    normalized: "Government of Georgia"
+    type: "ORGANIZATION"
+
+  - triggers: ["ფინანსთა სამინისტრო"]
+    normalized: "Ministry of Finance"
+    type: "ORGANIZATION"
+
+  - triggers: ["ეკონომიკის სამინისტრო"]
+    normalized: "Ministry of Economy"
+    type: "ORGANIZATION"

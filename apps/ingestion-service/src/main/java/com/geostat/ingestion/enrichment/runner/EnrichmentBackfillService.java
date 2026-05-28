@@ -1,7 +1,6 @@
 package com.geostat.ingestion.enrichment.runner;
 
 import com.geostat.ingestion.catalog.refresh.CatalogRefreshAfterBatch;
-import com.geostat.ingestion.persistence.entity.DocumentEntity;
 import com.geostat.ingestion.persistence.model.DocumentFetchStatus;
 import com.geostat.ingestion.persistence.repository.CorpusRepository;
 import com.geostat.ingestion.persistence.repository.DocumentRepository;
@@ -9,7 +8,10 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,9 +97,7 @@ public class EnrichmentBackfillService {
             return documentRepository.findIdsNeedingP1EnrichmentBackfill(
                     corpusId, enrichmentProperties.modelVersion(), enrichmentProperties.pageKindModelVersion());
         }
-        return documentRepository.findByCorpus_IdAndFetchStatus(corpusId, DocumentFetchStatus.parsed).stream()
-                .map(DocumentEntity::getId)
-                .toList();
+        return documentRepository.findIdsByCorpusIdAndFetchStatus(corpusId, DocumentFetchStatus.parsed);
     }
 
     void runBackfill(String corpusName, List<UUID> documentIds, Instant startedAt) {
@@ -106,25 +106,41 @@ public class EnrichmentBackfillService {
                     "Enrichment backfill started corpus={} documents={} (gate derivers only, entities skipped)",
                     corpusName,
                     documentIds.size());
-            int processed = 0;
-            for (UUID documentId : documentIds) {
-                try {
-                    enrichmentOrchestrator.enrichDocumentForBackfill(documentId);
-                    processed++;
-                    progress.set(EnrichmentBackfillProgress.running(
-                            corpusName, documentIds.size(), processed, startedAt));
-                } catch (Exception e) {
-                    log.warn("Enrichment backfill failed document {}: {}", documentId, e.getMessage());
-                }
+            int threads = enrichmentProperties.backfillWorkerThreads();
+            ExecutorService pool = Executors.newFixedThreadPool(
+                    threads, r -> new Thread(r, "enrich-backfill-" + corpusName));
+            AtomicInteger processed = new AtomicInteger(0);
+            try {
+                List<CompletableFuture<Void>> futures = documentIds.stream()
+                        .map(documentId -> CompletableFuture.runAsync(
+                                () -> {
+                                    try {
+                                        enrichmentOrchestrator.enrichDocumentForBackfill(documentId);
+                                        int done = processed.incrementAndGet();
+                                        progress.set(EnrichmentBackfillProgress.running(
+                                                corpusName, documentIds.size(), done, startedAt));
+                                    } catch (Exception e) {
+                                        log.warn(
+                                                "Enrichment backfill failed document {}: {}",
+                                                documentId,
+                                                e.getMessage());
+                                    }
+                                },
+                                pool))
+                        .toList();
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+            } finally {
+                pool.shutdown();
             }
+            int processedCount = processed.get();
             catalogRefreshAfterBatch.refreshIfConfigured("enrichment-backfill");
             Instant finishedAt = Instant.now();
             progress.set(EnrichmentBackfillProgress.finished(
-                    corpusName, documentIds.size(), processed, startedAt, finishedAt));
+                    corpusName, documentIds.size(), processedCount, startedAt, finishedAt));
             log.info(
                     "Enrichment backfill finished corpus={} processed={}/{}",
                     corpusName,
-                    processed,
+                    processedCount,
                     documentIds.size());
         } finally {
             backfillRunning.set(false);

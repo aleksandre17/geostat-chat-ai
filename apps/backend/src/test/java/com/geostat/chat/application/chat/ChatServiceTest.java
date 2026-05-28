@@ -7,17 +7,15 @@ import static org.mockito.Mockito.*;
 import com.geostat.chat.application.query.QueryIntentMapper;
 import com.geostat.chat.application.query.QueryUnderstandingPipeline;
 import com.geostat.chat.application.query.QueryUnderstandingProperties;
-import com.geostat.chat.application.retrieval.CatalogRagLinkMerger;
+import com.geostat.chat.application.retrieval.ResponseRouter;
 import com.geostat.chat.application.retrieval.RetrievalContextService;
-import com.geostat.chat.application.telemetry.ChatTelemetryService;
 import com.geostat.chat.domain.catalog.CatalogResponseAssembler;
-import com.geostat.chat.domain.catalog.CatalogTopicLabelResolver;
+import com.geostat.chat.domain.retrieval.RetrievalConfidenceAssessor;
 import com.geostat.chat.domain.catalog.Topic;
 import com.geostat.chat.domain.chat.QueryIntent;
-import com.geostat.chat.domain.query.SpellFixer;
 import com.geostat.chat.domain.prompt.PromptCatalog;
+import com.geostat.chat.domain.query.SpellFixer;
 import com.geostat.chat.domain.session.ConversationHistory;
-import com.geostat.chat.infrastructure.config.AiChatOptionsFactory;
 import com.geostat.chat.infrastructure.config.AiChatProperties;
 import java.util.ArrayDeque;
 import java.util.List;
@@ -31,29 +29,26 @@ import org.springframework.ai.chat.client.ChatClient;
 @ExtendWith(MockitoExtension.class)
 class ChatServiceTest {
 
+    @Mock ChatPipelineCoordinator pipeline;
+    @Mock ChatResponseComposer composer;
     @Mock ChatClient chatClient;
-    @Mock TopicDetector topicDetector;
-    @Mock CatalogResponseAssembler catalogResponseAssembler;
-    @Mock ConversationHistory conversationHistory;
     @Mock PromptBuilder promptBuilder;
-    @Mock SmallTalkHandler smallTalkHandler;
-    @Mock ResponseSanitizer responseSanitizer;
-    @Mock ChatResultFactory chatResultFactory;
     @Mock ChatCompleteEncoder chatCompleteEncoder;
-    @Mock RetrievalContextService retrievalContextService;
-    @Mock CatalogRagLinkMerger catalogRagLinkMerger;
-    @Mock ChatTelemetryService chatTelemetryService;
-    @Mock AiResponseParser aiResponseParser;
-    @Mock ClarificationService clarificationService;
-    @Mock ChatLanguageDetector languageDetector;
-    @Mock AiChatOptionsFactory chatOptionsFactory;
-    @Mock ResponseGroundingEnforcer responseGroundingEnforcer;
-    @Mock QueryRouter queryRouter;
+    @Mock ChatResultFactory chatResultFactory;
+    @Mock CatalogResponseAssembler catalogResponseAssembler;
     @Mock PromptCatalog promptCatalog;
+    @Mock ChatLanguageDetector languageDetector;
+    @Mock QueryRouter queryRouter;
     @Mock QueryUnderstandingProperties queryUnderstandingProperties;
     @Mock QueryUnderstandingPipeline queryUnderstandingPipeline;
     @Mock QueryIntentMapper queryIntentMapper;
     @Mock SpellFixer spellFixer;
+    @Mock ConversationHistory conversationHistory;
+    @Mock AiResponseParser aiResponseParser;
+    @Mock RetrievalConfidenceAssessor confidenceAssessor;
+    @Mock ResponseRouter responseRouter;
+    @Mock ClarificationService clarificationService;
+    @Mock RetrievalContextService retrievalContextService;
 
     private ChatService chatService;
 
@@ -62,58 +57,44 @@ class ChatServiceTest {
         AiChatProperties props = new AiChatProperties(0.6, 0.3, 0.0, 10, 12000, 28000, 2048, 30, true);
         when(queryUnderstandingProperties.isEnabled()).thenReturn(false);
         when(spellFixer.fix(anyString(), anyString())).thenAnswer(inv -> inv.getArgument(0));
-        when(catalogResponseAssembler.assemble(anyList(), anyString(), anyString(), anyBoolean()))
-                .thenAnswer(inv -> {
-                    List<Topic> topics = inv.getArgument(0);
-                    List<String> names = topics.stream().map(Topic::name).toList();
-                    CatalogTopicLabelResolver.Labels labels =
-                            new CatalogTopicLabelResolver.Labels(names.get(0), names);
-                    return new CatalogResponseAssembler.Bundle(labels, List.of());
-                });
         chatService = new ChatService(
+                pipeline,
+                composer,
                 chatClient,
-                topicDetector,
-                catalogResponseAssembler,
-                conversationHistory,
                 promptBuilder,
-                smallTalkHandler,
-                responseSanitizer,
-                chatResultFactory,
                 chatCompleteEncoder,
-                retrievalContextService,
-                catalogRagLinkMerger,
-                chatTelemetryService,
-                aiResponseParser,
-                clarificationService,
-                languageDetector,
-                chatOptionsFactory,
-                props,
-                responseGroundingEnforcer,
-                queryRouter,
+                chatResultFactory,
+                catalogResponseAssembler,
                 promptCatalog,
+                languageDetector,
+                queryRouter,
                 queryUnderstandingProperties,
                 queryUnderstandingPipeline,
                 queryIntentMapper,
-                spellFixer);
+                spellFixer,
+                conversationHistory,
+                props,
+                aiResponseParser,
+                confidenceAssessor,
+                responseRouter,
+                clarificationService,
+                retrievalContextService);
     }
 
     @Test
-    void getChatResponse_smallTalk_skipsGeminiAndRecordsTelemetry() {
+    void getChatResponse_smallTalk_skipsGeminiAndHistory() {
         when(languageDetector.resolveLocale("გამარჯობა", null)).thenReturn("ka");
         when(queryRouter.route(anyString(), anyString())).thenReturn(QueryIntent.NAVIGATE);
         when(conversationHistory.getOrCreate(anyString())).thenReturn(new ArrayDeque<>());
-        when(smallTalkHandler.handle("გამარჯობა", true)).thenReturn("გამარჯობა!");
-        when(responseSanitizer.strip("გამარჯობა!", true)).thenReturn("გამარჯობა!");
-        when(responseGroundingEnforcer.enforce(anyList(), anyList())).thenAnswer(inv -> inv.getArgument(0));
-        when(promptCatalog.promptVersion()).thenReturn(1);
-        when(promptCatalog.promptContentHash()).thenReturn("abc123");
+        when(pipeline.checkEarlyExit(any()))
+                .thenReturn(new ChatPipelineCoordinator.EarlyExit.SmallTalk("გამარჯობა!"));
         when(chatResultFactory.build(any(), anyList(), anyList(), any(), eq(true), anyString(), anyString(), any(), anyList()))
                 .thenReturn(new ChatResult(
                         "გამარჯობა!",
                         List.of(),
                         "ka",
-                        Topic.GENERAL.name(),
-                        List.of(Topic.GENERAL.name()),
+                        "ზოგადი",
+                        List.of(),
                         "i",
                         "#fff",
                         "sess",
@@ -128,8 +109,7 @@ class ChatServiceTest {
 
         assertEquals("გამარჯობა!", result.intro());
         verifyNoInteractions(chatClient);
-        verify(chatTelemetryService)
-                .recordTurn(anyString(), eq("sess"), eq("გამარჯობა"), anyList(), eq(1), eq("abc123"));
-        verifyNoInteractions(topicDetector);
+        verifyNoInteractions(composer);
+        verify(pipeline, never()).buildRetrieval(any());
     }
 }

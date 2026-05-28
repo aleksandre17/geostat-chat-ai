@@ -1,7 +1,7 @@
 package com.geostat.ingestion.enrichment.locale;
 
 import com.geostat.embedding.EmbeddingPort;
-import com.geostat.ingestion.crawl.frontier.UrlHasher;
+import com.geostat.platform.url.UrlHasher;
 import com.geostat.ingestion.enrichment.runner.EnrichmentProperties;
 import com.geostat.ingestion.locale.DocumentLocalePairLinker;
 import com.geostat.ingestion.locale.VectorSimilarity;

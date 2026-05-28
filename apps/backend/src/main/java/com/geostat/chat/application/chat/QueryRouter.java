@@ -1,38 +1,41 @@
 package com.geostat.chat.application.chat;
 
+import com.geostat.chat.application.util.KeywordMatcher;
 import com.geostat.chat.domain.chat.QueryIntent;
-import org.springframework.stereotype.Component;
+import java.util.List;
+import java.util.Map;
 
-@Component
+/**
+ * Legacy keyword-based intent routing. Replaced by {@link QueryUnderstandingPipeline} when
+ * {@code geostat.chat.query-understanding.enabled=true}.
+ * All keyword lists are loaded from {@code catalog/route-keywords.yaml}.
+ *
+ * @deprecated use {@link QueryUnderstandingPipeline} with {@link QueryIntentMapper} instead
+ */
+@Deprecated
 public class QueryRouter {
+
+    private static final List<QueryIntent> PRIORITY_ORDER =
+            List.of(QueryIntent.CONCEPT, QueryIntent.DATA_REQUEST, QueryIntent.NAVIGATE);
+
+    private final Map<QueryIntent, List<String>> routeMap;
+    private final KeywordMatcher keywordMatcher;
+
+    public QueryRouter(Map<QueryIntent, List<String>> routeMap, KeywordMatcher keywordMatcher) {
+        this.routeMap = Map.copyOf(routeMap);
+        this.keywordMatcher = keywordMatcher;
+    }
 
     public QueryIntent route(String message, String lowerQuery) {
         if (message == null || message.isBlank()) {
             return QueryIntent.CLARIFY;
         }
-        if (containsAny(lowerQuery, "what is", "what does", "define", "explain", "meaning of",
-                "რა არის", "რას ნიშნავს", "განმარტება")) {
-            return QueryIntent.CONCEPT;
-        }
-        if (containsAny(lowerQuery, "show me", "where can i find", "give me", "download", "find",
-                "მაჩვენე", "სად ვნახო", "მომეცი", "ჩამოტვირთ", "open", "go to", "navigate",
-                "გადავიდე", "გახსენი")) {
-            return QueryIntent.DATA_REQUEST;
-        }
-        if (containsAny(lowerQuery, "portal", "calculator", "tool", "statistics page", "website",
-                "პორტალი", "კალკულატორი", "ინსტრუმენტი", "საიტი", "გვერდი")) {
-            return QueryIntent.NAVIGATE;
-        }
-        // RAG-first default: factual/statistical queries use corpus context, not catalog-only navigation
-        return QueryIntent.CONCEPT;
-    }
-
-    private static boolean containsAny(String text, String... keywords) {
-        for (String kw : keywords) {
-            if (text.contains(kw.toLowerCase())) {
-                return true;
+        for (QueryIntent intent : PRIORITY_ORDER) {
+            List<String> keywords = routeMap.getOrDefault(intent, List.of());
+            if (keywordMatcher.containsAny(lowerQuery, keywords)) {
+                return intent;
             }
         }
-        return false;
+        return QueryIntent.CONCEPT;
     }
 }

@@ -53,9 +53,9 @@ public record IngestionProperties(
     }
 
     /** B-26 — background crawl scheduler (Q-09). */
-    public record Scheduler(boolean enabled, long fixedDelayMs) {
+    public record Scheduler(boolean enabled, long fixedDelayMs, boolean orchestratorEnabled) {
         public static Scheduler defaults() {
-            return new Scheduler(false, 3_600_000L);
+            return new Scheduler(false, 3_600_000L, false);
         }
     }
 

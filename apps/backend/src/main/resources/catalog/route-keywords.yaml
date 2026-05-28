@@ -1,0 +1,39 @@
+# Keyword routing for QueryRouter (deprecated fallback — used only when QueryUnderstandingPipeline is disabled).
+# Keys map to com.geostat.chat.domain.chat.QueryIntent enum names.
+# Add keywords here — no Java code change needed.
+routes:
+  CONCEPT:
+    - "what is"
+    - "what does"
+    - "define"
+    - "explain"
+    - "meaning of"
+    - "რა არის"
+    - "რას ნიშნავს"
+    - "განმარტება"
+  DATA_REQUEST:
+    - "show me"
+    - "where can i find"
+    - "give me"
+    - "download"
+    - "find"
+    - "მაჩვენე"
+    - "სად ვნახო"
+    - "მომეცი"
+    - "ჩამოტვირთ"
+    - "open"
+    - "go to"
+    - "navigate"
+    - "გადავიდე"
+    - "გახსენი"
+  NAVIGATE:
+    - "portal"
+    - "calculator"
+    - "tool"
+    - "statistics page"
+    - "website"
+    - "პორტალი"
+    - "კალკულატორი"
+    - "ინსტრუმენტი"
+    - "საიტი"
+    - "გვერდი"

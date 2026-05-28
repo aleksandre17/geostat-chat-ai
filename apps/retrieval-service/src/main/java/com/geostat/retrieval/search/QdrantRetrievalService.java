@@ -13,11 +13,15 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.context.annotation.Primary;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 @Service
-@Primary
+@ConditionalOnProperty(
+        prefix = "geostat.retrieval.hybrid",
+        name = "enabled",
+        havingValue = "false",
+        matchIfMissing = true)
 public class QdrantRetrievalService implements RetrievalPort {
 
     private static final Logger log = LoggerFactory.getLogger(QdrantRetrievalService.class);

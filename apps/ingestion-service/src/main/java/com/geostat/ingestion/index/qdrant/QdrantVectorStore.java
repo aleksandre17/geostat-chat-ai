@@ -13,6 +13,7 @@ import com.geostat.ingestion.persistence.entity.DocumentEntity;
 import com.geostat.ingestion.parse.SectionPathExtractor;
 import io.qdrant.client.QdrantClient;
 import io.qdrant.client.grpc.Points.Filter;
+import io.qdrant.client.grpc.Points.PointId;
 import io.qdrant.client.grpc.Points.PointStruct;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -45,6 +46,24 @@ public class QdrantVectorStore {
             throw new QdrantOperationException("interrupted deleting points for document " + documentId, e);
         } catch (ExecutionException e) {
             throw new QdrantOperationException("failed deleting points for document " + documentId, e.getCause());
+        }
+    }
+
+    public void delete(String collectionName, List<String> chunkIds) {
+        if (chunkIds.isEmpty()) {
+            return;
+        }
+        List<PointId> pointIds = new ArrayList<>(chunkIds.size());
+        for (String chunkId : chunkIds) {
+            pointIds.add(id(UUID.fromString(chunkId)));
+        }
+        try {
+            client.deleteAsync(collectionName, pointIds).get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new QdrantOperationException("interrupted deleting " + chunkIds.size() + " points", e);
+        } catch (ExecutionException e) {
+            throw new QdrantOperationException("failed deleting " + chunkIds.size() + " points", e.getCause());
         }
     }
 
@@ -134,11 +153,23 @@ public class QdrantVectorStore {
         if (!sectionPath.isBlank()) {
             payload.put("sectionPath", value(sectionPath));
         }
+        if (chunk.getNavBreadcrumb() != null && !chunk.getNavBreadcrumb().isBlank()) {
+            payload.put("navBreadcrumb", value(chunk.getNavBreadcrumb()));
+        }
         if (document.getFetchedAt() != null) {
             payload.put("fetchedAt", value(document.getFetchedAt().toString()));
         }
+        if (document.getPublishedAt() != null) {
+            payload.put("publishedAt", value(document.getPublishedAt().toString()));
+        }
         if (indexVersion != null && !indexVersion.isBlank()) {
             payload.put("indexVersion", value(indexVersion));
+        }
+        if (chunk.getEmbeddingModel() != null && !chunk.getEmbeddingModel().isBlank()) {
+            payload.put("embeddingModel", value(chunk.getEmbeddingModel()));
+        }
+        if (document.getKeywords() != null && document.getKeywords().length > 0) {
+            payload.put("keywords", value(String.join(" ", document.getKeywords())));
         }
         payload.putAll(enrichmentPayload(document, serveState));
         return PointStruct.newBuilder()

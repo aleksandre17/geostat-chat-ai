@@ -2,6 +2,7 @@ package com.geostat.ingestion.persistence.repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,6 +22,16 @@ public interface UrlFrontierRepository extends JpaRepository<UrlFrontierEntity, 
     long countByCrawlRun_IdAndStatus(UUID crawlRunId, FrontierStatus status);
 
     boolean existsByCrawlRun_IdAndUrlHash(UUID crawlRunId, String urlHash);
+
+    /**
+     * Returns the subset of urlHashes that already exist in the frontier
+     * for the given crawl run. Single batch query instead of N individual
+     * existsByCrawlRun_IdAndUrlHash() calls.
+     */
+    @Query("SELECT f.urlHash FROM UrlFrontierEntity f "
+            + "WHERE f.crawlRun.id = :crawlRunId AND f.urlHash IN :hashes")
+    List<String> findExistingHashesByCrawlRunAndHashIn(
+            @Param("crawlRunId") UUID crawlRunId, @Param("hashes") Set<String> hashes);
 
     @Query("""
             SELECT f.url, f.parentUrl

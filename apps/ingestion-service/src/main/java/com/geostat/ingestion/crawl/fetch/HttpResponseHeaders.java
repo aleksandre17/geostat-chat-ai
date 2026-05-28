@@ -15,8 +15,16 @@ final class HttpResponseHeaders {
         return firstHeader(result, "ETag");
     }
 
+    static String lastModifiedHttp(PageFetchResult result) {
+        return firstHeader(result, "Last-Modified");
+    }
+
+    static String contentType(PageFetchResult result) {
+        return firstHeader(result, "Content-Type");
+    }
+
     static Instant lastModified(PageFetchResult result) {
-        String raw = firstHeader(result, "Last-Modified");
+        String raw = lastModifiedHttp(result);
         if (raw == null || raw.isBlank()) {
             return null;
         }

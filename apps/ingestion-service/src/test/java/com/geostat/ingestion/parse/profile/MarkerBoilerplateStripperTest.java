@@ -38,12 +38,18 @@ class MarkerBoilerplateStripperTest {
                 "test",
                 List.of("main"),
                 List.of(),
+                List.of(),
                 new BoilerplateMarkers(List.of("უკან დაბრუნება"), List.of("skip to content"), List.of()),
                 true,
                 true,
                 true,
                 true,
-                List.of());
+                new ParseProfile.LanguageConfig(List.of(), null),
+                null,
+                null,
+                List.of(),
+                null,
+                null);
         String input = "უკან დაბრუნება\n\nMain body text\n\nskip to content";
         assertThat(stripper.stripFromBody(input, p)).isEqualTo("Main body text");
     }

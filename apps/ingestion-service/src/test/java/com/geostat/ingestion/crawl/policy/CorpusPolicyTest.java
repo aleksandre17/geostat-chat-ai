@@ -36,6 +36,20 @@ class CorpusPolicyTest {
     }
 
     @Test
+    void respectRobotsTxtDefaultsToTrueWhenOmitted() {
+        assertThat(CorpusPolicy.respectRobotsTxt(corpusWithPolicy(Map.of()))).isTrue();
+    }
+
+    @Test
+    void respectRobotsTxtReadsCrawlSectionFlag() {
+        CorpusEntity fromCrawl = corpusWithPolicy(Map.of("crawl", Map.of("respectRobotsTxt", true)));
+        CorpusEntity disabledInCrawl = corpusWithPolicy(Map.of("crawl", Map.of("respectRobotsTxt", false)));
+
+        assertThat(CorpusPolicy.respectRobotsTxt(fromCrawl)).isTrue();
+        assertThat(CorpusPolicy.respectRobotsTxt(disabledInCrawl)).isFalse();
+    }
+
+    @Test
     void fullSitePolicyUsesUnlimitedPagesAndDepth() {
         CorpusEntity corpus = corpusWithPolicy(Map.of("crawlMode", "full-site"));
 

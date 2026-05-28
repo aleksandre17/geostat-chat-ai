@@ -7,6 +7,13 @@ import com.geostat.ingestion.parse.profile.DefaultParseProfile;
 import com.geostat.ingestion.parse.profile.JsoupContentExtractor;
 import com.geostat.ingestion.parse.profile.MarkerBoilerplateStripper;
 import com.geostat.ingestion.parse.profile.ParseProperties;
+import com.geostat.ingestion.parse.validation.DocumentValidationPipeline;
+import com.geostat.ingestion.parse.validation.LanguageConsistencyValidator;
+import com.geostat.ingestion.parse.validation.MinContentLengthValidator;
+import com.geostat.ingestion.parse.validation.ParagraphRepetitionDetector;
+import com.geostat.ingestion.parse.strategy.GeostatNewsExtractionStrategy;
+import com.geostat.ingestion.parse.validation.TruncationDetector;
+import java.util.List;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -23,7 +30,17 @@ class HtmlContentCleanerTest {
                 new PageDisplayMetadataExtractor(),
                 disabled,
                 loader,
-                new JsoupContentExtractor(new MarkerBoilerplateStripper(), new PageDisplayMetadataExtractor()));
+                JsoupContentExtractorTestSupport.yamlFallbackExtractor(),
+                testValidationPipeline(),
+                new GeostatNewsExtractionStrategy());
+    }
+
+    private static DocumentValidationPipeline testValidationPipeline() {
+        return new DocumentValidationPipeline(List.of(
+                new MinContentLengthValidator(30, 100),
+                new TruncationDetector(200, 40),
+                new ParagraphRepetitionDetector(25),
+                new LanguageConsistencyValidator("ka")));
     }
 
     @Test

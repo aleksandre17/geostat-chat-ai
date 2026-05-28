@@ -12,6 +12,7 @@ public final class CorpusPolicy {
     public static final String CRAWL_MODE_BOUNDED = "bounded";
 
     private static final int DEFAULT_RATE_LIMIT_MS = 500;
+    private static final int DEFAULT_WORKER_THREADS = 5;
     /** Smoke / dev default when policy omits explicit limits. */
     private static final int DEFAULT_MAX_DEPTH = 2;
     private static final int DEFAULT_MAX_PAGES = 50;
@@ -22,6 +23,18 @@ public final class CorpusPolicy {
 
     public static int rateLimitMs(CorpusEntity corpus) {
         return intOrDefault(corpus.getPolicy(), "rateLimitMs", DEFAULT_RATE_LIMIT_MS);
+    }
+
+    public static int workerThreads(CorpusEntity corpus) {
+        Map<String, Object> policy = corpus.getPolicy();
+        Object crawl = policy.get("crawl");
+        if (crawl instanceof Map<?, ?> crawlSection) {
+            Object value = crawlSection.get("workerThreads");
+            if (value instanceof Number number) {
+                return number.intValue();
+            }
+        }
+        return intOrDefault(policy, "workerThreads", DEFAULT_WORKER_THREADS);
     }
 
     public static int maxDepth(CorpusEntity corpus) {
@@ -58,11 +71,22 @@ public final class CorpusPolicy {
     }
 
     public static boolean respectRobotsTxt(CorpusEntity corpus) {
-        Object value = corpus.getPolicy().get("respectRobotsTxt");
+        Map<String, Object> policy = corpus.getPolicy();
+        if (policy == null) {
+            return true;
+        }
+        Object crawl = policy.get("crawl");
+        if (crawl instanceof Map<?, ?> crawlSection) {
+            Object nested = crawlSection.get("respectRobotsTxt");
+            if (nested instanceof Boolean enabled) {
+                return enabled;
+            }
+        }
+        Object value = policy.get("respectRobotsTxt");
         if (value instanceof Boolean enabled) {
             return enabled;
         }
-        return false;
+        return true;
     }
 
     public static List<String> allowedHosts(CorpusEntity corpus) {

@@ -2,15 +2,19 @@ package com.geostat.ingestion.quality;
 
 import com.geostat.ingestion.chunk.DocumentChunkWriter;
 import com.geostat.ingestion.config.IngestionProperties;
-import com.geostat.ingestion.crawl.fetch.Crawler4jPageFetcher;
 import com.geostat.ingestion.crawl.fetch.FetchedPage;
-import com.geostat.ingestion.crawl.fetch.PageNotModifiedException;
-import com.geostat.ingestion.crawl.frontier.UrlHasher;
+import com.geostat.ingestion.crawl.fetch.FetchOptions;
+import com.geostat.ingestion.crawl.fetch.Crawler4jPageFetcher;
+import com.geostat.platform.crawl.PageFetcher;
+import com.geostat.platform.crawl.RenderMode;
+import com.geostat.platform.url.UrlHasher;
 import com.geostat.ingestion.events.DocumentPostPersistPipeline;
 import com.geostat.ingestion.locale.DocumentLocalePairLinker;
 import com.geostat.ingestion.parse.DocumentDisplayFields;
 import com.geostat.ingestion.parse.HtmlContentCleaner;
 import com.geostat.ingestion.parse.UrlLocaleInferer;
+import com.geostat.ingestion.parse.profile.CorpusConfigurationLoader;
+import com.geostat.platform.parse.ParseProfile;
 import com.geostat.ingestion.persistence.entity.CorpusEntity;
 import com.geostat.ingestion.persistence.entity.DocumentEntity;
 import com.geostat.ingestion.persistence.model.DocumentFetchStatus;
@@ -33,7 +37,9 @@ public class DocumentFreshnessRefreshService {
 
     private final CorpusRepository corpusRepository;
     private final DocumentRepository documentRepository;
-    private final Crawler4jPageFetcher pageFetcher;
+    private final PageFetcher routingPageFetcher;
+    private final Crawler4jPageFetcher staticPageFetcher;
+    private final CorpusConfigurationLoader corpusConfigurationLoader;
     private final HtmlContentCleaner contentCleaner;
     private final DocumentChunkWriter documentChunkWriter;
     private final DocumentPostPersistPipeline postPersistPipeline;
@@ -43,7 +49,9 @@ public class DocumentFreshnessRefreshService {
     public DocumentFreshnessRefreshService(
             CorpusRepository corpusRepository,
             DocumentRepository documentRepository,
-            Crawler4jPageFetcher pageFetcher,
+            PageFetcher routingPageFetcher,
+            Crawler4jPageFetcher staticPageFetcher,
+            CorpusConfigurationLoader corpusConfigurationLoader,
             HtmlContentCleaner contentCleaner,
             DocumentChunkWriter documentChunkWriter,
             DocumentPostPersistPipeline postPersistPipeline,
@@ -51,7 +59,9 @@ public class DocumentFreshnessRefreshService {
             IngestionProperties properties) {
         this.corpusRepository = corpusRepository;
         this.documentRepository = documentRepository;
-        this.pageFetcher = pageFetcher;
+        this.routingPageFetcher = routingPageFetcher;
+        this.staticPageFetcher = staticPageFetcher;
+        this.corpusConfigurationLoader = corpusConfigurationLoader;
         this.contentCleaner = contentCleaner;
         this.documentChunkWriter = documentChunkWriter;
         this.postPersistPipeline = postPersistPipeline;
@@ -91,15 +101,25 @@ public class DocumentFreshnessRefreshService {
     }
 
     private boolean refreshOne(CorpusEntity corpus, DocumentEntity document) throws Exception {
-        try {
-            FetchedPage page = pageFetcher.fetchConditional(
-                    document.getCanonicalUrl(), corpus, document.getHttpEtag(), document.getLastModified());
-            return applyFetchedPage(corpus, document, page);
-        } catch (PageNotModifiedException e) {
+        ParseProfile profile = corpusConfigurationLoader.parseProfileFor(corpus.getName());
+        FetchedPage page;
+        if (profile.renderMode() == RenderMode.HEADLESS) {
+            // Headless corpora (SPA): full re-fetch via Playwright; no conditional-GET support
+            var platformOptions = com.geostat.platform.crawl.FetchOptions.forProfile(profile);
+            page = FetchedPage.fromPlatform(document.getCanonicalUrl(),
+                    routingPageFetcher.fetch(document.getCanonicalUrl(), platformOptions));
+        } else {
+            // Static corpora: conditional GET (If-None-Match / If-Modified-Since) to avoid
+            // full re-download when content has not changed
+            var conditionalOptions = FetchOptions.of(document.getEtagHttp(), document.getLastModifiedHttp());
+            page = staticPageFetcher.fetchConditional(document.getCanonicalUrl(), corpus, conditionalOptions);
+        }
+        if (page.notModified()) {
             document.setFetchedAt(Instant.now());
             documentRepository.save(document);
             return false;
         }
+        return applyFetchedPage(corpus, document, page);
     }
 
     private boolean applyFetchedPage(CorpusEntity corpus, DocumentEntity document, FetchedPage page) {
@@ -108,7 +128,8 @@ public class DocumentFreshnessRefreshService {
         boolean contentUnchanged = newHash.equals(document.getContentHash());
 
         document.setHttpStatus(page.statusCode());
-        document.setHttpEtag(page.httpEtag());
+        document.setEtagHttp(page.etagHttp());
+        document.setLastModifiedHttp(page.lastModifiedHttp());
         document.setLastModified(page.lastModified());
         document.setFetchedAt(Instant.now());
 

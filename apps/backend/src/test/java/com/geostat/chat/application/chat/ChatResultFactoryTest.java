@@ -6,6 +6,7 @@ import com.geostat.chat.domain.catalog.CatalogTopicLabelResolver;
 import com.geostat.chat.domain.catalog.Topic;
 import com.geostat.chat.domain.catalog.TopicCatalog;
 import com.geostat.chat.domain.catalog.TopicDefinition;
+import com.geostat.chat.domain.prompt.PromptCatalog;
 import com.geostat.chat.infrastructure.catalog.YamlPresentationStyleCatalog;
 import com.geostat.platform.contracts.retrieval.RetrievedChunk;
 import java.util.List;
@@ -17,7 +18,12 @@ class ChatResultFactoryTest {
     @Test
     void grounded_whenRagItemOrCitedExplanation() {
         TopicCatalog catalog = mockCatalog();
-        ChatResultFactory factory = new ChatResultFactory(catalog, YamlPresentationStyleCatalog.fromClasspath());
+        ChatResultFactory factory = new ChatResultFactory(
+                catalog,
+                YamlPresentationStyleCatalog.fromClasspath(),
+                Mockito.mock(PromptCatalog.class),
+                new ExplanationGroundingVerifier(20, 180),
+                "https://www.geostat.ge/ka");
 
         ChatResult cited = factory.build(
                 "passage about consumer price index measurement monthly",

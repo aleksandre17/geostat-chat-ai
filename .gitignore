@@ -7,6 +7,9 @@ ops/config/*
 !ops/config/*.example
 !ops/config/*/.gitignore
 !ops/config/*/*.example
+!ops/config/corpus/
+ops/config/corpus/*.env
+ops/config/corpus/*.key
 
 # Legacy root stubs (remove when unlocked: node/IDE may hold frontend/node_modules)
 /frontend/

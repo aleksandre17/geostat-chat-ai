@@ -16,7 +16,7 @@ entries:
     ka: "ეროვნული ანგარიშები"
     en: "national accounts"
   - triggers: ["უმუკველ", "unemployment"]
-    ka: "უმუკველწვერა დასაქმება"
+    ka: "უმუშევრობა დასაქმება"
     en: "unemployment employment"
   - triggers: ["export", "ექსპორტ"]
     ka: "ექსპორტი საგარეო ვაჭრობა"
@@ -33,3 +33,48 @@ entries:
   - triggers: ["დირექტორ", "direqtori", "executive director", "აღმასრულებელი", "ხელმძღვანელ", "manager"]
     ka: "აღმასრულებელი დირექტორი"
     en: "executive director"
+  - triggers: ["მოსახლეობ", "population", "census", "აღწერ"]
+    ka: "მოსახლეობა დემოგრაფია"
+    en: "population demographics census"
+  - triggers: ["სოფლ", "agriculture", "harvest", "მოსავლ"]
+    ka: "სოფლის მეურნეობა მოსავლიანობა"
+    en: "agriculture harvest crops"
+  - triggers: ["განათლებ", "education", "school", "სკოლ", "university"]
+    ka: "განათლება სკოლა"
+    en: "education school university"
+  - triggers: ["ჯანდაცვ", "health", "hospital", "სიკვდილ", "mortality"]
+    ka: "ჯანდაცვა სიკვდილიანობა"
+    en: "healthcare hospital mortality"
+  - triggers: ["გარემო", "environment", "emission", "ემისი"]
+    ka: "გარემო ემისია"
+    en: "environment emissions climate"
+  - triggers: ["ენერგეტ", "energy", "electricity", "ელექტრ"]
+    ka: "ენერგეტიკა ელექტროენერგია"
+    en: "energy electricity power"
+  - triggers: ["მშენებ", "construction", "housing", "საცხოვრ"]
+    ka: "მშენებლობა საცხოვრებელი"
+    en: "construction housing buildings"
+  - triggers: ["ტურიზ", "tourism", "visitor", "ვიზიტ"]
+    ka: "ტურიზმი ვიზიტორები"
+    en: "tourism visitors travel"
+  - triggers: ["ხელფასი", "wages", "salary", "შემოსავ", "income"]
+    ka: "ხელფასი შემოსავალი"
+    en: "wages salary income earnings"
+  - triggers: ["სიღარიბ", "poverty", "social", "სოციალ"]
+    ka: "სიღარიბე სოციალური"
+    en: "poverty social assistance"
+  - triggers: ["გენდ", "gender", "women", "ქალ", "men", "კაც"]
+    ka: "გენდერი ქალი კაცი"
+    en: "gender women men equality"
+  - triggers: ["სამრეწ", "industry", "manufacture", "წარმოებ"]
+    ka: "სამრეწველო წარმოება"
+    en: "industry manufacturing production"
+  - triggers: ["ვაჭრობ", "trade", "commerce", "retail"]
+    ka: "სავაჭრო ბრუნვა"
+    en: "trade commerce retail"
+  - triggers: ["მიგრაცი", "migration", "emigration", "emigrant"]
+    ka: "მიგრაცია ემიგრაცია"
+    en: "migration emigration immigration"
+  - triggers: ["ბიუჯეტ", "budget", "fiscal", "ფისკალ"]
+    ka: "სახელმწიფო ბიუჯეტი"
+    en: "budget fiscal expenditure revenue"

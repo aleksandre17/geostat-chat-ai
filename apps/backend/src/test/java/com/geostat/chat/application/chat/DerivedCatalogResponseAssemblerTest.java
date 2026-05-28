@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.geostat.chat.application.catalog.ScoredClusterMatcher;
 import com.geostat.chat.domain.catalog.DerivedCatalogReader;
 import com.geostat.chat.domain.catalog.DerivedClusterMatch;
 import com.geostat.chat.domain.catalog.DerivedTopicCluster;
@@ -27,6 +28,9 @@ class DerivedCatalogResponseAssemblerTest {
     @Mock
     private DerivedCatalogLinkBuilder derivedCatalogLinkBuilder;
 
+    @Mock
+    private ScoredClusterMatcher scoredClusterMatcher;
+
     private CatalogProperties catalogProperties;
     private DerivedCatalogResponseAssembler assembler;
 
@@ -35,7 +39,7 @@ class DerivedCatalogResponseAssemblerTest {
         catalogProperties = new CatalogProperties();
         catalogProperties.setMaxClusters(2);
         assembler = new DerivedCatalogResponseAssembler(
-                derivedCatalogReader, derivedCatalogLinkBuilder, catalogProperties);
+                derivedCatalogReader, derivedCatalogLinkBuilder, catalogProperties, scoredClusterMatcher);
     }
 
     @Test

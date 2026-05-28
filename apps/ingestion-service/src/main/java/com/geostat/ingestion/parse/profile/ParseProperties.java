@@ -19,7 +19,7 @@ public record ParseProperties(Profile profile, String configDir, String evalGate
 
     public record Profile(boolean enabled) {
         public static Profile defaults() {
-            return new Profile(false);
+            return new Profile(true);
         }
     }
 }

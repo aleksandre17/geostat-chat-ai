@@ -1,0 +1,89 @@
+# DEPRECATED: loaded only as fallback if ops/config/corpus is unavailable. Canonical source: ops/config/corpus/geostat-portal-parse.yaml
+corpus: geostat-portal
+# static HTTP via crawler4j — server-rendered site
+renderMode: static
+rootSelectors:
+  - ".value-databases-section"
+  - ".archive-section"
+  - ".news-section"
+  - "main"
+  - "article"
+  - "[role=main]"
+  - ".content-area"
+  - "#content"
+removeSelectors:
+  - "script"
+  - "style"
+  - "noscript"
+  - "iframe"
+  - "svg"
+  - "nav"
+  - "footer"
+  - "header"
+  - "aside"
+  - ".related"
+  - ".related-articles"
+  - "[class*='related']"
+  - ".sidebar"
+  - "[class*='sidebar']"
+  - ".recommended"
+  - ".rightbar-wrapper"
+  - ".fixed-contact-blocks"
+  - ".social-static-icons"
+  - ".pagination"
+  - ".accessibility-notice"
+  - ".cookie-banner"
+  - ".social-share"
+  - ".breadcrumb"
+  - "geostat-chat-widget"
+  - "#skip-to-content"
+  - "figure"
+  - "figcaption"
+  - "[hidden]"
+  - "[aria-hidden=true]"
+  - ".tabs-navigation"
+  - ".share-buttons"
+  - ".print-button"
+  - "[role=complementary]"
+  - "[role=navigation]"
+  - "template"        # HTML5 <template> — JS template fragments, never real content
+  - "[x-template]"    # Vue.js / Alpine.js template attribute pattern
+addSelectors:
+  - ".stat-value"
+  - ".stat-description"
+  - ".dataset-description"
+  - "dd"
+  - "dt"
+  - "blockquote"
+boilerplateMarkers:
+  ka:
+    - "უკან დაბრუნება"
+    - "სრულად ნახვა"
+    - "არქივი"
+    - "გამოიწერეთ სიახლეები"
+    - "თარიღი:"
+    - "გადმოწერა"
+  en:
+    - "skip to content"
+    - "read more"
+    - "archive"
+    - "Date:"
+    - "Download"
+    - "CSV Download"
+  containsKa:
+    - "ვებგვერდის ადაპტირებული ვერსია"
+    - "საქსტატის ოფიციალური ვებგვერდი"
+    - "Crafted by"
+  containsEn:
+    - "adapted version of the website"
+    - "official website of geostat"
+    - "Crafted by"
+    - "Form #1"
+    - "Form #2"
+language:
+  inferFrom:
+    - "htmlLang"
+    - "urlSegment"
+    - "metaContentLanguage"
+  defaultFallback:
+    - ka

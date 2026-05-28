@@ -15,8 +15,6 @@ import java.util.stream.Collectors;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 @Service
 @Profile("db")
 @ConditionalOnProperty(prefix = "geostat.ingestion.enrichment", name = "enabled", havingValue = "true")
@@ -41,7 +39,6 @@ public class LocalePairEnrichmentService {
         this.properties = properties;
     }
 
-    @Transactional
     public void enrichDocument(UUID documentId) {
         String modelVersion = properties.localePairModelVersion();
         enrichmentRunExecutor.run(
@@ -82,7 +79,8 @@ public class LocalePairEnrichmentService {
         }
         document.setLocalePairDocument(counterpart);
         counterpart.setLocalePairDocument(document);
-        documentRepository.save(counterpart);
+        documentRepository.updateLocalePairDocId(document.getId(), counterpart.getId());
+        documentRepository.updateLocalePairDocId(counterpart.getId(), document.getId());
     }
 
     private static DocumentContext toContext(DocumentEntity document) {

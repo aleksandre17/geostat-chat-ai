@@ -4,6 +4,7 @@ import com.geostat.ingestion.enrichment.runner.EnrichmentProperties;
 import com.geostat.ingestion.enrichment.runner.EnrichmentRunExecutor;
 import com.geostat.ingestion.persistence.entity.DocumentEntity;
 import com.geostat.ingestion.persistence.model.EnrichmentDeriverKind;
+import com.geostat.ingestion.persistence.repository.DocumentRepository;
 import com.geostat.platform.enrichment.DocumentContext;
 import com.geostat.platform.enrichment.Entity;
 import com.geostat.platform.enrichment.EntityDeriver;
@@ -17,8 +18,6 @@ import java.util.stream.Collectors;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 @Service
 @Profile("db")
 @ConditionalOnProperty(prefix = "geostat.ingestion.enrichment", name = "enabled", havingValue = "true")
@@ -26,18 +25,20 @@ public class EntityEnrichmentService {
 
     private final EnrichmentRunExecutor enrichmentRunExecutor;
     private final EntityDeriver entityDeriver;
+    private final DocumentRepository documentRepository;
     private final EnrichmentProperties properties;
 
     public EntityEnrichmentService(
             EnrichmentRunExecutor enrichmentRunExecutor,
             EntityDeriver entityDeriver,
+            DocumentRepository documentRepository,
             EnrichmentProperties properties) {
         this.enrichmentRunExecutor = enrichmentRunExecutor;
         this.entityDeriver = entityDeriver;
+        this.documentRepository = documentRepository;
         this.properties = properties;
     }
 
-    @Transactional
     public void enrichDocument(UUID documentId) {
         String modelVersion = properties.entityModelVersion();
         enrichmentRunExecutor.run(
@@ -66,6 +67,7 @@ public class EntityEnrichmentService {
             payload.add(row);
         }
         document.setEntities(payload);
+        documentRepository.updateEntities(document.getId(), payload);
     }
 
     private static DocumentContext toContext(DocumentEntity document) {

@@ -48,7 +48,7 @@ class SummaryEnrichmentServiceTest {
         properties.setModelVersion("test-model@v1");
         EnrichmentRunExecutor executor =
                 new EnrichmentRunExecutor(documentRepository, enrichmentRunRepository);
-        service = new SummaryEnrichmentService(executor, summaryDeriver, properties);
+        service = new SummaryEnrichmentService(executor, summaryDeriver, documentRepository, properties);
     }
 
     @Test
@@ -69,7 +69,7 @@ class SummaryEnrichmentServiceTest {
 
         assertThat(document.getSummaryKa()).isEqualTo("ka summary");
         assertThat(document.getSummaryEn()).isEqualTo("en summary");
-        verify(documentRepository).save(document);
+        verify(documentRepository).updateSummary(documentId, "ka summary", "en summary");
 
         ArgumentCaptor<EnrichmentRunEntity> runCaptor = ArgumentCaptor.forClass(EnrichmentRunEntity.class);
         verify(enrichmentRunRepository, org.mockito.Mockito.atLeastOnce()).save(runCaptor.capture());

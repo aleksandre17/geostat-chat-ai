@@ -9,7 +9,8 @@ import org.junit.jupiter.api.Test;
 
 class DefaultConfidenceAssessorTest {
 
-    private final DefaultConfidenceAssessor assessor = new DefaultConfidenceAssessor();
+    private final DefaultConfidenceAssessor assessor =
+            new DefaultConfidenceAssessor(0.75f, 0.55f, 0.35f, 0.02f);
 
     @Test
     void high_confidence_when_top_score_above_075_with_gap() {

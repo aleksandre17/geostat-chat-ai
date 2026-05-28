@@ -2,7 +2,10 @@ package com.geostat.ingestion.index;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -61,6 +64,9 @@ class ChunkVectorIndexerTest {
     @Mock
     private com.geostat.ingestion.index.lifecycle.DocumentServeStateResolver serveStateResolver;
 
+    @Mock
+    private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
+
     @InjectMocks
     private ChunkVectorIndexer indexer;
 
@@ -72,10 +78,20 @@ class ChunkVectorIndexerTest {
         documentId = UUID.randomUUID();
         corpusId = UUID.randomUUID();
         when(properties.indexing()).thenReturn(new IngestionProperties.Indexing(true, "v1"));
+        when(properties.embedding())
+                .thenReturn(new IngestionProperties.Embedding(
+                        "hash-v1", "hash-v1", 384, "", "", "http://127.0.0.1:11434", "nomic-embed-text"));
         when(embedding.dimensions()).thenReturn(384);
-        when(embedding.modelId()).thenReturn("hash-v1");
-        when(embedding.embed(any())).thenReturn(new float[] {0.1f, 0.2f, 0.3f});
+        when(embedding.embedBatch(anyList())).thenAnswer(inv -> {
+            List<?> texts = inv.getArgument(0);
+            float[][] vectors = new float[texts.size()][];
+            for (int i = 0; i < texts.size(); i++) {
+                vectors[i] = new float[] {0.1f, 0.2f, 0.3f};
+            }
+            return vectors;
+        });
         when(serveStateResolver.resolve(any())).thenReturn(DocumentServeState.LIVE);
+        when(jdbcTemplate.update(anyString(), any(), any())).thenReturn(1);
     }
 
     @Test
@@ -113,8 +129,11 @@ class ChunkVectorIndexerTest {
                         any(),
                         eq("v1"),
                         eq(DocumentServeState.LIVE));
-        verify(vectorIndexRepository).save(any());
-        verify(chunkRepository).save(chunk);
+        verify(vectorIndexRepository).saveAll(anyList());
+        verify(vectorIndexRepository, never()).save(any());
+        verify(embedding).embedBatch(anyList());
+        verify(embedding, never()).embed(any());
+        verify(chunkRepository, never()).save(any());
     }
 
     @Test

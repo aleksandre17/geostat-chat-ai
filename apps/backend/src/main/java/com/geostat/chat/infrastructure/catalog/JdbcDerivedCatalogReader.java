@@ -131,7 +131,8 @@ public class JdbcDerivedCatalogReader implements DerivedCatalogReader {
                 limit);
     }
 
-    private List<DerivedTopicCluster> loadClusterLabels(List<UUID> clusterIds) {
+    @Override
+    public List<DerivedTopicCluster> loadClusterLabels(List<UUID> clusterIds) {
         List<DerivedTopicCluster> loaded = jdbcTemplate.query(
                 """
                 SELECT tc.id,

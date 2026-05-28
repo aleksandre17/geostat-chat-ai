@@ -13,5 +13,7 @@ public interface CrawlRunRepository extends JpaRepository<CrawlRunEntity, UUID> 
 
     boolean existsByCorpus_IdAndStatusIn(UUID corpusId, Collection<CrawlRunStatus> statuses);
 
+    List<CrawlRunEntity> findByStatusIn(Collection<CrawlRunStatus> statuses);
+
     Optional<CrawlRunEntity> findFirstByCorpus_IdOrderByCreatedAtDesc(UUID corpusId);
 }

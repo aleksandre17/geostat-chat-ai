@@ -31,6 +31,9 @@ public class VectorIndexEntity {
     @Column(name = "index_version", nullable = false)
     private String indexVersion = "v1";
 
+    @Column(name = "embedding_model")
+    private String embeddingModel;
+
     @Column(name = "indexed_at", nullable = false)
     private Instant indexedAt;
 
@@ -80,6 +83,14 @@ public class VectorIndexEntity {
 
     public void setIndexVersion(String indexVersion) {
         this.indexVersion = indexVersion;
+    }
+
+    public String getEmbeddingModel() {
+        return embeddingModel;
+    }
+
+    public void setEmbeddingModel(String embeddingModel) {
+        this.embeddingModel = embeddingModel;
     }
 
     public Instant getIndexedAt() {

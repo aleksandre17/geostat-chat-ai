@@ -1,11 +1,13 @@
 package com.geostat.chat.application.chat;
 
+import com.geostat.chat.application.catalog.ScoredClusterMatcher;
 import com.geostat.chat.domain.catalog.CatalogResponseAssembler;
 import com.geostat.chat.domain.catalog.CatalogTopicLabelResolver;
 import com.geostat.chat.domain.catalog.DerivedCatalogReader;
 import com.geostat.chat.domain.catalog.DerivedClusterMatch;
 import com.geostat.chat.domain.catalog.LinkCard;
 import com.geostat.chat.domain.catalog.Topic;
+import com.geostat.chat.domain.query.AnalyzedQuery;
 import com.geostat.chat.infrastructure.config.CatalogProperties;
 import java.util.List;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -18,14 +20,17 @@ public class DerivedCatalogResponseAssembler implements CatalogResponseAssembler
     private final DerivedCatalogReader derivedCatalogReader;
     private final DerivedCatalogLinkBuilder derivedCatalogLinkBuilder;
     private final CatalogProperties catalogProperties;
+    private final ScoredClusterMatcher scoredClusterMatcher;
 
     public DerivedCatalogResponseAssembler(
             DerivedCatalogReader derivedCatalogReader,
             DerivedCatalogLinkBuilder derivedCatalogLinkBuilder,
-            CatalogProperties catalogProperties) {
+            CatalogProperties catalogProperties,
+            ScoredClusterMatcher scoredClusterMatcher) {
         this.derivedCatalogReader = derivedCatalogReader;
         this.derivedCatalogLinkBuilder = derivedCatalogLinkBuilder;
         this.catalogProperties = catalogProperties;
+        this.scoredClusterMatcher = scoredClusterMatcher;
     }
 
     @Override
@@ -33,6 +38,21 @@ public class DerivedCatalogResponseAssembler implements CatalogResponseAssembler
         String resolvedLanguage = language != null && !language.isBlank() ? language : (georgian ? "ka" : "en");
         DerivedClusterMatch match =
                 derivedCatalogReader.matchClusters(query, resolvedLanguage, catalogProperties.maxClusters());
+        CatalogTopicLabelResolver.Labels topicLabels = labelsFrom(match, detectedTopics, georgian);
+        List<LinkCard> links = derivedCatalogLinkBuilder.buildLinksForClusters(match, georgian);
+        return new Bundle(topicLabels, links);
+    }
+
+    @Override
+    public Bundle assemble(List<Topic> detectedTopics, AnalyzedQuery analyzed,
+                            String language, boolean georgian) {
+        if (analyzed == null) {
+            return assemble(detectedTopics, "", language, georgian);
+        }
+        String resolvedLanguage = language != null && !language.isBlank()
+                ? language : (georgian ? "ka" : "en");
+        DerivedClusterMatch match = scoredClusterMatcher.match(
+                analyzed, resolvedLanguage, catalogProperties.maxClusters());
         CatalogTopicLabelResolver.Labels topicLabels = labelsFrom(match, detectedTopics, georgian);
         List<LinkCard> links = derivedCatalogLinkBuilder.buildLinksForClusters(match, georgian);
         return new Bundle(topicLabels, links);

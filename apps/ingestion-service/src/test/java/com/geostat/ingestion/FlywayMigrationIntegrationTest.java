@@ -1,9 +1,12 @@
 package com.geostat.ingestion;
 
+import java.util.List;
+import java.util.Map;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -35,8 +38,23 @@ class FlywayMigrationIntegrationTest {
     @Autowired
     Flyway flyway;
 
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+
     @Test
     void migrationsApplyAndSeedCorpus() {
         assertThat(flyway.info().all()).hasSizeGreaterThanOrEqualTo(2);
+
+        List<Map<String, Object>> rows = jdbcTemplate.queryForList(
+                "SELECT name, status FROM ingestion.corpus ORDER BY name");
+
+        assertThat(rows)
+                .extracting(row -> row.get("name"))
+                .contains("agriculture-ge", "geostat-portal");
+
+        assertThat(rows)
+                .filteredOn(row -> "agriculture-ge".equals(row.get("name")))
+                .extracting(row -> row.get("status"))
+                .containsExactly("active");
     }
 }

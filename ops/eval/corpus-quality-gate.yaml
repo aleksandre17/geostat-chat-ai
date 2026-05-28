@@ -3,60 +3,59 @@
 # Read by analyze-ingestion-samples.py and GET /api/v1/ingestion/corpora/{name}/parse-quality.
 corpus: geostat-portal
 
+# Per-corpus validation thresholds — overrides global application.yml values
+thresholds:
+  minContentLength: 200
+  maxBoilerplateRatio: 0.6
+
 gates:
   - id: boilerplate_ratio
     description: "Share of parsed docs whose content_text contains an accessibility/footer marker"
-    metric:
-      sql: |
-        SELECT
-          SUM(CASE WHEN content_text ILIKE '%adapted version of the website%'
-                    OR content_text ILIKE '%ვებგვერდის ადაპტ%' THEN 1 ELSE 0 END)::float
-          / NULLIF(COUNT(*),0)
-        FROM ingestion.document
-        WHERE corpus_id = :corpusId AND fetch_status = 'parsed'
     target: "<= 0.05"
     currentBaseline: 0.86
     blocks: [enrichment_backfill, derived_catalog_cutover]
 
   - id: empty_body_rate
     description: "Share of parsed docs with content_text shorter than 30 chars"
-    metric:
-      sql: |
-        SELECT
-          SUM(CASE WHEN COALESCE(length(content_text),0) < 30 THEN 1 ELSE 0 END)::float
-          / NULLIF(COUNT(*),0)
-        FROM ingestion.document
-        WHERE corpus_id = :corpusId AND fetch_status = 'parsed'
     target: "<= 0.03"
     currentBaseline: 0.119
     blocks: [index, enrichment_backfill]
 
   - id: chunk_coverage
     description: "Share of parsed (non-skipped) docs that produced at least one chunk"
-    metric:
-      sql: |
-        SELECT COUNT(DISTINCT c.document_id)::float
-             / NULLIF((SELECT COUNT(*) FROM ingestion.document
-                       WHERE corpus_id=:corpusId AND fetch_status='parsed'),0)
-        FROM ingestion.chunk c
-        WHERE c.corpus_id = :corpusId
     target: ">= 0.95"
     currentBaseline: 0.893
     blocks: [eval_gate]
 
   - id: summary_coverage
     description: "Layer 2 — share of parsed docs with non-blank summary_ka or summary_en"
-    metric:
-      sql: |
-        SELECT
-          SUM(CASE WHEN COALESCE(summary_ka,'') <> '' OR COALESCE(summary_en,'') <> ''
-                   THEN 1 ELSE 0 END)::float
-          / NULLIF(COUNT(*),0)
-        FROM ingestion.document
-        WHERE corpus_id = :corpusId AND fetch_status = 'parsed'
     target: ">= 0.95"
     currentBaseline: 0.889
     blocks: [derived_catalog_cutover]
+
+  - id: truncation_rate
+    description: "Share of parsed docs with truncated_text violation"
+    target: "<= 0.02"
+    currentBaseline: null
+    blocks: [enrichment_backfill]
+
+  - id: repetition_rate
+    description: "Share of parsed docs with paragraph_duplicates_removed auto-fix"
+    target: "<= 0.01"
+    currentBaseline: null
+    blocks: [enrichment_backfill]
+
+  - id: skip_rate
+    description: "Share of parsed docs classified SKIP (portal landings)"
+    target: "<= 0.30"
+    currentBaseline: null
+    blocks: []
+
+  - id: encoding_issue_rate
+    description: "Share of parsed docs with encoding corruption flag"
+    target: "<= 0.05"
+    currentBaseline: null
+    blocks: [enrichment_backfill]
 
 # Optional informational gates (do not block phases, surfaced in reports).
 informational:

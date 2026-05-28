@@ -6,8 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +48,6 @@ class EnrichmentBackfillServiceTest {
     @Mock
     private CatalogRefreshAfterBatch catalogRefreshAfterBatch;
 
-    @Mock
     private EnrichmentProperties enrichmentProperties;
 
     private EnrichmentBackfillService service;
@@ -56,6 +55,9 @@ class EnrichmentBackfillServiceTest {
 
     @BeforeEach
     void setUp() {
+        enrichmentProperties = new EnrichmentProperties();
+        enrichmentProperties.setModelVersion(SUMMARY_MODEL);
+        enrichmentProperties.setPageKindModelVersion(PAGE_KIND_MODEL);
         service = new EnrichmentBackfillService(
                 corpusRepository,
                 documentRepository,
@@ -63,8 +65,6 @@ class EnrichmentBackfillServiceTest {
                 catalogRefreshAfterBatch,
                 enrichmentProperties);
         corpusId = UUID.randomUUID();
-        lenient().when(enrichmentProperties.modelVersion()).thenReturn(SUMMARY_MODEL);
-        lenient().when(enrichmentProperties.pageKindModelVersion()).thenReturn(PAGE_KIND_MODEL);
     }
 
     private void stubCorpus() {
@@ -133,11 +133,13 @@ class EnrichmentBackfillServiceTest {
                 .enrichDocumentForBackfill(id1);
 
         service.queueBackfill(CORPUS_NAME, 0, true);
+        verify(enrichmentOrchestrator, timeout(5000)).enrichDocumentForBackfill(id1);
 
         assertThatThrownBy(() -> service.queueBackfill(CORPUS_NAME, 0, true))
                 .isInstanceOf(EnrichmentBackfillAlreadyRunningException.class);
 
         holdWorker.countDown();
+        verify(catalogRefreshAfterBatch, timeout(5000)).refreshIfConfigured("enrichment-backfill");
     }
 
     @Test

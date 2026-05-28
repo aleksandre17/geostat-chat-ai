@@ -7,9 +7,12 @@ import com.geostat.chat.domain.catalog.Topic;
 import com.geostat.chat.domain.catalog.TopicCatalog;
 import com.geostat.chat.domain.catalog.TopicDefinition;
 import com.geostat.chat.domain.catalog.PresentationStyleCatalog;
+import com.geostat.chat.domain.prompt.PromptCatalog;
+import com.geostat.chat.domain.prompt.UiStringKey;
 import com.geostat.platform.contracts.retrieval.RetrievedChunk;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /** Assembles {@link ChatResult} from domain data (R-03…R-05). */
@@ -18,10 +21,21 @@ public class ChatResultFactory {
 
     private final TopicCatalog topicCatalog;
     private final PresentationStyleCatalog presentationStyles;
+    private final PromptCatalog promptCatalog;
+    private final ExplanationGroundingVerifier groundingVerifier;
+    private final String errorFallbackUrl;
 
-    public ChatResultFactory(TopicCatalog topicCatalog, PresentationStyleCatalog presentationStyles) {
-        this.topicCatalog = topicCatalog;
+    public ChatResultFactory(
+            TopicCatalog topicCatalog,
+            PresentationStyleCatalog presentationStyles,
+            PromptCatalog promptCatalog,
+            ExplanationGroundingVerifier groundingVerifier,
+            @Value("${geostat.chat.error-fallback-url}") String errorFallbackUrl) {
+        this.topicCatalog       = topicCatalog;
         this.presentationStyles = presentationStyles;
+        this.promptCatalog      = promptCatalog;
+        this.groundingVerifier  = groundingVerifier;
+        this.errorFallbackUrl   = errorFallbackUrl;
     }
 
     public ChatResult build(
@@ -37,7 +51,7 @@ public class ChatResultFactory {
         List<LinkedExplanation> safeItems = items != null ? items : List.of();
         Topic primary = topics.isEmpty() ? Topic.GENERAL : topics.get(0);
         TopicDefinition.TopicStyle style = topicCatalog.get(primary).style();
-        boolean grounded = ExplanationGroundingVerifier.isGrounded(safeItems, ragChunks, intro);
+        boolean grounded = groundingVerifier.isGrounded(safeItems, ragChunks, intro);
         int sourceCount = countSources(safeItems);
         CatalogTopicLabelResolver.Labels labels =
                 topicLabels != null ? topicLabels : fallbackLabels(topics);
@@ -59,15 +73,14 @@ public class ChatResultFactory {
     }
 
     public ChatResult error(boolean isGeorgian, String sessionId) {
-        String intro = isGeorgian
-                ? "ტექნიკური ხარვეზი დაფიქსირდა. გთხოვთ, სცადოთ ხელახლა."
-                : "A technical error occurred. Please try again.";
+        String intro      = promptCatalog.uiString(UiStringKey.ERROR_INTRO, isGeorgian);
+        String mapTitle   = promptCatalog.uiString(UiStringKey.ERROR_SITE_MAP_TITLE, isGeorgian);
         TopicDefinition.TopicStyle style = topicCatalog.get(Topic.GENERAL).style();
         var gs = presentationStyles.linkTypeStyle("general");
         LinkCard fallback = LinkCard.fromCatalog(
-                "https://www.geostat.ge/ka/site-map",
-                "საიტის რუკა",
-                "Site Map",
+                errorFallbackUrl,
+                mapTitle,
+                mapTitle,
                 "general",
                 gs != null ? gs.icon() : style.icon(),
                 style.bgColor());
@@ -84,7 +97,7 @@ public class ChatResultFactory {
                 ChatResponseKind.error,
                 false,
                 1,
-                "TECHNICAL_ERROR",
+                ChatResponseKind.error.name(),
                 intro);
     }
 
@@ -96,7 +109,9 @@ public class ChatResultFactory {
 
     private static int countSources(List<LinkedExplanation> items) {
         return (int) items.stream()
-                .filter(item -> item.link() != null && item.link().url() != null && !item.link().url().isBlank())
+                .filter(item -> item.link() != null
+                        && item.link().url() != null
+                        && !item.link().url().isBlank())
                 .count();
     }
 }

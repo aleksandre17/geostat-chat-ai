@@ -2,14 +2,14 @@ package com.geostat.ingestion.parse.profile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.geostat.ingestion.parse.JsoupContentExtractorTestSupport;
 import com.geostat.platform.parse.HtmlPageInput;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Test;
 
 class JsoupContentExtractorTest {
 
-    private final JsoupContentExtractor extractor =
-            new JsoupContentExtractor(new MarkerBoilerplateStripper(), new com.geostat.ingestion.parse.PageDisplayMetadataExtractor());
+    private final JsoupContentExtractor extractor = JsoupContentExtractorTestSupport.yamlFallbackExtractor();
 
     @Test
     void stripsAccessibilityBoilerplateFromMainContent() {
@@ -51,5 +51,50 @@ class JsoupContentExtractorTest {
         var doc = extractor.extract(new HtmlPageInput(html.html(), "https://www.geostat.ge/en/data"), DefaultParseProfile.GEOSTAT_PORTAL);
 
         assertThat(doc.bodyText()).contains("2024").contains("3.1");
+    }
+
+    @Test
+    void extractBody_noDuplication_when_pInsideLi() {
+        String html = """
+                <html><body><article>
+                  <ul>
+                    <li><p>ბუნებრივი მოძრაობა 1.2%.</p></li>
+                    <li>სხვა ელემენტი</li>
+                  </ul>
+                  <p>ზოგადი ინფორმაცია.</p>
+                </article></body></html>""";
+        var doc = extractor.extract(new HtmlPageInput(html, "https://x.ge"), DefaultParseProfile.GEOSTAT_PORTAL);
+        String body = doc.bodyText();
+
+        assertThat(countOccurrences(body, "ბუნებრივი მოძრაობა 1.2%")).isEqualTo(1);
+        assertThat(body).contains("ბუნებრივი მოძრაობა 1.2%.");
+        assertThat(body).contains("სხვა ელემენტი");
+        assertThat(body).contains("ზოგადი ინფორმაცია.");
+    }
+
+    @Test
+    void extract_removesTemplateElement() {
+        String html = """
+                <html><body><main>
+                  <p>სტატია GDP-ის შესახებ 8.7%.</p>
+                  <template id="card-tpl">
+                    <li><a href="{{url}}">{{title}}</a></li>
+                  </template>
+                </main></body></html>""";
+        var doc = extractor.extract(new HtmlPageInput(html, "https://x.ge"), DefaultParseProfile.GEOSTAT_PORTAL);
+
+        assertThat(doc.bodyText()).doesNotContain("{{title}}");
+        assertThat(doc.bodyText()).doesNotContain("{{url}}");
+        assertThat(doc.bodyText()).contains("8.7%");
+    }
+
+    private static int countOccurrences(String text, String fragment) {
+        int count = 0;
+        int index = 0;
+        while ((index = text.indexOf(fragment, index)) != -1) {
+            count++;
+            index += fragment.length();
+        }
+        return count;
     }
 }

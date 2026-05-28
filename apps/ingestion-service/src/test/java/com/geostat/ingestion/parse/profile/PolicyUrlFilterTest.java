@@ -84,4 +84,23 @@ class PolicyUrlFilterTest {
         assertThat(filter.shouldEnqueue("https://www.geostat.ge/ka/video-gallery", policy)).isFalse();
         assertThat(filter.shouldEnqueue("https://www.geostat.ge/ka/news", policy)).isTrue();
     }
+
+    @Test
+    void shouldEnqueue_returnsFalse_forPaginatedUrl() {
+        CorpusPolicyV2 policy = new CorpusPolicyV2(
+                "geostat-portal",
+                List.of(),
+                List.of(),
+                List.of("www.geostat.ge"),
+                SubdomainMode.all,
+                List.of(),
+                List.of("?page="),
+                List.of());
+        assertThat(filter.shouldEnqueue(
+                "https://www.geostat.ge/ka/relationsOfCategory/100/post?page=2", policy))
+                .isFalse();
+        assertThat(filter.shouldEnqueue(
+                "https://www.geostat.ge/ka/relationsOfCategory/100/post", policy))
+                .isTrue();
+    }
 }

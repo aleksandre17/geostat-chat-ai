@@ -5,20 +5,29 @@ import com.geostat.platform.contracts.retrieval.RetrievedChunk;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 /** Formats assistant turn text stored in session history for multi-turn Gemini context. */
-public final class SessionTurnRecorder {
+@Component
+public class SessionTurnRecorder {
 
     private static final String META_PREFIX = "\n\n[turn-meta: ";
     private static final String META_SUFFIX = "]";
-    static final int MAX_RAG_EXCERPTS = 3;
-    static final int EXCERPT_CHARS = 100;
+
+    private final int maxRagExcerpts;
+    private final int excerptChars;
+
+    public SessionTurnRecorder(
+            @Value("${geostat.chat.session-turn.max-rag-excerpts:3}") int maxRagExcerpts,
+            @Value("${geostat.chat.session-turn.excerpt-chars:100}") int excerptChars) {
+        this.maxRagExcerpts = maxRagExcerpts;
+        this.excerptChars   = excerptChars;
+    }
 
     public record RagExcerpt(String url, String excerpt) {}
 
-    private SessionTurnRecorder() {}
-
-    public static String formatAssistantTurn(
+    public String formatAssistantTurn(
             String intro, List<String> urls, List<Topic> topics, List<RagExcerpt> ragExcerpts) {
         StringBuilder sb = new StringBuilder(intro != null ? intro.strip() : "");
         if ((urls != null && !urls.isEmpty())
@@ -32,16 +41,12 @@ public final class SessionTurnRecorder {
                 needSep = true;
             }
             if (urls != null && !urls.isEmpty()) {
-                if (needSep) {
-                    sb.append("; ");
-                }
+                if (needSep) sb.append("; ");
                 sb.append("links=").append(String.join(",", urls));
                 needSep = true;
             }
             if (ragExcerpts != null && !ragExcerpts.isEmpty()) {
-                if (needSep) {
-                    sb.append("; ");
-                }
+                if (needSep) sb.append("; ");
                 sb.append("rag=")
                         .append(ragExcerpts.stream()
                                 .map(r -> r.url() + ":" + r.excerpt())
@@ -52,21 +57,19 @@ public final class SessionTurnRecorder {
         return sb.toString();
     }
 
-    public static List<RagExcerpt> excerptsFromChunks(List<RetrievedChunk> chunks) {
+    public List<RagExcerpt> excerptsFromChunks(List<RetrievedChunk> chunks) {
         if (chunks == null || chunks.isEmpty()) {
             return List.of();
         }
         List<RagExcerpt> excerpts = new ArrayList<>();
         for (RetrievedChunk chunk : chunks) {
-            if (excerpts.size() >= MAX_RAG_EXCERPTS) {
-                break;
-            }
+            if (excerpts.size() >= maxRagExcerpts) break;
             if (chunk == null || chunk.sourceUrl() == null || chunk.sourceUrl().isBlank()) {
                 continue;
             }
             String text = chunk.text() != null ? chunk.text().strip() : "";
-            if (text.length() > EXCERPT_CHARS) {
-                text = text.substring(0, EXCERPT_CHARS).strip() + "…";
+            if (text.length() > excerptChars) {
+                text = text.substring(0, excerptChars).strip() + "…";
             }
             excerpts.add(new RagExcerpt(chunk.sourceUrl().strip(), text));
         }

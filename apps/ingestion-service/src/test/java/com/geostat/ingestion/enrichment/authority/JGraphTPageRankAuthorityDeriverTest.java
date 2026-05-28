@@ -1,6 +1,7 @@
 package com.geostat.ingestion.enrichment.authority;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -8,8 +9,8 @@ import com.geostat.ingestion.enrichment.pagekind.PageKindValues;
 import com.geostat.ingestion.enrichment.runner.EnrichmentProperties;
 import com.geostat.ingestion.persistence.entity.DocumentEntity;
 import com.geostat.ingestion.persistence.model.DocumentFetchStatus;
+import com.geostat.ingestion.persistence.repository.DocumentLinkRepository;
 import com.geostat.ingestion.persistence.repository.DocumentRepository;
-import com.geostat.ingestion.persistence.repository.UrlFrontierRepository;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +20,6 @@ import org.jgrapht.graph.DefaultEdge;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -30,7 +30,7 @@ class JGraphTPageRankAuthorityDeriverTest {
     private DocumentRepository documentRepository;
 
     @Mock
-    private UrlFrontierRepository urlFrontierRepository;
+    private DocumentLinkRepository documentLinkRepository;
 
     private EnrichmentProperties properties;
     private JGraphTPageRankAuthorityDeriver deriver;
@@ -39,7 +39,7 @@ class JGraphTPageRankAuthorityDeriverTest {
     void setUp() {
         properties = new EnrichmentProperties();
         properties.setPagerankDamping(0.85);
-        deriver = new JGraphTPageRankAuthorityDeriver(documentRepository, urlFrontierRepository, properties);
+        deriver = new JGraphTPageRankAuthorityDeriver(documentRepository, documentLinkRepository, properties);
     }
 
     @Test
@@ -74,27 +74,19 @@ class JGraphTPageRankAuthorityDeriverTest {
 
         when(documentRepository.findByCorpus_IdAndFetchStatus(corpusId, DocumentFetchStatus.parsed))
                 .thenReturn(List.of(content, navigation));
-        when(urlFrontierRepository.findParentChildUrlsByCorpusId(corpusId)).thenReturn(List.of());
+        when(documentLinkRepository.findResolvedEdgesByCorpus(corpusId)).thenReturn(List.of());
 
         deriver.recomputeForCorpus(corpusId);
 
-        ArgumentCaptor<List<DocumentEntity>> saved = ArgumentCaptor.forClass(List.class);
-        verify(documentRepository).saveAll(saved.capture());
-
-        DocumentEntity savedNav =
-                saved.getValue().stream().filter(d -> d.getId().equals(navId)).findFirst().orElseThrow();
-        DocumentEntity savedContent =
-                saved.getValue().stream().filter(d -> d.getId().equals(contentId)).findFirst().orElseThrow();
-
-        assertThat(savedNav.getAuthorityScore()).isEqualTo(0.0);
-        assertThat(savedContent.getAuthorityScore()).isBetween(0.0, 1.0);
+        verify(documentRepository).updateAuthorityScore(navId, 0.0);
+        verify(documentRepository).updateAuthorityScore(eq(contentId), org.mockito.ArgumentMatchers.anyDouble());
     }
 
     private static DocumentEntity document(String url, UUID id, String pageKind, Instant fetchedAt) {
         DocumentEntity document = new DocumentEntity();
         document.setId(id);
         document.setCanonicalUrl(url);
-        document.setUrlHash(com.geostat.ingestion.crawl.frontier.UrlHasher.hash(url));
+        document.setUrlHash(com.geostat.platform.url.UrlHasher.hash(url));
         document.setPageKind(pageKind);
         document.setFetchedAt(fetchedAt);
         document.setFetchStatus(DocumentFetchStatus.parsed);

@@ -1,28 +1,29 @@
 package com.geostat.chat.application.retrieval;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import jakarta.annotation.PostConstruct;
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.stereotype.Component;
+
 /** GeoStat site boilerplate filters for RAG-L11 citation snippets. */
-final class DisplayBoilerplate {
+@Component
+public class DisplayBoilerplate {
 
-    private static final String[] MARKERS = {
-        "ვებგვერდის ადაპტ",
-        "adapted version of the website",
-        "united nations development program",
-        "გაეროს განვითარების პროგრამ",
-        "government of sweden",
-        "შვედეთის მთავრობ",
-        "საჯარო სამართლის იურიდიული პირი",
-        "official statistics of georgia",
-        "ცენტრალური ოფისი:",
-        "central office:",
-        "საქსტატის ოფიციალური ვებგვერდი",
-        "skip to content",
-        "უკან დაბრუნება",
-        "go back "
-    };
+    private List<String> markers = List.of();
 
-    private DisplayBoilerplate() {}
+    @PostConstruct
+    void load() throws IOException {
+        ClassPathResource resource = new ClassPathResource("catalog/display-boilerplate.yaml");
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory()).findAndRegisterModules();
+        BoilerplateFile file = mapper.readValue(resource.getInputStream(), BoilerplateFile.class);
+        this.markers = file.markers() != null ? List.copyOf(file.markers()) : List.of();
+    }
 
-    static boolean isBoilerplate(String text) {
+    public boolean isBoilerplate(String text) {
         if (text == null || text.isBlank()) {
             return false;
         }
@@ -30,11 +31,13 @@ final class DisplayBoilerplate {
         if (normalized.startsWith("×")) {
             return true;
         }
-        for (String marker : MARKERS) {
-            if (normalized.contains(marker)) {
+        for (String marker : markers) {
+            if (normalized.toLowerCase(Locale.ROOT).contains(marker.toLowerCase(Locale.ROOT))) {
                 return true;
             }
         }
         return false;
     }
+
+    private record BoilerplateFile(List<String> markers) {}
 }

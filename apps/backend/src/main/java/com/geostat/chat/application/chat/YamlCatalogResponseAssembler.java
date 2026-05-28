@@ -5,6 +5,7 @@ import com.geostat.chat.domain.catalog.CatalogResponseAssembler;
 import com.geostat.chat.domain.catalog.CatalogTopicLabelResolver;
 import com.geostat.chat.domain.catalog.LinkCard;
 import com.geostat.chat.domain.catalog.Topic;
+import com.geostat.chat.domain.query.AnalyzedQuery;
 import java.util.List;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -27,6 +28,16 @@ public class YamlCatalogResponseAssembler implements CatalogResponseAssembler {
         CatalogTopicLabelResolver.Labels topicLabels =
                 catalogTopicLabelResolver.resolve(detectedTopics, query, language, georgian);
         List<LinkCard> links = catalogLinkBuilder.buildLinks(detectedTopics, query, georgian);
+        return new Bundle(topicLabels, links);
+    }
+
+    @Override
+    public Bundle assemble(List<Topic> detectedTopics, AnalyzedQuery analyzed,
+                            String language, boolean georgian) {
+        String queryText = CatalogResponseAssembler.resolveCatalogQueryText(analyzed);
+        CatalogTopicLabelResolver.Labels topicLabels =
+                catalogTopicLabelResolver.resolve(detectedTopics, queryText, language, georgian);
+        List<LinkCard> links = catalogLinkBuilder.buildLinks(detectedTopics, queryText, georgian);
         return new Bundle(topicLabels, links);
     }
 

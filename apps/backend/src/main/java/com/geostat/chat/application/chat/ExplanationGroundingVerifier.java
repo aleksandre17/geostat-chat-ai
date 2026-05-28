@@ -6,16 +6,24 @@ import com.geostat.chat.domain.catalog.LinkedExplanation;
 import com.geostat.platform.contracts.retrieval.RetrievedChunk;
 import java.util.List;
 import java.util.Locale;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 /** Verifies AI explanations cite indexed corpus passages (P6 / R-03). */
-public final class ExplanationGroundingVerifier {
+@Component
+public class ExplanationGroundingVerifier {
 
-    static final int MIN_PHRASE_CHARS = 20;
-    static final int PASSAGE_WINDOW = 180;
+    private final int minPhraseChars;
+    private final int passageWindow;
 
-    private ExplanationGroundingVerifier() {}
+    public ExplanationGroundingVerifier(
+            @Value("${geostat.chat.grounding.min-phrase-chars:20}") int minPhraseChars,
+            @Value("${geostat.chat.grounding.passage-window:180}") int passageWindow) {
+        this.minPhraseChars = minPhraseChars;
+        this.passageWindow  = passageWindow;
+    }
 
-    public static boolean isGrounded(
+    public boolean isGrounded(
             List<LinkedExplanation> items, List<RetrievedChunk> ragChunks, String intro) {
         if (items != null && items.stream().anyMatch(ExplanationGroundingVerifier::hasRagLink)) {
             return true;
@@ -35,7 +43,7 @@ public final class ExplanationGroundingVerifier {
                         && citesCorpus(item.explanation(), ragChunks, item.link()));
     }
 
-    public static boolean explanationCitesChunk(String explanation, String url, List<RetrievedChunk> chunks) {
+    public boolean explanationCitesChunk(String explanation, String url, List<RetrievedChunk> chunks) {
         if (explanation == null || explanation.isBlank() || chunks == null) {
             return false;
         }
@@ -55,26 +63,26 @@ public final class ExplanationGroundingVerifier {
         return false;
     }
 
-    static boolean citesCorpus(String text, List<RetrievedChunk> chunks, LinkCard link) {
+    boolean citesCorpus(String text, List<RetrievedChunk> chunks, LinkCard link) {
         String url = link != null ? link.url() : null;
-        if (url != null && !url.isBlank()) {
-            if (explanationCitesChunk(text, url, chunks)) {
-                return true;
-            }
+        if (url != null && !url.isBlank() && explanationCitesChunk(text, url, chunks)) {
+            return true;
         }
         return explanationCitesChunk(text, null, chunks);
     }
 
-    static boolean containsPassagePhrase(String explanation, String passage) {
+    boolean containsPassagePhrase(String explanation, String passage) {
         if (explanation.isBlank() || passage.isBlank()) {
             return false;
         }
-        String window = passage.length() > PASSAGE_WINDOW ? passage.substring(0, PASSAGE_WINDOW) : passage;
+        String window = passage.length() > passageWindow
+                ? passage.substring(0, passageWindow)
+                : passage;
         int maxLen = Math.min(40, window.length());
-        for (int len = maxLen; len >= MIN_PHRASE_CHARS; len--) {
+        for (int len = maxLen; len >= minPhraseChars; len--) {
             for (int i = 0; i <= window.length() - len; i++) {
                 String slice = window.substring(i, i + len).strip();
-                if (slice.length() >= MIN_PHRASE_CHARS && explanation.contains(slice)) {
+                if (slice.length() >= minPhraseChars && explanation.contains(slice)) {
                     return true;
                 }
             }
@@ -83,9 +91,7 @@ public final class ExplanationGroundingVerifier {
     }
 
     static String normalize(String text) {
-        if (text == null) {
-            return "";
-        }
+        if (text == null) return "";
         return text.toLowerCase(Locale.ROOT).replaceAll("\\s+", " ").strip();
     }
 

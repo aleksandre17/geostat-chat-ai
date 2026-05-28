@@ -1,0 +1,17 @@
+# Boilerplate phrases filtered from RAG citation snippets.
+# Add new phrases here — no Java code change needed.
+markers:
+  - "ვებგვერდის ადაპტ"
+  - "adapted version of the website"
+  - "united nations development program"
+  - "გაეროს განვითარების პროგრამ"
+  - "government of sweden"
+  - "შვედეთის მთავრობ"
+  - "საჯარო სამართლის იურიდიული პირი"
+  - "official statistics of georgia"
+  - "ცენტრალური ოფისი:"
+  - "central office:"
+  - "საქსტატის ოფიციალური ვებგვერდი"
+  - "skip to content"
+  - "უკან დაბრუნება"
+  - "go back "

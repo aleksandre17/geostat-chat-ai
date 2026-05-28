@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +40,7 @@ public class SmileKMeansTopicMiner implements TopicMiner {
     private final SummaryEmbeddingSource embeddingSource;
     private final GeminiTopicClusterLabeler clusterLabeler;
     private final EnrichmentProperties properties;
+    private final JdbcTemplate jdbcTemplate;
 
     public SmileKMeansTopicMiner(
             DocumentRepository documentRepository,
@@ -46,13 +48,15 @@ public class SmileKMeansTopicMiner implements TopicMiner {
             CorpusRepository corpusRepository,
             SummaryEmbeddingSource embeddingSource,
             GeminiTopicClusterLabeler clusterLabeler,
-            EnrichmentProperties properties) {
+            EnrichmentProperties properties,
+            JdbcTemplate jdbcTemplate) {
         this.documentRepository = documentRepository;
         this.topicClusterRepository = topicClusterRepository;
         this.corpusRepository = corpusRepository;
         this.embeddingSource = embeddingSource;
         this.clusterLabeler = clusterLabeler;
         this.properties = properties;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
@@ -131,14 +135,15 @@ public class SmileKMeansTopicMiner implements TopicMiner {
         }
 
         int assigned = 0;
-        for (DocumentEntity document : candidates) {
-            UUID clusterId = documentToCluster.get(document.getId());
-            if (clusterId != null) {
-                document.setTopicClusterId(clusterId);
-                assigned++;
-            }
+        if (!documentToCluster.isEmpty()) {
+            List<Object[]> params = documentToCluster.entrySet().stream()
+                    .map(e -> new Object[] {e.getValue(), e.getKey()})
+                    .toList();
+            jdbcTemplate.batchUpdate(
+                    "UPDATE ingestion.document SET topic_cluster_id = ?, updated_at = NOW() WHERE id = ?",
+                    params);
+            assigned = documentToCluster.size();
         }
-        documentRepository.saveAll(candidates);
 
         log.info(
                 "topic remine completed for corpus {} — clusters={}, assigned={}, candidates={}",

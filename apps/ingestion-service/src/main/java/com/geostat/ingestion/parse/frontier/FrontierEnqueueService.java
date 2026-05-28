@@ -1,6 +1,6 @@
 package com.geostat.ingestion.parse.frontier;
 
-import com.geostat.ingestion.crawl.frontier.UrlHasher;
+import com.geostat.platform.url.UrlHasher;
 import com.geostat.ingestion.parse.profile.RoutingUrlFilter;
 import com.geostat.ingestion.persistence.entity.CorpusEntity;
 import com.geostat.ingestion.persistence.entity.CrawlRunEntity;

@@ -1,12 +1,12 @@
 package com.geostat.ingestion.enrichment.authority;
 
-import com.geostat.ingestion.crawl.frontier.UrlHasher;
 import com.geostat.ingestion.enrichment.pagekind.PageKindValues;
 import com.geostat.ingestion.enrichment.runner.EnrichmentProperties;
 import com.geostat.ingestion.persistence.entity.DocumentEntity;
+import com.geostat.ingestion.persistence.entity.DocumentLinkEntity;
 import com.geostat.ingestion.persistence.model.DocumentFetchStatus;
+import com.geostat.ingestion.persistence.repository.DocumentLinkRepository;
 import com.geostat.ingestion.persistence.repository.DocumentRepository;
-import com.geostat.ingestion.persistence.repository.UrlFrontierRepository;
 import com.geostat.platform.enrichment.AuthorityDeriver;
 import java.time.Instant;
 import java.util.HashMap;
@@ -33,15 +33,15 @@ public class JGraphTPageRankAuthorityDeriver implements AuthorityDeriver {
     private static final Logger log = LoggerFactory.getLogger(JGraphTPageRankAuthorityDeriver.class);
 
     private final DocumentRepository documentRepository;
-    private final UrlFrontierRepository urlFrontierRepository;
+    private final DocumentLinkRepository documentLinkRepository;
     private final EnrichmentProperties properties;
 
     public JGraphTPageRankAuthorityDeriver(
             DocumentRepository documentRepository,
-            UrlFrontierRepository urlFrontierRepository,
+            DocumentLinkRepository documentLinkRepository,
             EnrichmentProperties properties) {
         this.documentRepository = documentRepository;
-        this.urlFrontierRepository = urlFrontierRepository;
+        this.documentLinkRepository = documentLinkRepository;
         this.properties = properties;
     }
 
@@ -54,12 +54,8 @@ public class JGraphTPageRankAuthorityDeriver implements AuthorityDeriver {
             return;
         }
 
-        Map<String, UUID> urlHashToDocumentId = new HashMap<>();
-        Map<UUID, DocumentEntity> documentsById = new HashMap<>();
         Set<UUID> eligible = new HashSet<>();
         for (DocumentEntity document : documents) {
-            documentsById.put(document.getId(), document);
-            urlHashToDocumentId.put(document.getUrlHash(), document.getId());
             if (!PageKindValues.NAVIGATION.equals(document.getPageKind())) {
                 eligible.add(document.getId());
             }
@@ -69,18 +65,19 @@ public class JGraphTPageRankAuthorityDeriver implements AuthorityDeriver {
         eligible.forEach(graph::addVertex);
 
         int edgeCount = 0;
-        for (Object[] link : urlFrontierRepository.findParentChildUrlsByCorpusId(corpusId)) {
-            String childUrl = (String) link[0];
-            String parentUrl = (String) link[1];
-            UUID sourceId = urlHashToDocumentId.get(UrlHasher.hash(parentUrl));
-            UUID targetId = urlHashToDocumentId.get(UrlHasher.hash(childUrl));
-            if (sourceId == null || targetId == null || !eligible.contains(sourceId) || !eligible.contains(targetId)) {
+        List<DocumentLinkEntity> edges = documentLinkRepository.findResolvedEdgesByCorpus(corpusId);
+        for (DocumentLinkEntity link : edges) {
+            UUID sourceId = link.getSourceDocId();
+            UUID targetId = link.getTargetDocId();
+            if (!eligible.contains(sourceId) || !eligible.contains(targetId)) {
                 continue;
             }
             graph.addVertex(sourceId);
             graph.addVertex(targetId);
-            graph.addEdge(sourceId, targetId);
-            edgeCount++;
+            if (!graph.containsEdge(sourceId, targetId)) {
+                graph.addEdge(sourceId, targetId);
+                edgeCount++;
+            }
         }
 
         Map<UUID, Double> rawScores = computePageRank(graph, properties.pagerankDamping());
@@ -88,15 +85,16 @@ public class JGraphTPageRankAuthorityDeriver implements AuthorityDeriver {
         Instant now = Instant.now();
 
         for (DocumentEntity document : documents) {
+            double score;
             if (PageKindValues.NAVIGATION.equals(document.getPageKind())) {
-                document.setAuthorityScore(0.0);
-                continue;
+                score = 0.0;
+            } else {
+                double pageRank = normalized.getOrDefault(document.getId(), 0.0);
+                double freshness = FreshnessDecay.score(document.getFetchedAt(), now);
+                score = AuthorityScoreComposer.compose(pageRank, freshness);
             }
-            double pageRank = normalized.getOrDefault(document.getId(), 0.0);
-            double freshness = FreshnessDecay.score(document.getFetchedAt(), now);
-            document.setAuthorityScore(AuthorityScoreComposer.compose(pageRank, freshness));
+            documentRepository.updateAuthorityScore(document.getId(), score);
         }
-        documentRepository.saveAll(documents);
 
         log.info(
                 "authority recomputed for corpus {} — docs={}, graphNodes={}, edges={}",

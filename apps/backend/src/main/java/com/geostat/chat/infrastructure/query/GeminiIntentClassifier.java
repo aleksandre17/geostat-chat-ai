@@ -2,7 +2,6 @@ package com.geostat.chat.infrastructure.query;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.geostat.chat.domain.query.IntentClassifier;
 import com.geostat.chat.domain.query.QueryIntentKind;
 import com.geostat.chat.infrastructure.config.AiChatOptionsFactory;
 import java.util.Locale;
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 /** RAG-U07c — Gemini cheap-call intent classifier with heuristic fallback upstream. */
 @Component
-public class GeminiIntentClassifier implements IntentClassifier {
+public class GeminiIntentClassifier {
 
     private static final Logger log = LoggerFactory.getLogger(GeminiIntentClassifier.class);
     private static final Pattern JSON_BLOCK = Pattern.compile("```(?:json)?\\s*(\\{.*})\\s*```", Pattern.DOTALL);
@@ -36,7 +35,6 @@ public class GeminiIntentClassifier implements IntentClassifier {
         this.heuristicFallback = heuristicFallback;
     }
 
-    @Override
     public QueryIntentKind classify(String message, String normalized, String locale) {
         try {
             String raw = chatClient

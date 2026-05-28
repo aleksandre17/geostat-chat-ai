@@ -1,0 +1,56 @@
+version: 1
+
+groups:
+  - id: greeting
+    patterns: ["გამარჯობა", "სალამი", "hello", "hi", "hey", "გაუმარჯოს", "მოგესალმები"]
+    maxLength: 40
+    response:
+      ka: "გამარჯობა. მე საქსტატის ვირტუალური ასისტენტი ვარ. რაში შემიძლია დაგეხმაროთ?"
+      en: "Hello. I'm GeoStat's virtual assistant. How can I help you?"
+  - id: gratitude
+    patterns: ["მადლობა", "გმადლობთ", "thank", "thanks", "დიდი მადლობა"]
+    maxLength: 40
+    response:
+      ka: "არაფრის. თუ სხვა რამეში დაგჭირდებათ დახმარება, მითხარით."
+      en: "You're welcome. Let me know if you need anything else."
+  - id: well-being
+    patterns: ["როგორ ხარ", "რა ხდება", "how are you", "what's up", "რას აკეთებ"]
+    maxLength: 0
+    response:
+      ka: "კარგად, მადლობა. რაში შემიძლია დაგეხმაროთ?"
+      en: "Doing well, thanks. What can I help you with?"
+  - id: identity
+    patterns: ["ვინ ხარ", "რა ხარ", "who are you", "what are you", "რა შეგიძლია", "what can you do", "რაში მეხმარები"]
+    maxLength: 0
+    response:
+      ka: "მე საქსტატის ვირტუალური ასისტენტი ვარ. შემიძლია დაგეხმაროთ სტატისტიკური ინფორმაციის მოძიებაში — მოსახლეობა, ეკონომიკა, დასაქმება, ვაჭრობა და სხვა."
+      en: "I'm GeoStat's virtual assistant. I can help you find statistical information — population, economy, employment, trade, and more."
+  - id: creator
+    patterns: ["ვინ შეგქმნა", "ვინ გაკეთა", "ვინ დაგწერა", "ვინ შექმნა", "ვინ აგაწყო", "შემქმნელ", "დეველოპერ", "who created", "who made you", "who built you"]
+    maxLength: 0
+    response:
+      ka: "მე შევიქმენი საქსტატში (საქართველოს სტატისტიკის ეროვნული სამსახური). მთავარი დეველოპერი — გუგა გოგუა."
+      en: "I was created at GeoStat (National Statistics Office of Georgia). Lead developer — Guga Gogua."
+  - id: farewell
+    patterns: ["ნახვამდის", "მშვიდობით", "bye", "goodbye", "see you"]
+    maxLength: 30
+    response:
+      ka: "ნახვამდის. წარმატებები."
+      en: "Goodbye. Take care."
+  - id: help
+    patterns: ["დამეხმარე", "help", "დახმარება", "არ ვიცი", "რა ვკითხო"]
+    maxLength: 0
+    response:
+      ka: "შეგიძლიათ იკითხოთ მაგალითად: მოსახლეობის სტატისტიკა, ინფლაციის მონაცემები, დასაქმება, ტურიზმი, საგარეო ვაჭრობა."
+      en: "You can ask about: population statistics, inflation data, employment, tourism, external trade."
+
+clarification:
+  ka: "ვერ დავადგინე, კონკრეტულად რა გაინტერესებთ. გთხოვთ, გადაუფორმეთ კითხვა ან დააკონკრეტეთ - მაგალითად: \"მოსახლეობა\", \"ინფლაცია\", \"დასაქმება\", \"ვაჭრობა\", \"ტურიზმი\"."
+  en: "I wasn't able to identify what you're looking for. Could you clarify or rephrase? For example: \"population\", \"inflation\", \"employment\", \"trade\", \"tourism\"."
+
+portalList:
+  portalKeywords: ["პორტალ", "portal", "portals"]
+  calculatorKeywords: ["კალკულატორებ", "calculators", "ინტერაქტიულ ინსტრუმენტ", "interactive tool"]
+  listRequestKeywords: ["რა პორტალ", "all portal", "რა კალკულატორ"]
+  excludeKeywords: ["cpi", "სამომხმარებლო", "ინდექსაცი", "პერსონალურ ინფლაცი", "გადახდ", "გადასახად", "mytaxes", "ავტომობილ", "მანქან", "ბავშვ", "მოზარდ", "youth"]
+  maxGenericLength: 35

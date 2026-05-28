@@ -1,4 +1,5 @@
 # Hand-maintained domain config — not touched by geostat config-gen (P0-kit-10)
+# Env contract: ops/config/.env.example
 server:
   max-http-request-header-size: 64KB
   tomcat:
@@ -66,21 +67,66 @@ geostat:
   retrieval:
     enabled: ${RETRIEVAL_ENABLED:false}
     base-url: ${RETRIEVAL_BASE_URL:http://localhost:8092}
-    default-corpus: ${RETRIEVAL_DEFAULT_CORPUS:geostat-portal}
+    default-corpus: ${RETRIEVAL_DEFAULT_CORPUS:geostat-portal}  # see ops/config/.env.example
     max-chunks: ${RETRIEVAL_MAX_CHUNKS:8}
     clarification-max-chunks: ${RETRIEVAL_CLARIFICATION_MAX_CHUNKS:12}
   chat:
+    retrieval:
+      confidence:
+        high:   ${CONFIDENCE_HIGH:0.75}
+        medium: ${CONFIDENCE_MEDIUM:0.55}
+        low:    ${CONFIDENCE_LOW:0.35}
+        gap:    ${CONFIDENCE_GAP:0.02}
     query-understanding:
-      enabled: ${GEOSTAT_CHAT_QUERY_UNDERSTANDING_ENABLED:false}
+      enabled: ${GEOSTAT_CHAT_QUERY_UNDERSTANDING_ENABLED:true}
       gemini-intent-enabled: ${GEOSTAT_CHAT_QUERY_GEMINI_INTENT:false}
       spell-fix-enabled: ${GEOSTAT_CHAT_QUERY_SPELL_FIX:false}
       gemini-entity-enabled: ${GEOSTAT_CHAT_QUERY_GEMINI_ENTITY:false}
       llm-expand-enabled: ${GEOSTAT_CHAT_QUERY_LLM_EXPAND:false}
+    query:
+      intent-cache-enabled: false   # enable after eval baseline
     catalog:
-      source: ${GEOSTAT_CHAT_CATALOG_SOURCE:yaml}
+      source: ${GEOSTAT_CHAT_CATALOG_SOURCE:derived}
       jdbc-url: ${GEOSTAT_CHAT_CATALOG_JDBC_URL:jdbc:postgresql://127.0.0.1:5432/geostat?currentSchema=ingestion}
       jdbc-user: ${GEOSTAT_CHAT_CATALOG_JDBC_USER:${POSTGRES_USER:geostat}}
       jdbc-password: ${GEOSTAT_CHAT_CATALOG_JDBC_PASSWORD:${POSTGRES_PASSWORD:}}
+      freshness-warn-minutes: 60
       max-clusters: ${GEOSTAT_CHAT_CATALOG_MAX_CLUSTERS:3}
       max-specific-rank: ${GEOSTAT_CHAT_CATALOG_MAX_SPECIFIC_RANK:3}
       max-portal-links: ${GEOSTAT_CHAT_CATALOG_MAX_PORTAL_LINKS:2}
+    error-fallback-url: ${CHAT_ERROR_FALLBACK_URL:https://www.geostat.ge/ka/site-map}
+    sanitizer:
+      min-intro-chars: ${CHAT_SANITIZER_MIN_CHARS:15}
+    budget:
+      min-rag-chars:   ${CHAT_MIN_RAG_CHARS:1500}
+      safety-margin:   ${CHAT_BUDGET_SAFETY:500}
+    grounding:
+      min-phrase-chars: ${GROUNDING_MIN_PHRASE:20}
+      passage-window:   ${GROUNDING_PASSAGE_WIN:180}
+    session-turn:
+      max-rag-excerpts: ${SESSION_MAX_RAG_EXCERPTS:3}
+      excerpt-chars:    ${SESSION_EXCERPT_CHARS:100}
+    topic-detector:
+      max-topics:        ${TOPIC_DETECTOR_MAX_TOPICS:3}
+      max-context-turns: ${TOPIC_DETECTOR_MAX_TURNS:2}
+    links:
+      max-total:   ${LINKS_MAX_TOTAL:8}
+      max-rag:     ${LINKS_MAX_RAG:4}
+      snippet-max: ${LINKS_SNIPPET_MAX:240}
+      max-rag-by-intent:
+        factual:  ${LINKS_MAX_RAG_FACTUAL:6}
+        lookup:   ${LINKS_MAX_RAG_LOOKUP:4}
+        navigate: ${LINKS_MAX_RAG_NAVIGATE:2}
+        clarify:  ${LINKS_MAX_RAG_CLARIFY:1}
+    cluster:
+      min-score:                ${CLUSTER_MIN_SCORE:0.10}
+      max-diversity-per-prefix: ${CLUSTER_MAX_DIVERSITY:2}
+      mv-keyword-rank:          ${CLUSTER_MV_KW_RANK:30}
+      candidate-multiplier:     ${CLUSTER_CANDIDATE_MULT:2}
+      score:
+        saturation: ${CLUSTER_SCORE_SAT:5.0}
+      weight:
+        keyword:   ${CLUSTER_W_KEYWORD:0.35}
+        label:     ${CLUSTER_W_LABEL:0.25}
+        entity:    ${CLUSTER_W_ENTITY:0.30}
+        expansion: ${CLUSTER_W_EXPANSION:0.10}

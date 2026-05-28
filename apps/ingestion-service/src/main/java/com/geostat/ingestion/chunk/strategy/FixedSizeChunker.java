@@ -32,10 +32,25 @@ public class FixedSizeChunker {
         int sequence = 0;
         while (start < normalized.length()) {
             int end = Math.min(start + maxChars, normalized.length());
+            int resumeAt = -1;
             if (end < normalized.length()) {
-                int wordBreak = normalized.lastIndexOf(' ', end);
-                if (wordBreak > start + maxChars / 4) {
-                    end = wordBreak;
+                // PRIORITY 1: paragraph boundary \n\n — semantically ideal split point
+                int paraBreak = normalized.lastIndexOf("\n\n", end);
+                if (paraBreak > start + maxChars / 4) {
+                    end = paraBreak + 2; // include the \n\n in the preceding chunk
+                    resumeAt = end;
+                } else {
+                    // PRIORITY 2: word boundary — existing fallback
+                    int wordBreak = normalized.lastIndexOf(' ', end);
+                    if (wordBreak > start + maxChars / 4) {
+                        end = wordBreak;
+                        if (end < normalized.length() && normalized.charAt(end) == ' ') {
+                            resumeAt = end + 1;
+                        } else {
+                            resumeAt = end;
+                        }
+                    }
+                    // PRIORITY 3: hard cut at maxChars (no good boundary found)
                 }
             }
             String piece = normalized.substring(start, end).trim();
@@ -45,7 +60,11 @@ public class FixedSizeChunker {
             if (end >= normalized.length()) {
                 break;
             }
-            start = Math.max(end - overlap, start + 1);
+            if (resumeAt >= 0) {
+                start = Math.max(resumeAt, start + 1);
+            } else {
+                start = Math.max(end - overlap, start + 1);
+            }
         }
         return chunks;
     }

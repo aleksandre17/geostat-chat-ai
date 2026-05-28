@@ -48,7 +48,7 @@ class PageKindEnrichmentServiceTest {
         properties.setPageKindModelVersion("gemini-2.0-flash-lite-pagekind@2026-05-25");
         EnrichmentRunExecutor executor =
                 new EnrichmentRunExecutor(documentRepository, enrichmentRunRepository);
-        service = new PageKindEnrichmentService(executor, pageKindClassifier, properties);
+        service = new PageKindEnrichmentService(executor, pageKindClassifier, documentRepository, properties);
     }
 
     @Test
@@ -73,7 +73,7 @@ class PageKindEnrichmentServiceTest {
         service.enrichDocument(documentId);
 
         assertThat(document.getPageKind()).isEqualTo(PageKindValues.DATASET);
-        verify(documentRepository).save(document);
+        verify(documentRepository).updatePageKind(documentId, PageKindValues.DATASET);
 
         ArgumentCaptor<EnrichmentRunEntity> runCaptor = ArgumentCaptor.forClass(EnrichmentRunEntity.class);
         verify(enrichmentRunRepository, org.mockito.Mockito.atLeastOnce()).save(runCaptor.capture());

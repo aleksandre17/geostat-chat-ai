@@ -26,7 +26,25 @@ public class PageDisplayMetadataExtractor {
         return new DisplayMetadata(metaDescription, leadText, displayDescription);
     }
 
-    static String resolveDisplay(
+    /** Applies JSON-LD description when HTML meta tags did not yield a description. */
+    public DisplayMetadata withJsonLdDescriptionFallback(
+            DisplayMetadata display,
+            String jsonLdDescription,
+            String pageTitle,
+            List<String> sectionPath) {
+        String metaDescription = display.metaDescription();
+        String displayDescription = display.displayDescription();
+        if ((metaDescription == null || metaDescription.isBlank()) && jsonLdDescription != null) {
+            metaDescription = jsonLdDescription;
+            if (displayDescription == null || displayDescription.isBlank()) {
+                displayDescription =
+                        resolveDisplay(metaDescription, display.leadText(), pageTitle, sectionPath);
+            }
+        }
+        return new DisplayMetadata(metaDescription, display.leadText(), displayDescription);
+    }
+
+    public static String resolveDisplay(
             String metaDescription, String leadText, String pageTitle, List<String> sectionPath) {
         if (DisplayBoilerplate.isUsable(metaDescription, MIN_META_CHARS)) {
             return trimToDisplay(metaDescription);

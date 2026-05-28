@@ -12,8 +12,6 @@ import java.util.UUID;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 @Service
 @Profile("db")
 @ConditionalOnProperty(prefix = "geostat.ingestion.enrichment", name = "enabled", havingValue = "true")
@@ -38,7 +36,6 @@ public class SummaryVectorEnrichmentService {
         this.properties = properties;
     }
 
-    @Transactional
     public void enrichDocument(UUID documentId) {
         String modelVersion = properties.summaryVectorModelVersion();
         enrichmentRunExecutor.run(

@@ -3,12 +3,10 @@ package com.geostat.chat.infrastructure.query;
 import com.geostat.chat.application.query.QueryUnderstandingProperties;
 import com.geostat.chat.domain.query.IntentClassifier;
 import com.geostat.chat.domain.query.QueryIntentKind;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 /** Routes to Gemini or heuristic intent classifier based on feature flags. */
 @Component("routingIntentClassifier")
-@Primary
 public class RoutingIntentClassifier implements IntentClassifier {
 
     private final QueryUnderstandingProperties properties;

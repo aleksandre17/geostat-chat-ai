@@ -3,6 +3,7 @@ package com.geostat.ingestion.parse.profile;
 import com.geostat.platform.parse.BoilerplateMarkers;
 import com.geostat.platform.parse.BoilerplateStripper;
 import com.geostat.platform.parse.ParseProfile;
+import com.geostat.platform.parse.StatisticalContentGuard;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +60,9 @@ public class MarkerBoilerplateStripper implements BoilerplateStripper {
     public boolean isBoilerplateParagraph(String paragraph, ParseProfile profile) {
         if (paragraph == null || paragraph.isBlank()) {
             return true;
+        }
+        if (StatisticalContentGuard.isStatisticalContent(paragraph)) {
+            return false;
         }
         String normalized = normalize(paragraph);
         if (normalized.startsWith("×")) {

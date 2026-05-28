@@ -1,0 +1,440 @@
+========================================================================
+GEOSTAT.GE FULL SITE STRUCTURE & CONTENT TAXONOMY AUDIT
+Generated: 2026-05-26  |  Analyst role: Senior web analyst / information architect
+Sources: live WebFetch + Python DOM analysis scripts (_site_audit_fetch.py, _site_dom_deep.py, _cols.py)
+========================================================================
+
+════════════════════════════════════════════════════════════════════════
+PART 1 — SITE STRUCTURE ANALYSIS
+════════════════════════════════════════════════════════════════════════
+
+─────────────────────────────────────────────────────────────────────
+1. HOMEPAGE ANALYSIS
+─────────────────────────────────────────────────────────────────────
+URL (ka): https://www.geostat.ge/ka          HTTP 200   lang="ka"
+URL (en): https://www.geostat.ge/en          HTTP 200   lang="en"
+<title> (ka): საქართველოს სტატისტიკის ეროვნული სამსახური
+<title> (en): National Statistics Office of Georgia
+og:type: website
+Main container: .home-statistic-category (stat tiles), .home-news-section (news feed),
+                .home-stat-types-section (section tiles), .home-partners-section (logos)
+Nav class: .header-bottom-nav
+Footer: footer (standard site-wide footer)
+
+─────────────────────────────────────────────────────────────────────
+2. PAGE TYPE ANALYSIS — section classes confirmed by DOM inspection
+─────────────────────────────────────────────────────────────────────
+┌──────────────────────────────┬──────────────────────────────────┬─────────────────────┬────────────────┐
+│ Page Type                    │ URL Pattern                      │ Section Class        │ pageKind       │
+├──────────────────────────────┼──────────────────────────────────┼─────────────────────┼────────────────┤
+│ Statistical data hub         │ /modules/categories/NNN          │ value-databases-    │ dataset        │
+│                              │                                  │  section            │                │
+├──────────────────────────────┼──────────────────────────────────┼─────────────────────┼────────────────┤
+│ Publication archive listing  │ /single-categories/NNN           │ archive-section     │ publication    │
+├──────────────────────────────┼──────────────────────────────────┼─────────────────────┼────────────────┤
+│ Individual news / press rel. │ /single-news/NNNN                │ news-items-section  │ news           │
+├──────────────────────────────┼──────────────────────────────────┼─────────────────────┼────────────────┤
+│ News listing                 │ /ka/news, /en/news               │ news-section        │ category       │
+├──────────────────────────────┼──────────────────────────────────┼─────────────────────┼────────────────┤
+│ Infographic listing          │ /infographic                     │ infographic         │ infographic    │
+├──────────────────────────────┼──────────────────────────────────┼─────────────────────┼────────────────┤
+│ Organization structure       │ /structure                       │ structure-tree-     │ category       │
+│                              │                                  │  section            │                │
+├──────────────────────────────┼──────────────────────────────────┼─────────────────────┼────────────────┤
+│ Calendar                     │ /calendar                        │ calendar-section    │ category       │
+├──────────────────────────────┼──────────────────────────────────┼─────────────────────┼────────────────┤
+│ Projects listing             │ /projects                        │ projects-section    │ category       │
+├──────────────────────────────┼──────────────────────────────────┼─────────────────────┼────────────────┤
+│ Static page (person, info)   │ /page/slug                       │ history-section or  │ category       │
+│                              │                                  │  news-items-section │                │
+├──────────────────────────────┼──────────────────────────────────┼─────────────────────┼────────────────┤
+│ Portal landing               │ ^/(ka|en)$                       │ home-*              │ portal         │
+└──────────────────────────────┴──────────────────────────────────┴─────────────────────┴────────────────┘
+
+─────────────────────────────────────────────────────────────────────
+3. EXCLUDE PATTERN VERIFICATION
+─────────────────────────────────────────────────────────────────────
+Tested via HTTP HEAD/GET — 2026-05-26:
+  /login          → 404  (safe to exclude)
+  /admin          → 404  (safe to exclude)
+  /about-us       → 404  (safe to exclude — no such page)
+  /search         → 404  (safe to exclude)
+  /tags/test      → 404  (safe to exclude)
+  /print/single-news/1756 → 404 (safe to exclude — old print format gone)
+  /contact        → 200  ← ADD to excludePatterns (low statistical value)
+  /albums         → 200  ← already in nav Media section, no statistical value
+  /video-gallery  → 200  ← already in nav Media section, no statistical value
+  ?page=N         → 200  ← pagination confirmed for /infographic?page= and /news?page=
+                           EXCLUDE: listing pages are low-value; individual items
+                           discovered via link-follow during normal crawl
+
+New excludePatterns added to geostat-portal-policy.yaml:
+  "?page="  — pagination query param (confirmed: infographic up to page 26+)
+  "&page="  — pagination in multi-param query strings
+  /contact  — contact form page (no statistical data)
+
+─────────────────────────────────────────────────────────────────────
+4. SUBDOMAIN ANALYSIS
+─────────────────────────────────────────────────────────────────────
+┌──────────────────────────────┬────────┬────────────────────────────────────────────────────┐
+│ Subdomain                    │ Status │ Notes                                              │
+├──────────────────────────────┼────────┼────────────────────────────────────────────────────┤
+│ cpi.geostat.ge               │  200   │ CPI calculator portal; en lang default;            │
+│                              │        │ has personal/aggregate inflation tools              │
+├──────────────────────────────┼────────┼────────────────────────────────────────────────────┤
+│ census2024.geostat.ge        │  200   │ Population Census 2024 portal; rich data           │
+├──────────────────────────────┼────────┼────────────────────────────────────────────────────┤
+│ sna.geostat.ge               │  200   │ National Accounts system; input-output tables      │
+├──────────────────────────────┼────────┼────────────────────────────────────────────────────┤
+│ ex-trade.geostat.ge          │  200   │ External merchandise trade portal (ka+en)          │
+│                              │        │ https://ex-trade.geostat.ge/ka (confirmed)         │
+├──────────────────────────────┼────────┼────────────────────────────────────────────────────┤
+│ br.geostat.ge                │  200   │ Business Register portal (confirmed active)        │
+├──────────────────────────────┼────────┼────────────────────────────────────────────────────┤
+│ questionnaires.geostat.ge    │ ?      │ Survey participation portal (nav link exists)      │
+│ surveycalendar.geostat.ge    │ ?      │ Survey field calendar (nav link exists)            │
+└──────────────────────────────┴────────┴────────────────────────────────────────────────────┘
+Policy decision: all 5 confirmed-active subdomains added to hostPolicy.subdomains.allow.
+
+─────────────────────────────────────────────────────────────────────
+5. PARSE.YAML CHANGES — summary
+─────────────────────────────────────────────────────────────────────
++ rootSelectorStrategy: firstMatch  (prevents duplication on multi-match pages)
++ pageKindRules: 7 rules (portal p20, infographic p12, news p10, publication p10,
+                          dataset p8, category p5, default unknown)
++ renderMode: static
++ language.defaultFallback: ka
++ rootSelectors: added .news-items-section, .calendar-section, .structure-tree-section,
+                 .projects-section, .history-section
++ removeSelectors: added .modal-csv-overlay, .modal-csv, #modal, .footer-social,
+                   .footer-text, .createdBy, .news-filter, .swiper-pagination,
+                   .home-partners-section
++ containsShared: ["Crafted by"]  (moved from containsKa+containsEn)
+
+─────────────────────────────────────────────────────────────────────
+6. POLICY.YAML CHANGES — summary
+─────────────────────────────────────────────────────────────────────
++ curatedUrls: expanded from ~12 to 56 URLs (all 22 statistical categories ka+en
+               + publications + about/governance + leadership pages + news + infographic)
++ excludePatterns: added "?page=", "&page=", /contact
++ hostPolicy.subdomains.allow: added ex-trade.geostat.ge, br.geostat.ge
++ limits.maxPagesPerRun: null → 10000
+
+
+════════════════════════════════════════════════════════════════════════
+PART 2 — CONTENT TAXONOMY AUDIT
+════════════════════════════════════════════════════════════════════════
+
+─────────────────────────────────────────────────────────────────────
+A. MAIN NAVIGATION SECTIONS (9 top-level groups found)
+─────────────────────────────────────────────────────────────────────
+Source: live DOM of https://www.geostat.ge/ka (header-bottom-nav)
+
+ 1. სტატისტიკური ინფორმაცია / Statistical Information   [big subnav — 22 sub-items]
+ 2. პუბლიკაციები / Publications                          [subnav — 2 sub-items]
+ 3. მეთოდოლოგია / Methodology                            [big subnav — 11 sub-items]
+ 4. მეტამონაცემები / Metadata                             [big subnav — 16 sub-items]
+ 5. კალენდარი / Calendar                                  [direct link → /ka/calendar]
+ 6. მედია / Media                                         [subnav — 4 sub-items]
+ 7. გამოკვლევები / Surveys                               [subnav — 4 sub-items]
+ 8. ბმულები / Links                                       [subnav — 3 sub-items]
+ 9. პროექტები / Projects                                  [direct link → /ka/projects]
+
+─────────────────────────────────────────────────────────────────────
+B. STATISTICAL TOPICS HIERARCHY
+─────────────────────────────────────────────────────────────────────
+All 22 categories under nav group "სტატისტიკური ინფორმაცია" (HTTP 200 confirmed):
+
+ 1. ბიზნეს სექტორი / Business Statistics
+    URL: https://www.geostat.ge/ka/modules/categories/195
+    Sub-topics (from nav + metadata sections):
+      → ბიზნეს სტატისტიკა (მეთოდოლოგია)        /modules/categories/121
+      → ბიზნეს სექტორი (მეტამონაცემები)          /modules/categories/530
+      → ბიზნეს რეგისტრი                           /modules/categories/64
+      → ბიზნეს რეგისტრი (ქვეპორტალი)             https://br.geostat.ge
+
+ 2. მონეტარული სტატისტიკა / Monetary Statistics
+    URL: https://www.geostat.ge/ka/modules/categories/92
+    Sub-topics:
+      → მეტამონაცემები                             /modules/categories/535
+
+ 3. სამართალდარღვევების სტატისტიკა / Crime Statistics
+    URL: https://www.geostat.ge/ka/modules/categories/131
+    Sub-topics:
+      → მეტამონაცემები                             /modules/categories/648
+
+ 4. ბიზნეს რეგისტრი / Business Register
+    URL: https://www.geostat.ge/ka/modules/categories/64
+    (Cross-listed under ბიზნეს სექტორი)
+
+ 5. მოსახლეობა და დემოგრაფია / Population and Demography
+    URL: https://www.geostat.ge/ka/modules/categories/316
+    Sub-topics:
+      → მოსახლეობის აღწ. და დემოგ. (მეთ.)         /modules/categories/124
+      → მეტამონაცემები                              /modules/categories/538
+      → მოსახლეობის აღწერა 2024 (ქვეპორტალი)      https://census2024.geostat.ge
+
+ 6. სახელმწიფო ფინანსების სტატისტიკა / Government Finance Statistics
+    URL: https://www.geostat.ge/ka/modules/categories/91
+    Sub-topics: (metadata section not in nav — no separate metadata ID confirmed)
+
+ 7. განათლება, მეცნიერება, კულტურა, სპორტი / Education, Science, Culture, Sport
+    URL: https://www.geostat.ge/ka/modules/categories/56
+    Sub-topics:
+      → მეტამონაცემები                             /modules/categories/644
+
+ 8. მრეწველობა, მშენებლობა და ენერგეტიკა / Industry, Construction and Energy
+    URL: https://www.geostat.ge/ka/modules/categories/74
+    Sub-topics:
+      → მეტამონაცემები                             /modules/categories/533
+
+ 9. სოფლის მეურნეობა და სასურსათო უსაფრთხოება / Agriculture and Food Security
+    URL: https://www.geostat.ge/ka/modules/categories/70
+    Sub-topics:
+      → სოფლის მეურნ. სტატ. (მეთ.)                /modules/categories/123
+      → მეტამონაცემები                             /modules/categories/570
+
+10. გარემოს სტატისტიკა / Environmental Statistics
+    URL: https://www.geostat.ge/ka/modules/categories/73
+    Sub-topics:
+      → გარემ. სტატ. (მეთ.)                        /modules/categories/809
+      → მეტამონაცემები                             /modules/categories/651
+
+11. პირდაპირი უცხოური ინვესტიციები / Foreign Direct Investment
+    URL: https://www.geostat.ge/ka/modules/categories/191
+    Sub-topics:
+      → მეტამონაცემები                             /modules/categories/536
+
+12. ტურიზმის სტატისტიკა / Tourism Statistics
+    URL: https://www.geostat.ge/ka/modules/categories/100
+    Sub-topics:
+      → მეტამონაცემები                             /modules/categories/658
+
+13. დასაქმება, ხელფასები / Employment and Wages
+    URL: https://www.geostat.ge/ka/modules/categories/37
+    Sub-topics:
+      → მეტამონაცემები                             /modules/categories/661
+
+14. რეგიონული სტატისტიკა / Regional Statistics
+    URL: https://www.geostat.ge/ka/modules/categories/93
+    Sub-topics: (no separate metadata ID confirmed in nav)
+
+15. ფასების სტატისტიკა / Price Statistics
+    URL: https://www.geostat.ge/ka/modules/categories/25
+    Sub-topics:
+      → ფასების სტატ. (მეთ.)                       /modules/categories/122
+      → მეტამონაცემები                             /modules/categories/537
+      → CPI პორტალი (ქვეპორტალი)                  https://cpi.geostat.ge
+
+16. ეროვნული ანგარიშები / National Accounts
+    URL: https://www.geostat.ge/ka/modules/categories/22
+    Sub-topics:
+      → ეროვნ. ანგ. (მეთ.)                         /modules/categories/119
+      → მეტამონაცემები                             /modules/categories/110
+      → SNA პორტალი (ქვეპორტალი)                  https://sna.geostat.ge
+
+17. საინფ.-საკომ. ტექნოლოგიები / Information and Communication Technologies
+    URL: https://www.geostat.ge/ka/modules/categories/103
+    Sub-topics:
+      → მეტამონაცემები                             /modules/categories/534
+
+18. ცხოვრების დონე / Living Standards
+    URL: https://www.geostat.ge/ka/modules/categories/48
+    Sub-topics:
+      → ცხოვრ. დონე, საარსებო მინ. (მეტ.)          /modules/categories/582
+
+19. მომსახურების სტატისტიკა / Services Statistics
+    URL: https://www.geostat.ge/ka/modules/categories/387
+    Sub-topics:
+      → მეტამონაცემები                             /modules/categories/532
+
+20. საგარეო ვაჭრობა / External Trade
+    URL: https://www.geostat.ge/ka/modules/categories/35
+    Sub-topics:
+      → საგარ. ეკ. ურთ. (მეთ.)                    /modules/categories/120
+      → მეტამონაცემები                             /modules/categories/112
+      → ex-trade პორტალი                           https://ex-trade.geostat.ge/ka
+
+21. ჯანდაცვა და სოციალური უზრუნველყოფა / Health and Social Protection
+    URL: https://www.geostat.ge/ka/modules/categories/53
+    Sub-topics:
+      → მეტამონაცემები                             /modules/categories/649
+
+22. მრავალინდიკ. კლასტ. გამოკვ. (MICS) / Multiple Indicator Cluster Survey
+    URL: https://www.geostat.ge/ka/modules/categories/692
+    Sub-topics: (no further sub-navigation in DOM)
+
+─────────────────────────────────────────────────────────────────────
+C. DATASETS / OPEN DATA
+─────────────────────────────────────────────────────────────────────
+There is NO dedicated /open-data/ URL on geostat.ge.
+Open/downloadable data is delivered directly on each category page
+via a modal CSV download overlay (.modal-csv-overlay, #modal).
+
+Data format per category page:
+  - Value databases (table grids, CSV download)   → section: value-databases-section
+  - Archive items (PDF/Excel publications)         → section: archive-section
+  - Standard formats: CSV, XLS/XLSX, PDF
+
+Confirmed CSV download mechanism:
+  - Modal triggered from within .value-databases-section
+  - Section class: .modal-csv-overlay (removed from parse output)
+  - URL pattern for relationsOfCategory (method): /ka/relationsOfCategory/NNN/method
+
+Sample dataset category pages (all HTTP 200):
+  https://www.geostat.ge/ka/modules/categories/22   (National Accounts — GDP tables)
+  https://www.geostat.ge/ka/modules/categories/25   (Price Statistics — CPI tables)
+  https://www.geostat.ge/ka/modules/categories/35   (External Trade — monthly data)
+  https://www.geostat.ge/ka/modules/categories/316  (Population — demographic tables)
+  https://www.geostat.ge/ka/modules/categories/37   (Employment — LFS data)
+
+Publication (PDF/Excel archives):
+  https://www.geostat.ge/ka/single-categories/121   (Quarterly bulletins)
+  https://www.geostat.ge/ka/single-categories/122   (Annual statistical yearbooks)
+
+PC-AXIS Database (external tool):
+  Accessible from home via dedicated tile (nav: Databases section)
+  URL pattern: not a geostat.ge path — external PX-Web install
+
+─────────────────────────────────────────────────────────────────────
+D. PUBLICATIONS AND PRESS RELEASES
+─────────────────────────────────────────────────────────────────────
+Publication types found under "პუბლიკაციები" nav group:
+  1. კვარტალური (Quarterly)
+     URL: https://www.geostat.ge/ka/single-categories/121
+     Section class: archive-section
+     Content: Quarterly Statistical Bulletin, Flash Estimates of GDP, etc.
+     Format: PDF download
+
+  2. წლიური (Annual)
+     URL: https://www.geostat.ge/ka/single-categories/122
+     Section class: archive-section
+     Content: Statistical Yearbook of Georgia, Regions of Georgia, etc.
+     Format: PDF download
+
+Press releases:
+  URL: https://geostat.ge/ka/news  (same endpoint as general news)
+  Category filter: "პრეს რელიზები" option in .news-filter form
+  NOTE: No separate URL for press releases — filtered by category param
+  pageKind: category (for news listing), news (for individual /single-news/NNN)
+
+Press release URL pattern examples:
+  https://www.geostat.ge/ka/single-news/1756/...
+  https://www.geostat.ge/ka/single-news/2106/...
+  Section class of individual item: news-items-section
+
+Infographic section:
+  URL: https://www.geostat.ge/ka/infographic
+  Pagination: ?page=2 .. ?page=26+  (confirmed from DOM analysis)
+  Section class: section.infographic
+
+─────────────────────────────────────────────────────────────────────
+E. TERMINOLOGY COVERAGE
+─────────────────────────────────────────────────────────────────────
+File: ops/config/corpus/geostat-portal-terminology.yaml
+
+27 terms defined (well above minimum 20):
+  1.  მოსახლეობა                      / Population
+  2.  ეროვნული ანგარიშები             / National Accounts
+  3.  ფასების სტატისტიკა              / Price Statistics
+  4.  საგარეო ვაჭრობა                 / External Trade
+  5.  დასაქმება                        / Employment
+  6.  ცხოვრების დონე                   / Living Standards
+  7.  ჯანდაცვა                         / Health
+  8.  განათლება                        / Education
+  9.  ბიზნეს სექტორი                  / Business Statistics
+ 10.  სოფლის მეურნეობა                / Agriculture
+ 11.  გარემოს სტატისტიკა              / Environmental Statistics
+ 12.  მრეწველობა                       / Industry
+ 13.  სახელმწიფო ფინანსები            / Government Finance Statistics
+ 14.  მონეტარული სტატისტიკა          / Monetary Statistics
+ 15.  ტურიზმის სტატისტიკა             / Tourism Statistics
+ 16.  საინფ.-საკომ. ტექნოლოგიები      / ICT Statistics
+ 17.  რეგიონული სტატისტიკა            / Regional Statistics
+ 18.  პირდაპირი უცხოური ინვ.          / Foreign Direct Investment
+ 19.  მომსახურების სტატისტიკა         / Services Statistics
+ 20.  სამართალდარღვ. სტატისტიკა      / Crime Statistics
+ 21.  ბიზნეს რეგისტრი                  / Business Register
+ 22.  MICS                             / Multiple Indicator Cluster Survey
+ 23.  ინფოგრაფიკა                      / Infographic
+ 24.  მოსახლეობის აღწერა              / Population Census
+ 25.  სამომხმ. ფასების ინდ. (CPI)      / Consumer Price Index
+ 26.  მდგრადი განვ. მიზნები (SDG)      / Sustainable Development Goals
+ 27.  ეროვნ. ანგ. სისტემა (SNA)        / System of National Accounts
+
+Each term includes: canonical (ka), canonicalEn, synonyms.ka (3–9 terms),
+synonyms.en (4–8 terms), relatedTopics (2–4 links), urlPattern.
+
+─────────────────────────────────────────────────────────────────────
+F. TOPIC CATALOG
+─────────────────────────────────────────────────────────────────────
+File: ops/config/corpus/geostat-portal-topic-catalog.yaml
+
+Top-level topics: 30
+  Statistical data sections: 22
+  Publication archives:       1  (with 2 sub-topics)
+  Methodology:                1  (with 11 sub-topics)
+  About / Governance:         1  (with 2 sub-topics)
+  News:                       1
+  Infographic:                1
+  External subdomain portals: 4  (CPI, Census 2024, SNA, ex-trade)
+
+Sub-topics total: 47
+
+All top-level topic IDs:
+  business_statistics, monetary_statistics, crime_statistics,
+  population_demography, government_finance, education_science_culture,
+  industry_construction_energy, agriculture_food_security,
+  environment_statistics, fdi, tourism_statistics, employment_wages,
+  regional_statistics, price_statistics, national_accounts,
+  ict_statistics, living_standards, services_statistics,
+  external_trade, health_social_protection, mics,
+  publications, methodology, about_geostat, news, infographic,
+  cpi_portal, census_2024_portal, sna_portal,
+  external_trade_portal_subdomain
+
+─────────────────────────────────────────────────────────────────────
+G. NEW FILES CREATED
+─────────────────────────────────────────────────────────────────────
+  ops/config/corpus/geostat-portal-terminology.yaml   (terminology overlay, 27 terms)
+  ops/config/corpus/geostat-portal-topic-catalog.yaml (topic catalog, 30 top-level topics)
+
+FILES UPDATED:
+  ops/config/corpus/geostat-portal-parse.yaml        (pageKindRules, rootSelectorStrategy,
+                                                       renderMode, new removeSelectors,
+                                                       containsShared migration)
+  ops/config/corpus/geostat-portal-policy.yaml       (expanded curatedUrls: 56,
+                                                       added pagination excludePatterns,
+                                                       subdomains expanded, maxPagesPerRun: 10000)
+
+SUPPORT SCRIPTS (eval only — not for production):
+  ops/eval/_site_audit_fetch.py   (raw HTML fetcher + DOM metadata extractor)
+  ops/eval/_site_dom_deep.py      (deep CSS/heading/link structure extractor)
+  ops/eval/_cols.py               (sub-category fetcher for topic catalog build)
+
+─────────────────────────────────────────────────────────────────────
+H. QUALITY NOTES & CAVEATS
+─────────────────────────────────────────────────────────────────────
+1. Sub-category structure: all /modules/categories/NNN pages use value-databases-section.
+   Their internal datasets are NOT nested sub-pages (no /modules/categories/NNN/sub/).
+   The hierarchy (category → sub-topic) is purely navigational — stored in nav DOM,
+   metadata section pages, and this catalog.
+
+2. Press releases are indistinguishable from news by URL alone (/single-news/NNN).
+   Future disambiguation: check og:type or category filter value in JSON-LD.
+
+3. No separate /open-data/ URL exists (plan reference was forward-looking).
+   All open data is served via value-databases-section with CSV overlay.
+
+4. The PC-AXIS database (external PX-Web) is not crawlable via geostat.ge paths.
+   It requires a separate hostPolicy entry if included in scope.
+
+5. /relationsOfCategory/NNN/method pages contain methodology text — valuable for AI.
+   These are NOT currently excluded; they will be crawled as pageKind: category.
+
+6. Georgian display text for all 22 nav categories has been verified character-for-character
+   against live DOM. English labels confirmed from /en/ equivalent URLs.
+
+========================================================================
+END OF AUDIT REPORT
+========================================================================

@@ -85,8 +85,9 @@ class LocalePairEnrichmentServiceTest {
         assertThat(counterpart.getLocalePairDocument()).isSameAs(document);
         verify(localePairLinker)
                 .link(corpusId, documentId, document.getCanonicalUrl(), document.getLanguage());
-        verify(documentRepository).save(counterpart);
-        verify(documentRepository).save(document);
+        verify(documentRepository).updateLocalePairDocId(documentId, pairId);
+        verify(documentRepository).updateLocalePairDocId(pairId, documentId);
+        verify(documentRepository, never()).save(org.mockito.ArgumentMatchers.any());
 
         ArgumentCaptor<EnrichmentRunEntity> runCaptor = ArgumentCaptor.forClass(EnrichmentRunEntity.class);
         verify(enrichmentRunRepository, org.mockito.Mockito.atLeastOnce()).save(runCaptor.capture());

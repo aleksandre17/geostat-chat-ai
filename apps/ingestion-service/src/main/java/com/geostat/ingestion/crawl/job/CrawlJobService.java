@@ -1,7 +1,7 @@
 package com.geostat.ingestion.crawl.job;
 
 import com.geostat.ingestion.crawl.frontier.FrontierResumeService;
-import com.geostat.ingestion.crawl.frontier.UrlHasher;
+import com.geostat.platform.url.UrlHasher;
 import com.geostat.ingestion.crawl.runner.CrawlRunner;
 import com.geostat.ingestion.persistence.entity.CorpusEntity;
 import com.geostat.ingestion.persistence.entity.CrawlRunEntity;
@@ -20,6 +20,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -32,7 +36,10 @@ import org.springframework.web.server.ResponseStatusException;
 @Profile("db")
 public class CrawlJobService {
 
-    private static final String DEFAULT_CORPUS = "geostat-portal";
+    private static final Logger log = LoggerFactory.getLogger(CrawlJobService.class);
+
+    @Value("${geostat.ingestion.default-corpus:geostat-portal}")
+    private String defaultCorpus;
 
     private static final EnumSet<CrawlRunStatus> ACTIVE =
             EnumSet.of(CrawlRunStatus.pending, CrawlRunStatus.running);
@@ -54,6 +61,18 @@ public class CrawlJobService {
         this.urlFrontierRepository = urlFrontierRepository;
         this.frontierResumeService = frontierResumeService;
         this.crawlRunner = crawlRunner;
+    }
+
+    /** Mark any runs left in running/pending state (from a previous JVM crash) as interrupted. */
+    @PostConstruct
+    @Transactional
+    public void recoverStaleRuns() {
+        List<CrawlRunEntity> stale = crawlRunRepository.findByStatusIn(ACTIVE);
+        if (!stale.isEmpty()) {
+            log.warn("[startup] Marking {} stale crawl run(s) as interrupted", stale.size());
+            stale.forEach(r -> r.setStatus(CrawlRunStatus.cancelled));
+            crawlRunRepository.saveAll(stale);
+        }
     }
 
     @Transactional
@@ -93,6 +112,11 @@ public class CrawlJobService {
         return toStatus(run, statsSummary(run));
     }
 
+    @Transactional(readOnly = true)
+    public IngestionJobStatus getJobStatus(UUID runId) {
+        return getJob(runId);
+    }
+
     private boolean tryResumeFrontier(CrawlRunEntity run, Optional<CrawlRunEntity> previousRun) {
         if (previousRun.isEmpty()) {
             return false;
@@ -115,7 +139,7 @@ public class CrawlJobService {
     }
 
     private CorpusEntity resolveCorpus(String corpusName) {
-        String name = corpusName == null || corpusName.isBlank() ? DEFAULT_CORPUS : corpusName.trim();
+        String name = corpusName == null || corpusName.isBlank() ? defaultCorpus : corpusName.trim();
         return corpusRepository.findByName(name)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "corpus not found: " + name));
     }
@@ -158,6 +182,9 @@ public class CrawlJobService {
             snapshot.put("seedUrl", request.seedUrl());
         }
         snapshot.put("fullRecrawl", request.fullRecrawl());
+        if (request.renderMode() != null) {
+            snapshot.put("renderMode", request.renderMode().name().toLowerCase());
+        }
         return snapshot;
     }
 

@@ -44,11 +44,12 @@ public class QdrantSearchStore {
                 .addAllVector(vector)
                 .setLimit(limit)
                 .setWithPayload(WithPayloadSelector.newBuilder().setEnable(true).build());
+        Filter.Builder filterBuilder = Filter.newBuilder()
+                .addMust(matchKeyword("serveState", "live"));
         if (locale != null && !locale.isBlank()) {
-            builder.setFilter(Filter.newBuilder()
-                    .addShould(matchKeyword("language", locale.toLowerCase()))
-                    .build());
+            filterBuilder.addShould(matchKeyword("language", locale.toLowerCase()));
         }
+        builder.setFilter(filterBuilder.build());
         try {
             List<ScoredPoint> hits = client.searchAsync(builder.build()).get();
             if (hits.isEmpty() && locale != null && !locale.isBlank()) {
@@ -80,7 +81,9 @@ public class QdrantSearchStore {
                 emptyToNull(stringValue(payload, "pageTitle")),
                 emptyToNull(stringValue(payload, "sectionPath")),
                 emptyToNull(stringValue(payload, "pageDescription")),
-                emptyToNull(stringValue(payload, "fetchedAt")));
+                emptyToNull(stringValue(payload, "fetchedAt")),
+                emptyToNull(stringValue(payload, "navBreadcrumb")),
+                emptyToNull(stringValue(payload, "publishedAt")));
     }
 
     private static String emptyToNull(String value) {
